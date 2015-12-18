@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private Handler myHandler = new Handler();
     String n = "";
     String uri = "";
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -261,7 +261,12 @@ public class MainActivity extends AppCompatActivity {
                         n = myPrefs.getString(uri, "");
                         note.setText(n);
                     }
+                    /*Map<String, ?> keys = myPrefs.getAll();
+                    for(Map.Entry<String,?> entry : keys.entrySet()){
+                        Log.d("All the keys",entry.getKey() + ": " +
+                                entry.getValue().toString());
 
+                    }*/
                     double fTime = mediaPlayer.getDuration();
                     seekBar.setMax((int) fTime);
                     finalTime.setText(String.format("%02d:%02d",
