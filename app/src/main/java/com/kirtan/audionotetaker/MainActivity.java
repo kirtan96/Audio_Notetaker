@@ -13,6 +13,8 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -61,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (mediaPlayer.isPlaying()) {
-                    mediaPlayer.stop();
+                    mediaPlayer.pause();
                 }
                 Intent intent_upload = new Intent();
                 intent_upload.setType("audio/*");
@@ -252,10 +254,10 @@ public class MainActivity extends AppCompatActivity {
                     mediaPlayer.setDataSource(getApplicationContext(), myUri);
                     mediaPlayer.prepare();
                     mediaPlayer.start();
-                    MediaMetadataRetriever mRetriever = (MediaMetadataRetriever) new MediaMetadataRetriever();
+                    MediaMetadataRetriever mRetriever = new MediaMetadataRetriever();
                     mRetriever.setDataSource(MainActivity.this, myUri);
                     show();
-                    title.setText((String) mRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE));
+                    title.setText(mRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE));
                     SharedPreferences myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
                     if (myPrefs.contains(uri)) {
                         n = myPrefs.getString(uri, "");
@@ -282,7 +284,11 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("Test Failed", "Music was not played");
                 }
             } else {
-                //start();
+                if(mediaPlayer != null)
+                {
+                    mediaPlayer.start();
+                    myHandler.postDelayed(UpdateSongTime, 100);
+                }
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -313,7 +319,7 @@ public class MainActivity extends AppCompatActivity {
     private Runnable UpdateSongTime = new Runnable() {
         public void run() {
 
-            if (!currentTime.getText().equals(finalTime.getText()) && mediaPlayer.isPlaying()) {
+            if (mediaPlayer.isPlaying()) {
                 startTime = mediaPlayer.getCurrentPosition();
                 currentTime.setText(String.format("%02d:%02d",
 
@@ -327,4 +333,26 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.search) {
+            navigateToSearch();
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void navigateToSearch() {
+        Intent intent = new Intent(this, Search.class);
+        startActivity(intent);
+    }
 }
