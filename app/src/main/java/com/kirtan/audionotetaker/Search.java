@@ -1,6 +1,7 @@
 package com.kirtan.audionotetaker;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -63,8 +64,10 @@ public class Search extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String name = listView.getItemAtPosition(position).toString();
-
+                String uri = listView.getItemAtPosition(position).toString();
+                Intent intent = new Intent(Search.this, SearchResult.class);
+                intent.putExtra("myUri", uri);
+                startActivity(intent);
             }
         });
     }

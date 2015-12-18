@@ -10,7 +10,8 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.kirtan.audionotetaker.Search"
-    tools:showIn="@layout/activity_search">
+    tools:showIn="@layout/activity_search"
+    android:background="#F9F9E2">
 
     <EditText
         android:layout_width="match_parent"

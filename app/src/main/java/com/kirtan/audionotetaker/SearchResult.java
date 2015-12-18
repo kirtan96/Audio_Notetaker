@@ -13,8 +13,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -25,7 +23,7 @@ import android.widget.TextView;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-public class MainActivity extends AppCompatActivity {
+public class SearchResult extends AppCompatActivity {
 
     MediaPlayer mediaPlayer;
     Button pause;
@@ -36,7 +34,6 @@ public class MainActivity extends AppCompatActivity {
     Button add;
     TextView note;
     Button edit;
-    TextView t;
     double startTime;
     private Handler myHandler = new Handler();
     String n = "";
@@ -45,11 +42,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_search_result);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        Button chooser = (Button) findViewById(R.id.chooserButton);
         pause = (Button) findViewById(R.id.pauseButton);
         currentTime = (TextView) findViewById(R.id.currentTime);
         finalTime = (TextView) findViewById(R.id.finalTime);
@@ -58,21 +53,8 @@ public class MainActivity extends AppCompatActivity {
         add = (Button) findViewById(R.id.addButton);
         note = (TextView) findViewById(R.id.note);
         edit = (Button) findViewById(R.id.editButton);
-        t = (TextView) findViewById(R.id.noteText);
-        hide();
         mediaPlayer = new MediaPlayer();
-        chooser.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mediaPlayer.isPlaying()) {
-                    mediaPlayer.pause();
-                }
-                Intent intent_upload = new Intent();
-                intent_upload.setType("audio/*");
-                intent_upload.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(intent_upload, 1);
-            }
-        });
+
         pause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -96,13 +78,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View arg0) {
                 final String current = currentTime.getText().toString();
-                // get prompts.xml view
                 mediaPlayer.pause();
-                AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(SearchResult.this);
                 alertDialog.setTitle("Notes");
                 alertDialog.setMessage("Insert notes here:");
 
-                final EditText input = new EditText(MainActivity.this);
+                final EditText input = new EditText(SearchResult.this);
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.MATCH_PARENT);
@@ -114,11 +95,10 @@ public class MainActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int which) {
                                 mediaPlayer.start();
                                 myHandler.postDelayed(UpdateSongTime, 100);
-                                if(!n.equals("")) {
+                                if (!n.equals("")) {
                                     n = n + "\n" + current + ": " +
                                             input.getText().toString();
-                                }
-                                else {
+                                } else {
                                     n = current + ": " + input.getText().toString();
                                 }
                                 note.setText(n);
@@ -149,11 +129,11 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View arg0) {
                 // get prompts.xml view
                 mediaPlayer.pause();
-                AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(SearchResult.this);
                 alertDialog.setTitle("Notes");
                 alertDialog.setMessage("Edit notes here:");
 
-                final EditText input = new EditText(MainActivity.this);
+                final EditText input = new EditText(SearchResult.this);
                 input.setText(n);
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
@@ -192,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if(fromUser) {
+                if (fromUser) {
                     mediaPlayer.pause();
                     mediaPlayer.seekTo(progress);
                     mediaPlayer.start();
@@ -210,6 +190,44 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        Intent intent = getIntent();
+        Uri myUri = Uri.parse(intent.getStringExtra("myUri"));
+        uri = myUri.toString();
+        mediaPlayer = new MediaPlayer();
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        try {
+            mediaPlayer.setDataSource(getApplicationContext(), myUri);
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+            MediaMetadataRetriever mRetriever = new MediaMetadataRetriever();
+            mRetriever.setDataSource(SearchResult.this, myUri);
+            title.setText(mRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE));
+            SharedPreferences myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
+            if (myPrefs.contains(uri)) {
+                n = myPrefs.getString(uri, "");
+                note.setText(n);
+            }
+                    /*Map<String, ?> keys = myPrefs.getAll();
+                    for(Map.Entry<String,?> entry : keys.entrySet()){
+                        Log.d("All the keys",entry.getKey() + ": " +
+                                entry.getValue().toString());
+
+                    }*/
+            double fTime = mediaPlayer.getDuration();
+            seekBar.setMax((int) fTime);
+            finalTime.setText(String.format("%02d:%02d",
+                            TimeUnit.MILLISECONDS.toMinutes((long) fTime),
+                            TimeUnit.MILLISECONDS.toSeconds((long) fTime) -
+                                    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) fTime)))
+            );
+
+            myHandler.postDelayed(UpdateSongTime, 100);
+            Log.d("Test Worked", "Music is Playing");
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.d("Test Failed", "Music was not played");
+        }
     }
 
 
@@ -241,87 +259,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        if (requestCode == 1) {
-
-            if (resultCode == RESULT_OK) {
-
-                //the selected audio.
-                Uri myUri = data.getData();
-                uri = myUri.toString();
-                mediaPlayer = new MediaPlayer();
-                mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                try {
-                    show();
-                    mediaPlayer.setDataSource(getApplicationContext(), myUri);
-                    mediaPlayer.prepare();
-                    mediaPlayer.start();
-                    MediaMetadataRetriever mRetriever = new MediaMetadataRetriever();
-                    mRetriever.setDataSource(MainActivity.this, myUri);
-                    show();
-                    title.setText(mRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE));
-                    SharedPreferences myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
-                    if (myPrefs.contains(uri)) {
-                        n = myPrefs.getString(uri, "");
-                        note.setText(n);
-                    }
-                    /*Map<String, ?> keys = myPrefs.getAll();
-                    for(Map.Entry<String,?> entry : keys.entrySet()){
-                        Log.d("All the keys",entry.getKey() + ": " +
-                                entry.getValue().toString());
-
-                    }*/
-                    double fTime = mediaPlayer.getDuration();
-                    seekBar.setMax((int) fTime);
-                    finalTime.setText(String.format("%02d:%02d",
-                                    TimeUnit.MILLISECONDS.toMinutes((long) fTime),
-                                    TimeUnit.MILLISECONDS.toSeconds((long) fTime) -
-                                            TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) fTime)))
-                    );
-
-                    myHandler.postDelayed(UpdateSongTime, 100);
-                    Log.d("Test Worked", "Music is Playing");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    Log.d("Test Failed", "Music was not played");
-                }
-            } else {
-                if(mediaPlayer != null)
-                {
-                    mediaPlayer.start();
-                    myHandler.postDelayed(UpdateSongTime, 100);
-                }
-            }
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    private void hide() {
-        currentTime.setVisibility(View.INVISIBLE);
-        finalTime.setVisibility(View.INVISIBLE);
-        pause.setVisibility(View.INVISIBLE);
-        seekBar.setVisibility(View.INVISIBLE);
-        title.setVisibility(View.INVISIBLE);
-        add.setVisibility(View.INVISIBLE);
-        note.setVisibility(View.INVISIBLE);
-        edit.setVisibility(View.INVISIBLE);
-        t.setVisibility(View.INVISIBLE);
-    }
-
-    private void show() {
-        currentTime.setVisibility(View.VISIBLE);
-        finalTime.setVisibility(View.VISIBLE);
-        pause.setVisibility(View.VISIBLE);
-        seekBar.setVisibility(View.VISIBLE);
-        title.setVisibility(View.VISIBLE);
-        note.setVisibility(View.VISIBLE);
-        add.setVisibility(View.VISIBLE);
-        edit.setVisibility(View.VISIBLE);
-        t.setVisibility(View.VISIBLE);
-    }
-
     private Runnable UpdateSongTime = new Runnable() {
         public void run() {
 
@@ -339,26 +276,4 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.search) {
-            navigateToSearch();
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void navigateToSearch() {
-        Intent intent = new Intent(this, Search.class);
-        startActivity(intent);
-    }
 }

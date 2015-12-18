@@ -9,8 +9,8 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.kirtan.audionotetaker.MainActivity"
-    tools:showIn="@layout/activity_main"
+    tools:context="com.kirtan.audionotetaker.SearchResult"
+    tools:showIn="@layout/activity_search_result"
     android:background="#F9F9E2">
 
     <RelativeLayout
@@ -21,81 +21,64 @@
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin">
 
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Choose a file"
-            android:id="@+id/chooserButton"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="15dp" />
-
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/title"
-            android:layout_below="@id/chooserButton"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:textSize="20dp" />
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:textColor="@android:color/black"
+            android:textSize="20dp"/>
 
         <SeekBar
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/seekBar"
-            android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true"
-            android:indeterminate="false"
+            android:layout_below="@+id/title"
             android:layout_marginBottom="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_below="@id/title"/>
+            android:id="@+id/seekBar"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@+id/seekBar"
+            android:layout_alignLeft="@+id/seekBar"
             android:id="@+id/currentTime"
-            android:layout_below="@+id/seekBar"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/finalTime"
-            android:layout_below="@+id/seekBar"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true" />
-
-
+            android:layout_marginBottom="10dp"/>
 
         <Button
-            style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/pauseButton"
-            android:text="Pause"
             android:layout_below="@+id/seekBar"
-            android:layout_centerHorizontal="true" />
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="10dp"
+            android:text="Pause"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@id/finalTime"
+            android:layout_below="@id/seekBar"
+            android:layout_alignRight="@id/seekBar"
+            android:layout_marginBottom="10dp"/>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:id="@id/addButton"
             android:text="Add a note"
-            android:id="@+id/addButton"
-            android:layout_alignTop="@+id/editButton"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginBottom="10dp" />
+            android:layout_below="@id/currentTime"
+            android:layout_marginBottom="10dp"/>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:id="@id/editButton"
             android:text="Edit notes"
-            android:id="@+id/editButton"
-            android:layout_below="@+id/finalTime"
+            android:layout_below="@id/finalTime"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginBottom="10dp" />
+            android:layout_marginBottom="10dp"/>
 
         <TextView
             android:layout_width="match_parent"
@@ -110,14 +93,12 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/note"
-            android:layout_below="@+id/noteText"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginTop="10dp"
-            android:scrollbars="vertical"
-            android:background="#ffffff"
-            android:textColor="#030000"
-            android:textSize="16dp" />
+            android:id="@id/note"
+            android:layout_below="@id/noteText"
+            android:textColor="@android:color/black"
+            android:textSize="16dp"
+            android:layout_marginBottom="10dp"
+            android:background="#FFF" />
+
     </RelativeLayout>
 </ScrollView>
