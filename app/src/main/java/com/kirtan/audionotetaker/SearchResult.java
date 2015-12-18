@@ -241,14 +241,14 @@ public class SearchResult extends AppCompatActivity {
         }
     }
 
-    @Override
+    /*@Override
     protected void onPause() {
         super.onPause();
         if(mediaPlayer != null)
         {
             mediaPlayer.pause();
         }
-    }
+    }*/
 
     @Override
     protected void onDestroy() {
