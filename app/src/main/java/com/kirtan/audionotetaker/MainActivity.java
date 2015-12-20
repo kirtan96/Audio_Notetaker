@@ -16,13 +16,18 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
@@ -34,13 +39,14 @@ public class MainActivity extends AppCompatActivity {
     SeekBar seekBar;
     TextView title;
     Button add;
-    TextView note;
+    ListView note;
     Button edit;
     TextView t;
     double startTime;
     private Handler myHandler = new Handler();
     String n = "";
     String uri = "";
+    ArrayList<String> noteList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         seekBar = (SeekBar) findViewById(R.id.seekBar);
         title = (TextView) findViewById(R.id.title);
         add = (Button) findViewById(R.id.addButton);
-        note = (TextView) findViewById(R.id.note);
+        note = (ListView) findViewById(R.id.note);
         edit = (Button) findViewById(R.id.editButton);
         t = (TextView) findViewById(R.id.noteText);
         hide();
@@ -121,7 +127,15 @@ public class MainActivity extends AppCompatActivity {
                                 else {
                                     n = current + ": " + input.getText().toString();
                                 }
-                                note.setText(n);
+                                Scanner in  = new Scanner(n);
+                                noteList = new ArrayList<>();
+                                while(in.hasNextLine())
+                                {
+                                    noteList.add(in.nextLine());
+                                }
+                                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
+                                        android.R.layout.simple_list_item_1, noteList);
+                                note.setAdapter(arrayAdapter);
                                 SharedPreferences myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
                                 SharedPreferences.Editor e = myPrefs.edit();
                                 e.putString(uri,
@@ -167,7 +181,15 @@ public class MainActivity extends AppCompatActivity {
                                 mediaPlayer.start();
                                 myHandler.postDelayed(UpdateSongTime, 100);
                                 n = input.getText().toString();
-                                note.setText(n);
+                                Scanner in  = new Scanner(n);
+                                noteList = new ArrayList<>();
+                                while(in.hasNextLine())
+                                {
+                                    noteList.add(in.nextLine());
+                                }
+                                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
+                                        android.R.layout.simple_list_item_1, noteList);
+                                note.setAdapter(arrayAdapter);
                                 SharedPreferences myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
                                 SharedPreferences.Editor e = myPrefs.edit();
                                 e.putString(uri,
@@ -192,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if(fromUser) {
+                if (fromUser) {
                     mediaPlayer.pause();
                     mediaPlayer.seekTo(progress);
                     mediaPlayer.start();
@@ -210,8 +232,31 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        note.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String time = note.getItemAtPosition(position).toString();
+                time = time.substring(0, 5);
+                int min = Integer.parseInt(time.substring(0,2));
+                int sec = Integer.parseInt(time.substring(3, 5));
+                int t = (int)(TimeUnit.MINUTES.toMillis(min) + TimeUnit.SECONDS.toMillis(sec));
+                mediaPlayer.pause();
+                mediaPlayer.seekTo(t);
+                mediaPlayer.start();
+                myHandler.postDelayed(UpdateSongTime, 100);
+            }
+        });
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if(mediaPlayer != null)
+        {
+            mediaPlayer.pause();
+        }
+    }
 
     @Override
     protected void onResume() {
@@ -265,7 +310,15 @@ public class MainActivity extends AppCompatActivity {
                     SharedPreferences myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
                     if (myPrefs.contains(uri)) {
                         n = myPrefs.getString(uri, "");
-                        note.setText(n);
+                        Scanner in  = new Scanner(n);
+                        noteList = new ArrayList<>();
+                        while(in.hasNextLine())
+                        {
+                            noteList.add(in.nextLine());
+                        }
+                        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
+                                android.R.layout.simple_list_item_1, noteList);
+                        note.setAdapter(arrayAdapter);
                     }
                     /*Map<String, ?> keys = myPrefs.getAll();
                     for(Map.Entry<String,?> entry : keys.entrySet()){

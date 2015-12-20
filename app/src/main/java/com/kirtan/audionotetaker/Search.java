@@ -22,6 +22,7 @@ import java.util.Map;
 public class Search extends AppCompatActivity {
     ListView listView;
     ArrayList<String> key;
+    String search;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +43,7 @@ public class Search extends AppCompatActivity {
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                     handled = true;
 
+                    search = editText.getText().toString();
                     key = new ArrayList<>();
                     SharedPreferences myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
                     Map<String, ?> keys = myPrefs.getAll();
@@ -67,6 +69,7 @@ public class Search extends AppCompatActivity {
                 String uri = listView.getItemAtPosition(position).toString();
                 Intent intent = new Intent(Search.this, SearchResult.class);
                 intent.putExtra("myUri", uri);
+                intent.putExtra("search", search);
                 startActivity(intent);
             }
         });
