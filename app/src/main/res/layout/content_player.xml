@@ -55,24 +55,6 @@
         android:layout_alignRight="@id/seekBar"
         android:layout_marginBottom="10dp"/>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/addButton"
-        android:text="Add a note"
-        android:layout_below="@id/currentTime"
-        android:layout_marginBottom="10dp"/>
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/editButton"
-        android:text="Edit notes"
-        android:layout_below="@+id/finalTime"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginBottom="10dp"/>
-
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -80,8 +62,8 @@
         android:textColor="@android:color/black"
         android:textSize="20dp"
         android:layout_marginBottom="10dp"
-        android:layout_below="@+id/addButton"
-        android:id="@+id/noteText"/>
+        android:id="@+id/noteText"
+        android:layout_below="@id/pauseButton" />
 
     <ListView
         android:layout_width="match_parent"

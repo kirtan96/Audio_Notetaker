@@ -8,6 +8,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -23,6 +24,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,9 +39,7 @@ public class Player extends AppCompatActivity {
     TextView finalTime;
     SeekBar seekBar;
     TextView title;
-    Button add;
     ListView note;
-    Button edit;
     TextView t;
     double startTime;
     private Handler myHandler = new Handler();
@@ -62,13 +62,13 @@ public class Player extends AppCompatActivity {
         finalTime = (TextView) findViewById(R.id.finalTime);
         seekBar = (SeekBar) findViewById(R.id.seekBar);
         title = (TextView) findViewById(R.id.title);
-        add = (Button) findViewById(R.id.addButton);
         note = (ListView) findViewById(R.id.note);
-        edit = (Button) findViewById(R.id.editButton);
         t = (TextView) findViewById(R.id.noteText);
         mediaPlayer = new MediaPlayer();
         myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
 
+        FloatingActionButton add = (FloatingActionButton) findViewById(R.id.fab);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         pause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -147,7 +147,7 @@ public class Player extends AppCompatActivity {
             }
         });
 
-        edit.setOnClickListener(new View.OnClickListener() {
+        /*edit.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View arg0) {
@@ -198,7 +198,7 @@ public class Player extends AppCompatActivity {
 
                 alertDialog.show();
             }
-        });
+        });*/
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -237,6 +237,26 @@ public class Player extends AppCompatActivity {
             }
         });
 
+        note.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(Player.this);
+                builder.setTitle("Choose an option:");
+                builder.setItems(new String[]{"Edit", "Delete"}, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (which == 0) {
+                            Toast.makeText(Player.this, "You can now edit...", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(Player.this, "The note will be deleted...", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+                builder.show();
+                return true;
+            }
+        });
+
         Intent intent = getIntent();
         String file = intent.getStringExtra("file");
         title.setText(file);
@@ -265,12 +285,6 @@ public class Player extends AppCompatActivity {
                         android.R.layout.simple_list_item_1, noteList);
                 note.setAdapter(arrayAdapter);
             }
-                    /*Map<String, ?> keys = myPrefs.getAll();
-                    for(Map.Entry<String,?> entry : keys.entrySet()){
-                        Log.d("All the keys",entry.getKey() + ": " +
-                                entry.getValue().toString());
-
-                    }*/
             double fTime = mediaPlayer.getDuration();
             seekBar.setMax((int) fTime);
             finalTime.setText(String.format("%02d:%02d",

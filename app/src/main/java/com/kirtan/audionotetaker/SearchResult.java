@@ -8,6 +8,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -21,6 +22,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -58,11 +60,12 @@ public class SearchResult extends AppCompatActivity {
         finalTime = (TextView) findViewById(R.id.finalTime);
         seekBar = (SeekBar) findViewById(R.id.seekBar);
         title = (TextView) findViewById(R.id.title);
-        add = (Button) findViewById(R.id.addButton);
         note = (ListView) findViewById(R.id.note);
-        edit = (Button) findViewById(R.id.editButton);
         mediaPlayer = new MediaPlayer();
         myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
+
+        FloatingActionButton add = (FloatingActionButton) findViewById(R.id.fab);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         pause.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -140,7 +143,7 @@ public class SearchResult extends AppCompatActivity {
             }
         });
 
-        edit.setOnClickListener(new View.OnClickListener() {
+        /*edit.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View arg0) {
@@ -191,6 +194,29 @@ public class SearchResult extends AppCompatActivity {
                         });
 
                 alertDialog.show();
+            }
+        });*/
+
+        note.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(SearchResult.this);
+                builder.setTitle("Choose an option:");
+                builder.setItems(new String[]{"Edit", "Delete"}, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if(which == 0)
+                        {
+                            Toast.makeText(SearchResult.this, "You can now edit...", Toast.LENGTH_LONG).show();
+                        }
+                        else
+                        {
+                            Toast.makeText(SearchResult.this, "The note will be deleted...", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+                builder.show();
+                return true;
             }
         });
 
