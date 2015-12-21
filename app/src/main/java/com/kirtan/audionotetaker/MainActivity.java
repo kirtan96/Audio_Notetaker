@@ -79,7 +79,9 @@ public class MainActivity extends AppCompatActivity {
                                     e.remove(note.getItemAtPosition(position).toString());
                                     String temp = myPrefs.getString("myFiles", "");
                                     String t = note.getItemAtPosition(position).toString() + "\n";
-                                    e.remove(myPrefs.getString(temp, ""));  //deletes notes in the audio file
+                                    e.remove(myPrefs.getString(
+                                            note.getItemAtPosition(position).toString()
+                                            , ""));  //deletes notes in the audio file
                                     temp = temp.replace(t, "");     //deletes the audio file from the app
                                     e.putString("myFiles", temp);
                                     e.commit();
