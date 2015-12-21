@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -149,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
                     back.setVisibility(View.VISIBLE);
                     file = file.replace(" (FOLDER)", "");
                     title.setText(file);
-                    Collections.sort((List)noteList);
+                    Collections.sort((List) noteList);
                     ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
                             android.R.layout.simple_list_item_1, noteList);
                     note.setAdapter(arrayAdapter);
@@ -168,9 +169,8 @@ public class MainActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int which) {
                                 SharedPreferences.Editor e = myPrefs.edit();
                                 String temp = "";
-                                if((!note.getItemAtPosition(position).toString().contains(" (FOLDER)")) &&
-                                        title.getVisibility() == View.INVISIBLE)
-                                {
+                                if ((!note.getItemAtPosition(position).toString().contains(" (FOLDER)")) &&
+                                        title.getVisibility() == View.INVISIBLE) {
                                     temp = myPrefs.getString("myFiles", "");
                                     String t = note.getItemAtPosition(position).toString() + "\n";
                                     e.remove(myPrefs.getString(
@@ -191,10 +191,8 @@ public class MainActivity extends AppCompatActivity {
                                         String x = in.nextLine();
                                         noteList.add(x.trim());
                                     }
-                                }
-                                else if((!note.getItemAtPosition(position).toString().contains(" (FOLDER)")) &&
-                                        title.getVisibility() == View.VISIBLE)
-                                {
+                                } else if ((!note.getItemAtPosition(position).toString().contains(" (FOLDER)")) &&
+                                        title.getVisibility() == View.VISIBLE) {
                                     temp = myPrefs.getString(title.getText().toString().trim() + " (FOLDER)", "");
                                     String t = noteList.get(position) + "\n";
                                     e.remove(myPrefs.getString(
@@ -210,22 +208,25 @@ public class MainActivity extends AppCompatActivity {
                                         String x = in.nextLine();
                                         noteList.add(x.trim());
                                     }
-                                }
-                                else
-                                {
-                                    String t = note.getItemAtPosition(position).toString() + "\n";
+                                } else {
+                                    String t = noteList.get(position) + "\n";
                                     Scanner in = new Scanner(myPrefs.getString(
-                                            note.getItemAtPosition(position).toString(), ""));
-                                    while(in.hasNextLine())
-                                    {
+                                            noteList.get(position), ""));
+                                    while (in.hasNextLine()) {
                                         temp = in.nextLine();
+                                        Log.d("Deleted", myPrefs.getString(temp
+                                                , ""));
                                         e.remove(myPrefs.getString(temp
                                                 , ""));  //deletes notes in the audio file
+                                        Log.d("Deleted", temp);
                                         e.remove(temp);
+                                        e.commit();
+
                                     }
                                     temp = myPrefs.getString("myFolders", "");
                                     temp = temp.replace(t, "");     //deletes the audio file from the app
                                     e.putString("myFolders", temp);
+                                    e.remove(note.getItemAtPosition(position).toString().trim());
                                     e.commit();
                                     noteList = new ArrayList<>();
                                     in = new Scanner(myPrefs.getString("myFiles", ""));
@@ -243,7 +244,7 @@ public class MainActivity extends AppCompatActivity {
 
                                 noteList.remove("");
                                 noteList.remove("");
-                                Collections.sort((List)noteList);
+                                Collections.sort((List) noteList);
                                 ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
                                         android.R.layout.simple_list_item_1, noteList);
                                 note.setAdapter(arrayAdapter);
@@ -335,6 +336,12 @@ public class MainActivity extends AppCompatActivity {
                                                 String temp = in.nextLine();
                                                 noteList.add(temp.trim());
                                             }
+                                            in = new Scanner(myPrefs.getString("myFolders", ""));
+                                            while (in.hasNextLine()) {
+                                                String temp = in.nextLine();
+                                                noteList.add(temp.trim());
+                                            }
+                                            noteList.remove("");
                                             Collections.sort((List) noteList);
                                             ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
                                                     android.R.layout.simple_list_item_1, noteList);
@@ -411,4 +418,5 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, Search.class);
         startActivity(intent);
     }
+
 }
