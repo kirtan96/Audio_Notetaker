@@ -50,6 +50,7 @@ public class Player extends AppCompatActivity {
     SharedPreferences myPrefs;
     String real = "";
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

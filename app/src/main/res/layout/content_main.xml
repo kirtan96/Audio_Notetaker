@@ -13,13 +13,30 @@
     tools:showIn="@layout/activity_main"
     android:background="#F9F9E2">
 
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/back"
+        android:layout_marginBottom="10dp"
+        android:src="@drawable/abc_ic_ab_back_mtrl_am_alpha"
+        android:layout_marginRight="10dp" />
 
     <ListView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/listView2"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:longClickable="true" />
+        android:longClickable="true"
+        android:layout_below="@+id/back"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/title"
+        android:textColor="#000"
+        android:textSize="18dp"
+        android:layout_alignBottom="@+id/back"
+        android:layout_toRightOf="@+id/back"
+        android:layout_toEndOf="@+id/back" />
 </RelativeLayout>

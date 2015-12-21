@@ -53,7 +53,9 @@ public class Search extends AppCompatActivity {
                     Map<String, ?> keys = myPrefs.getAll();
                     for(Map.Entry<String, ?> entryKey: keys.entrySet())
                     {
-                        if((!entryKey.getKey().equals("myFiles")) && (!entryKey.getKey().contains("content://"))) {
+                        if((!entryKey.getKey().equals("myFiles")) &&
+                                (!entryKey.getKey().contains("content://")) &&
+                                (!entryKey.getKey().equals("myFolders"))) {
                             if (myPrefs.getString(entryKey.getValue().toString(), "").contains(search)) {
                                 key.add(entryKey.getKey());
                             }
