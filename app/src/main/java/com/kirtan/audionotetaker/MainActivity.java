@@ -57,9 +57,54 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 file = note.getItemAtPosition(position).toString();
-                Intent intent = new Intent(MainActivity.this, Player.class);
-                intent.putExtra("file", file);
-                startActivity(intent);
+                if(!myPrefs.getString(file, "").equals("")) {
+                    Intent intent = new Intent(MainActivity.this, Player.class);
+                    intent.putExtra("file", file);
+                    startActivity(intent);
+                }
+            }
+        });
+
+        note.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+                if(!myPrefs.getString(note.getItemAtPosition(position).toString(), "").equals("")) {
+                    AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+                    alertDialog.setTitle(note.getItemAtPosition(position).toString());
+                    alertDialog.setMessage("Delete the file");
+                    alertDialog.setPositiveButton("Delete",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    SharedPreferences.Editor e = myPrefs.edit();
+                                    e.remove(note.getItemAtPosition(position).toString());
+                                    String temp = myPrefs.getString("myFiles", "");
+                                    String t = note.getItemAtPosition(position).toString() + "\n";
+                                    e.remove(myPrefs.getString(temp, ""));  //deletes notes in the audio file
+                                    temp = temp.replace(t, "");     //deletes the audio file from the app
+                                    e.putString("myFiles", temp);
+                                    e.commit();
+                                    noteList = new ArrayList<>();
+                                    Scanner in = new Scanner(myPrefs.getString("myFiles", ""));
+                                    while (in.hasNextLine()) {
+                                        String x = in.nextLine();
+                                        noteList.add(x.trim());
+                                    }
+                                    ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
+                                            android.R.layout.simple_list_item_1, noteList);
+                                    note.setAdapter(arrayAdapter);
+                                    Toast.makeText(MainActivity.this, "File deleted...", Toast.LENGTH_LONG).show();
+                                }
+                            });
+
+                    alertDialog.setNegativeButton("Cancel",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                }
+                            });
+                    alertDialog.show();
+                }
+                return true;
             }
         });
         noteList = new ArrayList<>();
@@ -106,6 +151,16 @@ public class MainActivity extends AppCompatActivity {
                                         e.putString("myFiles", myFiles + file + "\n");
                                         e.putString(file, uri);
                                         e.commit();
+                                        noteList = new ArrayList<>();
+                                        Scanner in = new Scanner(myPrefs.getString("myFiles", ""));
+                                        while(in.hasNextLine())
+                                        {
+                                            String temp = in.nextLine();
+                                            noteList.add(temp.trim());
+                                        }
+                                        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
+                                                android.R.layout.simple_list_item_1, noteList);
+                                        note.setAdapter(arrayAdapter);
                                         Intent intent = new Intent(MainActivity.this, Player.class);
                                         intent.putExtra("file", file);
                                         startActivity(intent);

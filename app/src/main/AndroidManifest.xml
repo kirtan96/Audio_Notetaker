@@ -46,7 +46,9 @@
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:screenOrientation="portrait">
-
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.kirtan.audionotetaker.MainActivity" />
         </activity>
     </application>
 
