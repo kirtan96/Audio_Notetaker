@@ -20,6 +20,8 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Scanner;
 
 public class MainActivity extends AppCompatActivity {
@@ -39,7 +41,6 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         FloatingActionButton add = (FloatingActionButton) findViewById(R.id.fab);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         note = (ListView) findViewById(R.id.listView2);
         myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
@@ -116,6 +117,8 @@ public class MainActivity extends AppCompatActivity {
             String temp = in.nextLine();
             noteList.add(temp.trim());
         }
+        noteList.remove("");
+        Collections.sort((List)(noteList));
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
                 android.R.layout.simple_list_item_1, noteList);
         note.setAdapter(arrayAdapter);
@@ -160,6 +163,7 @@ public class MainActivity extends AppCompatActivity {
                                             String temp = in.nextLine();
                                             noteList.add(temp.trim());
                                         }
+                                        Collections.sort((List)noteList);
                                         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
                                                 android.R.layout.simple_list_item_1, noteList);
                                         note.setAdapter(arrayAdapter);

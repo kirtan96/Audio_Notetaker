@@ -31,6 +31,8 @@ public class Search extends AppCompatActivity {
         setContentView(R.layout.activity_search);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 
         listView = (ListView) findViewById(R.id.listView);
 
@@ -45,6 +47,7 @@ public class Search extends AppCompatActivity {
                     handled = true;
 
                     search = editText.getText().toString();
+                    getSupportActionBar().setTitle(search);
                     key = new ArrayList<>();
                     SharedPreferences myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
                     Map<String, ?> keys = myPrefs.getAll();
