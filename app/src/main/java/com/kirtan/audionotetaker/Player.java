@@ -48,7 +48,6 @@ public class Player extends AppCompatActivity {
     String uri = "";
     ArrayList<String> noteList;
     SharedPreferences myPrefs;
-    String file;
     String real = "";
 
     @Override

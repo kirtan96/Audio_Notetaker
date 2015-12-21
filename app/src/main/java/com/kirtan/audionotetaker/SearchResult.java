@@ -38,16 +38,13 @@ public class SearchResult extends AppCompatActivity {
     TextView finalTime;
     SeekBar seekBar;
     TextView title;
-    Button add;
     ListView note;
-    Button edit;
     double startTime;
     private Handler myHandler = new Handler();
     String n = "";
     String uri = "";
     ArrayList<String> noteList;
     String search = "";
-    String sTime;
     SharedPreferences myPrefs;
     String real = "";
 
