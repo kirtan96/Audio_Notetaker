@@ -24,8 +24,8 @@
         <activity
             android:name=".Search"
             android:label="@string/title_activity_search"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.kirtan.audionotetaker.MainActivity" />
@@ -34,11 +34,19 @@
             android:name=".SearchResult"
             android:label="@string/title_activity_search_result"
             android:parentActivityName=".Search"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.kirtan.audionotetaker.Search" />
+        </activity>
+        <activity
+            android:name=".Player"
+            android:label="@string/title_activity_player"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="portrait">
+
         </activity>
     </application>
 

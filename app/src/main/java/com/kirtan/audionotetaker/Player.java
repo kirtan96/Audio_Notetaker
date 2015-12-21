@@ -12,6 +12,8 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -27,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
-public class SearchResult extends AppCompatActivity {
+public class Player extends AppCompatActivity {
 
     MediaPlayer mediaPlayer;
     Button pause;
@@ -38,21 +40,23 @@ public class SearchResult extends AppCompatActivity {
     Button add;
     ListView note;
     Button edit;
+    TextView t;
     double startTime;
     private Handler myHandler = new Handler();
     String n = "";
     String uri = "";
     ArrayList<String> noteList;
-    String search = "";
-    String sTime;
     SharedPreferences myPrefs;
+    String file;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_search_result);
+        setContentView(R.layout.activity_player);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+
         pause = (Button) findViewById(R.id.pauseButton);
         currentTime = (TextView) findViewById(R.id.currentTime);
         finalTime = (TextView) findViewById(R.id.finalTime);
@@ -61,6 +65,7 @@ public class SearchResult extends AppCompatActivity {
         add = (Button) findViewById(R.id.addButton);
         note = (ListView) findViewById(R.id.note);
         edit = (Button) findViewById(R.id.editButton);
+        t = (TextView) findViewById(R.id.noteText);
         mediaPlayer = new MediaPlayer();
         myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
 
@@ -87,12 +92,13 @@ public class SearchResult extends AppCompatActivity {
             @Override
             public void onClick(View arg0) {
                 final String current = currentTime.getText().toString();
+                // get prompts.xml view
                 mediaPlayer.pause();
-                AlertDialog.Builder alertDialog = new AlertDialog.Builder(SearchResult.this);
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(Player.this);
                 alertDialog.setTitle("Notes");
                 alertDialog.setMessage("Insert notes here:");
 
-                final EditText input = new EditText(SearchResult.this);
+                final EditText input = new EditText(Player.this);
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.MATCH_PARENT);
@@ -104,10 +110,11 @@ public class SearchResult extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int which) {
                                 mediaPlayer.start();
                                 myHandler.postDelayed(UpdateSongTime, 100);
-                                if (!n.equals("")) {
+                                if(!n.equals("")) {
                                     n = n + "\n" + current + ": " +
                                             input.getText().toString();
-                                } else {
+                                }
+                                else {
                                     n = current + ": " + input.getText().toString();
                                 }
                                 Scanner in  = new Scanner(n);
@@ -116,10 +123,10 @@ public class SearchResult extends AppCompatActivity {
                                 {
                                     noteList.add(in.nextLine());
                                 }
-                                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(SearchResult.this,
+                                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(Player.this,
                                         android.R.layout.simple_list_item_1, noteList);
                                 note.setAdapter(arrayAdapter);
-                                SharedPreferences myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
+
                                 SharedPreferences.Editor e = myPrefs.edit();
                                 e.putString(uri,
                                         n);
@@ -146,11 +153,11 @@ public class SearchResult extends AppCompatActivity {
             public void onClick(View arg0) {
                 // get prompts.xml view
                 mediaPlayer.pause();
-                AlertDialog.Builder alertDialog = new AlertDialog.Builder(SearchResult.this);
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(Player.this);
                 alertDialog.setTitle("Notes");
                 alertDialog.setMessage("Edit notes here:");
 
-                final EditText input = new EditText(SearchResult.this);
+                final EditText input = new EditText(Player.this);
                 input.setText(n);
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
@@ -164,16 +171,15 @@ public class SearchResult extends AppCompatActivity {
                                 mediaPlayer.start();
                                 myHandler.postDelayed(UpdateSongTime, 100);
                                 n = input.getText().toString();
-                                Scanner in  = new Scanner(n);
+                                Scanner in = new Scanner(n);
                                 noteList = new ArrayList<>();
-                                while(in.hasNextLine())
-                                {
+                                while (in.hasNextLine()) {
                                     noteList.add(in.nextLine());
                                 }
-                                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(SearchResult.this,
+                                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(Player.this,
                                         android.R.layout.simple_list_item_1, noteList);
                                 note.setAdapter(arrayAdapter);
-
+                                SharedPreferences myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
                                 SharedPreferences.Editor e = myPrefs.edit();
                                 e.putString(uri,
                                         n);
@@ -216,42 +222,55 @@ public class SearchResult extends AppCompatActivity {
             }
         });
 
+        note.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String time = note.getItemAtPosition(position).toString();
+                time = time.substring(0, 5);
+                int min = Integer.parseInt(time.substring(0, 2));
+                int sec = Integer.parseInt(time.substring(3, 5));
+                int t = (int) (TimeUnit.MINUTES.toMillis(min) + TimeUnit.SECONDS.toMillis(sec));
+                mediaPlayer.pause();
+                mediaPlayer.seekTo(t);
+                mediaPlayer.start();
+                myHandler.postDelayed(UpdateSongTime, 100);
+            }
+        });
+
         Intent intent = getIntent();
         String file = intent.getStringExtra("file");
         title.setText(file);
         Uri myUri = Uri.parse(myPrefs.getString(file, ""));
-        search = intent.getStringExtra("search");
         uri = myUri.toString();
+        if(myPrefs.contains(uri))
+        {
+            SharedPreferences.Editor e = myPrefs.edit();
+            e.commit();
+        }
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         try {
             mediaPlayer.setDataSource(getApplicationContext(), myUri);
             mediaPlayer.prepare();
             mediaPlayer.start();
+            SharedPreferences myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
             if (myPrefs.contains(uri)) {
                 n = myPrefs.getString(uri, "");
-                Scanner in  = new Scanner(n);
+                Scanner in = new Scanner(n);
                 noteList = new ArrayList<>();
-                while(in.hasNextLine())
-                {
-                    String temp = in.nextLine();
-                    noteList.add(temp);
-                    if(temp.contains(search))
-                    {
-                        temp = temp.substring(0, 5);
-                        int min = Integer.parseInt(temp.substring(0,2));
-                        int sec = Integer.parseInt(temp.substring(3, 5));
-                        int t = (int)(TimeUnit.MINUTES.toMillis(min) + TimeUnit.SECONDS.toMillis(sec));
-                        mediaPlayer.pause();
-                        mediaPlayer.seekTo(t);
-                        mediaPlayer.start();
-                        myHandler.postDelayed(UpdateSongTime, 100);
-                    }
+                while (in.hasNextLine()) {
+                    noteList.add(in.nextLine());
                 }
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(SearchResult.this,
+                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(Player.this,
                         android.R.layout.simple_list_item_1, noteList);
                 note.setAdapter(arrayAdapter);
             }
+                    /*Map<String, ?> keys = myPrefs.getAll();
+                    for(Map.Entry<String,?> entry : keys.entrySet()){
+                        Log.d("All the keys",entry.getKey() + ": " +
+                                entry.getValue().toString());
+
+                    }*/
             double fTime = mediaPlayer.getDuration();
             seekBar.setMax((int) fTime);
             finalTime.setText(String.format("%02d:%02d",
@@ -262,27 +281,21 @@ public class SearchResult extends AppCompatActivity {
 
             myHandler.postDelayed(UpdateSongTime, 100);
             Log.d("Test Worked", "Music is Playing");
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();
             Log.d("Test Failed", "Music was not played");
         }
-
-        note.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String time = note.getItemAtPosition(position).toString();
-                time = time.substring(0, 5);
-                int min = Integer.parseInt(time.substring(0,2));
-                int sec = Integer.parseInt(time.substring(3, 5));
-                int t = (int)(TimeUnit.MINUTES.toMillis(min) + TimeUnit.SECONDS.toMillis(sec));
-                mediaPlayer.pause();
-                mediaPlayer.seekTo(t);
-                mediaPlayer.start();
-                myHandler.postDelayed(UpdateSongTime, 100);
-            }
-        });
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if(mediaPlayer != null)
+        {
+            mediaPlayer.pause();
+        }
+    }
 
     @Override
     protected void onResume() {
@@ -322,10 +335,24 @@ public class SearchResult extends AppCompatActivity {
     };
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        if(mediaPlayer != null) {
-            mediaPlayer.pause();
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.search) {
+            navigateToSearch();
         }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void navigateToSearch() {
+        Intent intent = new Intent(this, Search.class);
+        startActivity(intent);
     }
 }

@@ -23,6 +23,7 @@ public class Search extends AppCompatActivity {
     ListView listView;
     ArrayList<String> key;
     String search;
+    String file = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,9 +50,10 @@ public class Search extends AppCompatActivity {
                     Map<String, ?> keys = myPrefs.getAll();
                     for(Map.Entry<String, ?> entryKey: keys.entrySet())
                     {
-                        if(entryKey.getValue().toString().contains(editText.getText().toString()))
-                        {
-                            key.add(entryKey.getKey());
+                        if(!entryKey.getKey().equals("myFiles") && !entryKey.getKey().contains("content://") ) {
+                            if (entryKey.getValue().toString().contains(editText.getText().toString())) {
+                                key.add(entryKey.getKey());
+                            }
                         }
                     }
                     ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(Search.this,
@@ -66,9 +68,9 @@ public class Search extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String uri = listView.getItemAtPosition(position).toString();
+                file = listView.getItemAtPosition(position).toString();
                 Intent intent = new Intent(Search.this, SearchResult.class);
-                intent.putExtra("myUri", uri);
+                intent.putExtra("file", file);
                 intent.putExtra("search", search);
                 startActivity(intent);
             }
