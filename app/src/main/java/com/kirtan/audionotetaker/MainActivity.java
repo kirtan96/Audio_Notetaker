@@ -200,6 +200,7 @@ public class MainActivity extends AppCompatActivity {
                                             , ""));  //deletes notes in the audio file
                                     temp = temp.replace(t, "");     //deletes the audio file from the app
                                     e.putString(title.getText().toString().trim() + " (FOLDER)", temp);
+                                    e.remove(noteList.get(position));
                                     e.commit();
                                     noteList = new ArrayList<>();
                                     Scanner in = new Scanner(myPrefs.getString(

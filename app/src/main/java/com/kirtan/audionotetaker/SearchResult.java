@@ -118,6 +118,7 @@ public class SearchResult extends AppCompatActivity {
                                 while (in.hasNextLine()) {
                                     noteList.add(in.nextLine());
                                 }
+                                noteList.remove("");
                                 Collections.sort((List) (noteList));     //sort
                                 n = "";
                                 for (int i = 0; i < noteList.size(); i++) {

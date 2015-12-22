@@ -46,24 +46,26 @@ public class Search extends AppCompatActivity {
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                     handled = true;
 
-                    search = editText.getText().toString();
-                    getSupportActionBar().setTitle(search);
-                    key = new ArrayList<>();
-                    SharedPreferences myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
-                    Map<String, ?> keys = myPrefs.getAll();
-                    for(Map.Entry<String, ?> entryKey: keys.entrySet())
-                    {
-                        if((!entryKey.getKey().equals("myFiles")) &&
-                                (!entryKey.getKey().contains("content://")) &&
-                                (!entryKey.getKey().equals("myFolders"))) {
-                            if (myPrefs.getString(entryKey.getValue().toString(), "").contains(search)) {
-                                key.add(entryKey.getKey());
+                    search = editText.getText().toString().trim();
+                    if(!search.isEmpty()) {
+                        getSupportActionBar().setTitle(search);
+                        key = new ArrayList<>();
+                        SharedPreferences myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
+                        Map<String, ?> keys = myPrefs.getAll();
+                        for (Map.Entry<String, ?> entryKey : keys.entrySet()) {
+                            if ((!entryKey.getKey().equals("myFiles")) &&
+                                    (!entryKey.getKey().contains("content://")) &&
+                                    (!entryKey.getKey().contains("(FOLDER)")) &&
+                                    (!entryKey.getKey().contains("myFolders"))) {
+                                if (myPrefs.getString(entryKey.getValue().toString(), "").contains(search)) {
+                                    key.add(entryKey.getKey());
+                                }
                             }
                         }
+                        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(Search.this,
+                                android.R.layout.simple_list_item_1, key);
+                        listView.setAdapter(arrayAdapter);
                     }
-                    ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(Search.this,
-                            android.R.layout.simple_list_item_1, key);
-                    listView.setAdapter(arrayAdapter);
                 }
 
                 return handled;
