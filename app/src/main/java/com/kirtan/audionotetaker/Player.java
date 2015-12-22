@@ -1,5 +1,6 @@
 package com.kirtan.audionotetaker;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,9 +14,8 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -101,6 +101,8 @@ public class Player extends AppCompatActivity {
                 alertDialog.setMessage("Insert notes here:");
 
                 final EditText input = new EditText(Player.this);
+                final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.MATCH_PARENT);
@@ -110,6 +112,7 @@ public class Player extends AppCompatActivity {
                 alertDialog.setPositiveButton("Add",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
+                                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
                                 mediaPlayer.start();
                                 myHandler.postDelayed(UpdateSongTime, 100);
                                 if(!n.equals("")) {
@@ -131,6 +134,8 @@ public class Player extends AppCompatActivity {
                                 {
                                     n = n + noteList.get(i) + "\n";
                                 }
+                                noteList.remove("");
+                                noteList.remove("");
                                 ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(Player.this,
                                         android.R.layout.simple_list_item_1, noteList);
                                 note.setAdapter(arrayAdapter);
@@ -145,6 +150,7 @@ public class Player extends AppCompatActivity {
                 alertDialog.setNegativeButton("Cancel",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
+                                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
                                 mediaPlayer.start();
                                 myHandler.postDelayed(UpdateSongTime, 100);
                                 dialog.cancel();
@@ -206,6 +212,8 @@ public class Player extends AppCompatActivity {
                             alertDialog.setMessage("Note:");
 
                             final EditText input = new EditText(Player.this);
+                            final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
                             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                                     LinearLayout.LayoutParams.MATCH_PARENT,
                                     LinearLayout.LayoutParams.MATCH_PARENT);
@@ -220,6 +228,7 @@ public class Player extends AppCompatActivity {
                             alertDialog.setPositiveButton("Save",
                                     new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int which) {
+                                            imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
                                             SharedPreferences.Editor e = myPrefs.edit();
                                             real = real.replace(x, input.getText());
                                             noteList.set(position, real);
@@ -239,6 +248,7 @@ public class Player extends AppCompatActivity {
                             alertDialog.setNegativeButton("Cancel",
                                     new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int which) {
+                                            imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
                                             dialog.cancel();
                                         }
                                     });
@@ -359,25 +369,4 @@ public class Player extends AppCompatActivity {
         }
     };
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.search) {
-            navigateToSearch();
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void navigateToSearch() {
-        Intent intent = new Intent(this, Search.class);
-        startActivity(intent);
-    }
 }

@@ -1,6 +1,7 @@
 package com.kirtan.audionotetaker;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,11 +11,11 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -37,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
     SharedPreferences myPrefs;
     ImageView back;
     TextView title;
+    Button search;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +49,9 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         FloatingActionButton add = (FloatingActionButton) findViewById(R.id.fab);
+        setTitle("All Notes");
+
+        search = (Button) findViewById(R.id.search_button);
         back = (ImageView) findViewById(R.id.back);
         back.setVisibility(View.INVISIBLE);
         note = (ListView) findViewById(R.id.listView2);
@@ -55,18 +61,20 @@ public class MainActivity extends AppCompatActivity {
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 builder.setTitle("Choose an option:");
-                if(title.getVisibility() == View.INVISIBLE) {
-                    builder.setItems(new String[]{"File", "Folder"}, new DialogInterface.OnClickListener() {
+                if (title.getVisibility() == View.INVISIBLE) {
+                    builder.setItems(new String[]{"Select a File", "Create a Folder"}, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             if (which == 1) {
-                                AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+                                final AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
                                 alertDialog.setTitle("Folder");
                                 alertDialog.setMessage("Add a Folder:");
 
                                 final EditText input = new EditText(MainActivity.this);
+                                final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
                                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                                         LinearLayout.LayoutParams.MATCH_PARENT,
                                         LinearLayout.LayoutParams.MATCH_PARENT);
@@ -76,13 +84,16 @@ public class MainActivity extends AppCompatActivity {
                                 alertDialog.setPositiveButton("Add",
                                         new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int which) {
+                                                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
                                                 if (!myPrefs.getString("myFolders", "").contains(input.getText().toString())) {
                                                     SharedPreferences.Editor e = myPrefs.edit();
                                                     String temp = myPrefs.getString("myFolders", "");
-                                                    e.putString("myFolders", temp + input.getText().toString().trim()
+                                                    String name = input.getText().toString();
+                                                    name = name.substring(0,1).toUpperCase() + name.substring(1);
+                                                    e.putString("myFolders", temp + name.trim()
                                                             + " (FOLDER)" + "\n");
                                                     e.commit();
-                                                    noteList.add(input.getText().toString().trim() + " (FOLDER)");
+                                                    noteList.add(name.trim() + " (FOLDER)");
                                                     Collections.sort((List) noteList);
                                                     ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
                                                             android.R.layout.simple_list_item_1, noteList);
@@ -98,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
                                 alertDialog.setNegativeButton("Cancel",
                                         new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int which) {
+                                                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
                                                 dialog.cancel();
                                             }
                                         });
@@ -111,16 +123,14 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                     });
-                }
-                else
-                {
+                } else {
                     builder.setItems(new String[]{"File"}, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             Intent intent_upload = new Intent();
-                                intent_upload.setType("audio/*");
-                                intent_upload.setAction(Intent.ACTION_GET_CONTENT);
-                                startActivityForResult(intent_upload, 1);
+                            intent_upload.setType("audio/*");
+                            intent_upload.setAction(Intent.ACTION_GET_CONTENT);
+                            startActivityForResult(intent_upload, 1);
                         }
                     });
                 }
@@ -271,6 +281,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         update();
+        search.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navigateToSearch();
+            }
+        });
     }
 
     private void update() {
@@ -313,6 +329,8 @@ public class MainActivity extends AppCompatActivity {
                 alertDialog.setMessage("Name the file:");
 
                 final EditText input = new EditText(MainActivity.this);
+                final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.MATCH_PARENT);
@@ -324,12 +342,16 @@ public class MainActivity extends AppCompatActivity {
                 alertDialog.setPositiveButton("Create",
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
+                                    imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
                                     if(title.getVisibility() == View.INVISIBLE) {
-                                        if (!myPrefs.getString("myFiles", "").contains(input.getText().toString())) {
+                                        String name = input.getText().toString();
+                                        name = name.substring(0,1).toUpperCase() + name.substring(1);
+                                        if (!myPrefs.getString("myFiles", "").contains(name)) {
                                             file = input.getText().toString();
                                             SharedPreferences.Editor e = myPrefs.edit();
-                                            e.putString("myFiles", myFiles + file + "\n");
-                                            e.putString(file, uri);
+
+                                            e.putString("myFiles", myFiles + name + "\n");
+                                            e.putString(name, uri);
                                             e.commit();
                                             noteList = new ArrayList<>();
                                             Scanner in = new Scanner(myPrefs.getString("myFiles", ""));
@@ -348,7 +370,7 @@ public class MainActivity extends AppCompatActivity {
                                                     android.R.layout.simple_list_item_1, noteList);
                                             note.setAdapter(arrayAdapter);
                                             Intent intent = new Intent(MainActivity.this, Player.class);
-                                            intent.putExtra("file", file);
+                                            intent.putExtra("file", name);
                                             startActivity(intent);
                                         } else {
                                             Toast.makeText(MainActivity.this, "This file already exists. Name it differently!", Toast.LENGTH_LONG).show();
@@ -356,13 +378,15 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                     else
                                     {
+                                        String name = input.getText().toString();
+                                        name = name.substring(0,1).toUpperCase() + name.substring(1);
                                         String f = myPrefs.getString(title.getText().toString().trim() + " (FOLDER)", "");
-                                        if (!myPrefs.getString(f, "").contains(input.getText().toString())) {
+                                        if (!myPrefs.getString(f, "").contains(name)) {
                                             file = input.getText().toString();
                                             SharedPreferences.Editor e = myPrefs.edit();
                                             e.putString(title.getText().toString().trim() + " (FOLDER)",
-                                                    f + file + "\n");
-                                            e.putString(file, uri);
+                                                    f + name + "\n");
+                                            e.putString(name, uri);
                                             e.commit();
                                             noteList = new ArrayList<>();
                                             Scanner in = new Scanner(myPrefs.getString(
@@ -388,7 +412,7 @@ public class MainActivity extends AppCompatActivity {
                 alertDialog.setNegativeButton("Cancel",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-
+                                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
                             }
                         });
                 alertDialog.show();
@@ -396,23 +420,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.search) {
-            navigateToSearch();
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     private void navigateToSearch() {
