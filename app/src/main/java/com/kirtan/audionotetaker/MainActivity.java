@@ -175,111 +175,38 @@ public class MainActivity extends AppCompatActivity {
                 alertDialog.setTitle(note.getItemAtPosition(position).toString());
                 if(myPrefs.getString(note.getItemAtPosition(position).toString(), "").contains("content:/"))
                 {
-                    alertDialog.setMessage("Delete the file");
+                    alertDialog.setItems(new String[]{"Rename", "Move to...", "Delete"}, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if(which == 0)
+                            {
+                                rename(position);
+
+                            }
+                            else if(which == 1)
+                            {
+                                move(position);
+                            }
+                            else
+                            {
+                                delete(position);
+                            }
+                        }
+                    });
                 }
                 else
                 {
-                    alertDialog.setMessage("Delete the folder");
+                    alertDialog.setItems(new String[]{"Rename", "Delete"}, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (which == 0) {
+                                rename(position);
+                            } else {
+                                delete(position);
+                            }
+                        }
+                    });
                 }
-                alertDialog.setPositiveButton("Delete",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                SharedPreferences.Editor e = myPrefs.edit();
-                                String temp;
-                                if ((myPrefs.getString(note.getItemAtPosition(position).toString(), "").contains("content:/")) &&
-                                        title.getVisibility() == View.INVISIBLE) {
-                                    temp = myPrefs.getString("myFiles", "");
-                                    String t = note.getItemAtPosition(position).toString() + "\n";
-                                    e.remove(myPrefs.getString(
-                                            note.getItemAtPosition(position).toString()
-                                            , ""));  //deletes notes in the audio file
-                                    temp = temp.replace(t, "");     //deletes the audio file from the app
-                                    e.putString("myFiles", temp);
-                                    e.remove(note.getItemAtPosition(position).toString());
-                                    e.commit();
-                                    noteList = new ArrayList<>();
-                                    Scanner in = new Scanner(myPrefs.getString("myFiles", ""));
-                                    while (in.hasNextLine()) {
-                                        String x = in.nextLine();
-                                        noteList.add(x.trim());
-                                    }
-                                    in = new Scanner(myPrefs.getString("myFolders", ""));
-                                    while (in.hasNextLine()) {
-                                        String x = in.nextLine();
-                                        x = x.replace(" (FOLDER)", "");
-                                        noteList.add(x.trim());
-                                    }
-                                } else if ((myPrefs.getString(note.getItemAtPosition(position).toString(), "")
-                                        .contains("content:/")) &&
-                                        title.getVisibility() == View.VISIBLE) {
-                                    temp = myPrefs.getString(title.getText().toString().trim() + " (FOLDER)", "");
-                                    String t = noteList.get(position) + "\n";
-                                    e.remove(myPrefs.getString(
-                                            noteList.get(position)
-                                            , ""));  //deletes notes in the audio file
-                                    temp = temp.replace(t, "");     //deletes the audio file from the app
-                                    e.putString(title.getText().toString().trim() + " (FOLDER)", temp);
-                                    e.remove(noteList.get(position));
-                                    e.commit();
-                                    noteList = new ArrayList<>();
-                                    Scanner in = new Scanner(myPrefs.getString(
-                                            title.getText().toString().trim() + " (FOLDER)", ""));
-                                    while (in.hasNextLine()) {
-                                        String x = in.nextLine();
-                                        noteList.add(x.trim());
-                                    }
-                                } else {
-                                    String t = noteList.get(position) + " (FOLDER)" + "\n";
-                                    Scanner in = new Scanner(myPrefs.getString(
-                                            noteList.get(position) + " (FOLDER)", ""));
-                                    while (in.hasNextLine()) {
-                                        temp = in.nextLine();
-                                        Log.d("Deleted", myPrefs.getString(temp
-                                                , ""));
-                                        e.remove(myPrefs.getString(temp
-                                                , ""));  //deletes notes in the audio file
-                                        Log.d("Deleted", temp);
-                                        e.remove(temp);  //delete the audio file
-                                        e.commit();
-
-                                    }
-                                    temp = myPrefs.getString("myFolders", "");
-                                    temp = temp.replace(t, "");     //deletes the folder from the app
-                                    e.putString("myFolders", temp);
-                                    e.remove(note.getItemAtPosition(position).toString() + " (FOLDER)");
-                                    e.commit();
-                                    noteList = new ArrayList<>();
-                                    in = new Scanner(myPrefs.getString("myFiles", ""));
-                                    while (in.hasNextLine()) {
-                                        String x = in.nextLine();
-                                        noteList.add(x.trim());
-                                    }
-                                    in = new Scanner(myPrefs.getString("myFolders", ""));
-                                    while (in.hasNextLine()) {
-                                        String x = in.nextLine();
-                                        x = x.replace(" (FOLDER)", "");
-                                        noteList.add(x.trim());
-                                    }
-                                }
-
-
-                                noteList.remove("");
-                                noteList.remove("");
-                                Collections.sort((List) noteList);
-                                //ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
-                                //        android.R.layout.simple_list_item_1, noteList);
-                                adp = new FileAdapter();
-                                note.setAdapter(adp);
-                                Toast.makeText(MainActivity.this, "Deleted...", Toast.LENGTH_LONG).show();
-                            }
-                        });
-
-                alertDialog.setNegativeButton("Cancel",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-
-                            }
-                        });
                 alertDialog.show();
                 return true;
             }
@@ -298,6 +225,214 @@ public class MainActivity extends AppCompatActivity {
                 navigateToSearch();
             }
         });
+    }
+
+    private void move(int position) {
+    }
+
+    private void rename(int position) {
+        final String currentName = noteList.get(position);
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle("Rename");
+        final EditText input = new EditText(MainActivity.this);
+        final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        input.setLayoutParams(lp);
+        builder.setView(input);
+
+        builder.setPositiveButton("Save",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                        if (myPrefs.getString(currentName,"").contains("content:/") &&
+                                title.getVisibility() == View.INVISIBLE) {
+                            SharedPreferences.Editor e = myPrefs.edit();
+                            String changedName = input.getText().toString().trim();
+                            changedName = changedName.substring(0,1).toUpperCase()
+                                    + changedName.substring(1);
+                            String temp = myPrefs.getString("myFiles", "");
+                            String t = "\n" + currentName + "\n";
+                            if(!temp.contains(t))
+                            {
+                                t = currentName + "\n";
+                                temp = temp.replace(t, changedName + "\n");
+                            }
+                            else
+                            {
+                                temp = temp.replace(t, "\n" + changedName + "\n");
+                            }
+                            e.putString(changedName, myPrefs.getString(currentName, ""));
+
+                            e.putString("myFiles", temp);
+                            e.remove(currentName);
+                            e.commit();
+                            noteList.remove(currentName);
+                            noteList.add(changedName);
+                            Collections.sort((List) noteList);
+                            adp = new FileAdapter();
+                            note.setAdapter(adp);
+                        }
+                        else if(!myPrefs.getString(currentName,"").contains("content:/"))
+                        {
+                            SharedPreferences.Editor e = myPrefs.edit();
+                            String changedName = input.getText().toString().trim();
+                            changedName = changedName.substring(0,1).toUpperCase()
+                                    + changedName.substring(1);
+                            String temp = myPrefs.getString("myFolders", "");
+                            String t = "\n" + currentName + " (FOLDER)" + "\n";
+                            if(!temp.contains(t))
+                            {
+                                t = currentName + " (FOLDER)" + "\n";
+                                temp = temp.replace(t, changedName + " (FOLDER)" + "\n");
+                            }
+                            else
+                            {
+                                temp = temp.replace(t, "\n" + changedName + " (FOLDER)" + "\n");
+                            }
+                            e.putString(changedName + " (FOLDER)", myPrefs.getString(currentName + " (FOLDER)", ""));
+
+                            e.putString("myFolders", temp);
+                            e.remove(currentName + " (FOLDER)");
+                            e.commit();
+                            noteList.remove(currentName);
+                            noteList.add(changedName);
+                            Collections.sort((List) noteList);
+                            adp = new FileAdapter();
+                            note.setAdapter(adp);
+                        }
+                        else {
+                            SharedPreferences.Editor e = myPrefs.edit();
+                            String changedName = input.getText().toString().trim();
+                            changedName = changedName.substring(0,1).toUpperCase()
+                                    + changedName.substring(1);
+                            String temp = myPrefs.getString(title.getText().toString()+ " (FOLDER)",
+                                    "");
+                            String t = "\n" + currentName + "\n";
+                            if(!temp.contains(t))
+                            {
+                                t = currentName + "\n";
+                                temp = temp.replace(t, changedName + "\n");
+                            }
+                            else
+                            {
+                                temp = temp.replace(t, "\n" + changedName + "\n");
+                            }
+                            e.putString(changedName, myPrefs.getString(currentName, ""));
+
+                            e.putString(title.getText().toString() + " (FOLDER)", temp);
+                            e.remove(currentName);
+                            e.commit();
+                            noteList.remove(currentName);
+                            noteList.add(changedName);
+                            Collections.sort((List) noteList);
+                            adp = new FileAdapter();
+                            note.setAdapter(adp);
+                        }
+                    }
+                });
+
+        builder.setNegativeButton("Cancel",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                        dialog.cancel();
+                    }
+                });
+
+        builder.show();
+    }
+
+    private void delete(int position) {
+        SharedPreferences.Editor e = myPrefs.edit();
+        String temp;
+        if ((myPrefs.getString(note.getItemAtPosition(position).toString(), "").contains("content:/")) &&
+                title.getVisibility() == View.INVISIBLE) {
+            temp = myPrefs.getString("myFiles", "");
+            String t = note.getItemAtPosition(position).toString() + "\n";
+            e.remove(myPrefs.getString(
+                    note.getItemAtPosition(position).toString()
+                    , ""));  //deletes notes in the audio file
+            temp = temp.replace(t, "");     //deletes the audio file from the app
+            e.putString("myFiles", temp);
+            e.remove(note.getItemAtPosition(position).toString());
+            e.commit();
+            noteList = new ArrayList<>();
+            Scanner in = new Scanner(myPrefs.getString("myFiles", ""));
+            while (in.hasNextLine()) {
+                String x = in.nextLine();
+                noteList.add(x.trim());
+            }
+            in = new Scanner(myPrefs.getString("myFolders", ""));
+            while (in.hasNextLine()) {
+                String x = in.nextLine();
+                x = x.replace(" (FOLDER)", "");
+                noteList.add(x.trim());
+            }
+        } else if ((myPrefs.getString(note.getItemAtPosition(position).toString(), "")
+                .contains("content:/")) &&
+                title.getVisibility() == View.VISIBLE) {
+            temp = myPrefs.getString(title.getText().toString().trim() + " (FOLDER)", "");
+            String t = noteList.get(position) + "\n";
+            e.remove(myPrefs.getString(
+                    noteList.get(position)
+                    , ""));  //deletes notes in the audio file
+            temp = temp.replace(t, "");     //deletes the audio file from the app
+            e.putString(title.getText().toString().trim() + " (FOLDER)", temp);
+            e.remove(noteList.get(position));
+            e.commit();
+            noteList = new ArrayList<>();
+            Scanner in = new Scanner(myPrefs.getString(
+                    title.getText().toString().trim() + " (FOLDER)", ""));
+            while (in.hasNextLine()) {
+                String x = in.nextLine();
+                noteList.add(x.trim());
+            }
+        } else {
+            String t = noteList.get(position) + " (FOLDER)" + "\n";
+            Scanner in = new Scanner(myPrefs.getString(
+                    noteList.get(position) + " (FOLDER)", ""));
+            while (in.hasNextLine()) {
+                temp = in.nextLine();
+                Log.d("Deleted", myPrefs.getString(temp
+                        , ""));
+                e.remove(myPrefs.getString(temp
+                        , ""));  //deletes notes in the audio file
+                Log.d("Deleted", temp);
+                e.remove(temp);  //delete the audio file
+                e.commit();
+
+            }
+            temp = myPrefs.getString("myFolders", "");
+            temp = temp.replace(t, "");     //deletes the folder from the app
+            e.putString("myFolders", temp);
+            e.remove(note.getItemAtPosition(position).toString() + " (FOLDER)");
+            e.commit();
+            noteList = new ArrayList<>();
+            in = new Scanner(myPrefs.getString("myFiles", ""));
+            while (in.hasNextLine()) {
+                String x = in.nextLine();
+                noteList.add(x.trim());
+            }
+            in = new Scanner(myPrefs.getString("myFolders", ""));
+            while (in.hasNextLine()) {
+                String x = in.nextLine();
+                x = x.replace(" (FOLDER)", "");
+                noteList.add(x.trim());
+            }
+        }
+
+
+        noteList.remove("");
+        noteList.remove("");
+        Collections.sort((List) noteList);
+        //ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
+        //        android.R.layout.simple_list_item_1, noteList);
+        adp = new FileAdapter();
+        note.setAdapter(adp);
+        Toast.makeText(MainActivity.this, "Deleted...", Toast.LENGTH_LONG).show();
     }
 
     private void update() {
