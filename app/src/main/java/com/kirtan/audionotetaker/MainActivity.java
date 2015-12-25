@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     TextView title;
     Button search;
     FileAdapter adp;
+    public View row;
 
 
     @Override
@@ -92,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
                                                     SharedPreferences.Editor e = myPrefs.edit();
                                                     String temp = myPrefs.getString("myFolders", "");
                                                     String name = input.getText().toString();
-                                                    name = name.substring(0,1).toUpperCase() + name.substring(1);
+                                                    name = name.substring(0, 1).toUpperCase() + name.substring(1);
                                                     e.putString("myFolders", temp + name.trim()
                                                             + " (FOLDER)" + "\n");
                                                     e.commit();
@@ -100,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
                                                     Collections.sort((List) noteList);
                                                     //ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
                                                     //        android.R.layout.simple_list_item_1, noteList);
-                                                    adp = new FileAdapter();
+                                                    adp = new FileAdapter(noteList);
                                                     note.setAdapter(adp);
                                                 } else {
                                                     Toast.makeText(MainActivity.this,
@@ -147,9 +148,9 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 file = noteList.get(position);
                 if (myPrefs.getString(file, "").contains("content:/")) {
-                        Intent intent = new Intent(MainActivity.this, Player.class);
-                        intent.putExtra("file", file);
-                        startActivity(intent);
+                    Intent intent = new Intent(MainActivity.this, Player.class);
+                    intent.putExtra("file", file);
+                    startActivity(intent);
                 } else {
                     noteList = new ArrayList<>();
                     Scanner in = new Scanner(myPrefs.getString(file + " (FOLDER)", ""));
@@ -162,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
                     back.setVisibility(View.VISIBLE);
                     title.setText(file);
                     Collections.sort((List) noteList);
-                    adp = new FileAdapter();
+                    adp = new FileAdapter(noteList);
                     note.setAdapter(adp);
                 }
             }
@@ -173,29 +174,21 @@ public class MainActivity extends AppCompatActivity {
             public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
                 alertDialog.setTitle(note.getItemAtPosition(position).toString());
-                if(myPrefs.getString(note.getItemAtPosition(position).toString(), "").contains("content:/"))
-                {
+                if (myPrefs.getString(note.getItemAtPosition(position).toString(), "").contains("content:/")) {
                     alertDialog.setItems(new String[]{"Rename", "Move to...", "Delete"}, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            if(which == 0)
-                            {
+                            if (which == 0) {
                                 rename(position);
 
-                            }
-                            else if(which == 1)
-                            {
+                            } else if (which == 1) {
                                 move(position);
-                            }
-                            else
-                            {
+                            } else {
                                 delete(position);
                             }
                         }
                     });
-                }
-                else
-                {
+                } else {
                     alertDialog.setItems(new String[]{"Rename", "Delete"}, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -227,9 +220,119 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void move(int position) {
+
+    /**
+     * Moves the selected file to selected folder
+     * @param position - moves the file at the given position
+     */
+    private void move(final int position) {
+        final String currentName = noteList.get(position);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle("Move to...");
+        final ListView listView = new ListView(MainActivity.this);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        listView.setLayoutParams(lp);
+        builder.setView(listView);
+        final ArrayList<String> list =  new ArrayList<>();
+        Scanner in = new Scanner(myPrefs.getString("myFolders", ""));
+        while(in.hasNextLine())
+        {
+            String temp = in.nextLine();
+            temp = temp.replace(" (FOLDER)","");
+            list.add(temp.trim());
+        }
+        if(title.getVisibility() == View.VISIBLE)
+        {
+            list.add("General");
+            list.remove(title.getText().toString().trim());
+        }
+        list.remove("");
+        Collections.sort((List) list);
+        listView.setAdapter(new FileAdapter(list));
+        final String[] temp = {""};
+        final String[] t = {""};
+        final String[] t2 = {""};
+        final Integer[] i = {0};
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, final int p, long id) {
+                if (title.getVisibility() == View.INVISIBLE) {
+                    temp[0] = myPrefs.getString("myFiles", "");
+                    t[0] = noteList.get(position) + "\n";
+                    temp[0] = temp[0].replace(t[0].toString(), "");
+                    t2[0] = list.get(p) + " (FOLDER)";
+                    i[0] = 1;
+                }
+                else if(title.getVisibility() == View.VISIBLE)
+                {
+                    temp[0] = myPrefs.getString(title.getText().toString() + " (FOLDER)", "");
+                    t[0] = noteList.get(position) + "\n";
+                    temp[0] = temp[0].replace(t[0].toString(), "");
+                    if(!list.get(p).equals("General"))
+                    {
+                        t2[0] = list.get(p) + " (FOLDER)";
+                    }
+                    else
+                    {
+                        t2[0] = list.get(p);
+                    }
+                    i[0] = 1;
+                }
+                if (row != null) {
+                    row.setBackgroundResource(R.color.back);
+                }
+                row = view;
+                view.setBackgroundResource(R.color.colorPrimaryDark);
+            }
+        });
+
+        builder.setPositiveButton("Move", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (title.getVisibility() == View.INVISIBLE &&
+                        i[0] == 1) {
+                    SharedPreferences.Editor e = myPrefs.edit();
+                    e.putString("myFiles", temp[0]);
+                    e.putString(t2[0].toString(), myPrefs.getString(t2[0].toString(), "") + t[0]);
+                    e.commit();
+                    noteList.remove(position);
+                    note.setAdapter(new FileAdapter(noteList));
+                }
+                else if(title.getVisibility() == View.VISIBLE &&
+                        i[0] == 1){
+                    SharedPreferences.Editor e = myPrefs.edit();
+                    e.putString(title.getText().toString() + " (FOLDER)", temp[0]);
+                    if(!t2[0].equals("General"))
+                    {
+                        e.putString(t2[0].toString(), myPrefs.getString(t2[0].toString(), "") + t[0]);
+                    }
+                    else
+                    {
+                        e.putString("myFiles", myPrefs.getString("myFiles", "") + t[0]);
+                    }
+                    e.commit();
+                    noteList.remove(position);
+                    note.setAdapter(new FileAdapter(noteList));
+                }
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        builder.show();
     }
 
+
+    /**
+     * Renames the selected file or folder
+     * @param position - renames the file/folder at the given position
+     */
     private void rename(int position) {
         final String currentName = noteList.get(position);
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -248,7 +351,8 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
                         if (myPrefs.getString(currentName,"").contains("content:/") &&
-                                title.getVisibility() == View.INVISIBLE) {
+                                title.getVisibility() == View.INVISIBLE &&
+                                !myPrefs.getString("myFiles", "").contains(input.getText().toString() + "\n")) {
                             SharedPreferences.Editor e = myPrefs.edit();
                             String changedName = input.getText().toString().trim();
                             changedName = changedName.substring(0,1).toUpperCase()
@@ -272,10 +376,12 @@ public class MainActivity extends AppCompatActivity {
                             noteList.remove(currentName);
                             noteList.add(changedName);
                             Collections.sort((List) noteList);
-                            adp = new FileAdapter();
+                            adp = new FileAdapter(noteList);
                             note.setAdapter(adp);
                         }
-                        else if(!myPrefs.getString(currentName,"").contains("content:/"))
+                        else if(!myPrefs.getString(currentName,"").contains("content:/") &&
+                                !myPrefs.getString("myFolders", "").contains(input.getText().toString()
+                                        + " (FOLDER)" + "\n"))
                         {
                             SharedPreferences.Editor e = myPrefs.edit();
                             String changedName = input.getText().toString().trim();
@@ -300,10 +406,12 @@ public class MainActivity extends AppCompatActivity {
                             noteList.remove(currentName);
                             noteList.add(changedName);
                             Collections.sort((List) noteList);
-                            adp = new FileAdapter();
+                            adp = new FileAdapter(noteList);
                             note.setAdapter(adp);
                         }
-                        else {
+                        else if(!myPrefs.getString(title.getText().toString(), "").contains(
+                                input.getText().toString() + "\n"
+                        )){
                             SharedPreferences.Editor e = myPrefs.edit();
                             String changedName = input.getText().toString().trim();
                             changedName = changedName.substring(0,1).toUpperCase()
@@ -328,7 +436,7 @@ public class MainActivity extends AppCompatActivity {
                             noteList.remove(currentName);
                             noteList.add(changedName);
                             Collections.sort((List) noteList);
-                            adp = new FileAdapter();
+                            adp = new FileAdapter(noteList);
                             note.setAdapter(adp);
                         }
                     }
@@ -345,6 +453,11 @@ public class MainActivity extends AppCompatActivity {
         builder.show();
     }
 
+
+    /**
+     * Deletes the file or the folder
+     * @param position deleted the file/folder at the given position
+     */
     private void delete(int position) {
         SharedPreferences.Editor e = myPrefs.edit();
         String temp;
@@ -423,18 +536,20 @@ public class MainActivity extends AppCompatActivity {
                 noteList.add(x.trim());
             }
         }
-
-
         noteList.remove("");
         noteList.remove("");
         Collections.sort((List) noteList);
         //ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
         //        android.R.layout.simple_list_item_1, noteList);
-        adp = new FileAdapter();
+        adp = new FileAdapter(noteList);
         note.setAdapter(adp);
         Toast.makeText(MainActivity.this, "Deleted...", Toast.LENGTH_LONG).show();
     }
 
+
+    /**
+     * Updates the listView
+     */
     private void update() {
         back.setVisibility(View.INVISIBLE);
         title.setVisibility(View.INVISIBLE);
@@ -455,12 +570,17 @@ public class MainActivity extends AppCompatActivity {
         noteList.remove("");
         noteList.remove("");
         Collections.sort((List) (noteList));
-        //ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
-        //        android.R.layout.simple_list_item_1, noteList);
-        adp = new FileAdapter();
+        adp = new FileAdapter(noteList);
         note.setAdapter(adp);
     }
 
+
+    /**
+     * After the selection of the audio file
+     * @param requestCode - the requestcode
+     * @param resultCode - the resultcode
+     * @param data - the received data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -516,7 +636,7 @@ public class MainActivity extends AppCompatActivity {
                                             }
                                             noteList.remove("");
                                             Collections.sort((List) noteList);
-                                            adp = new FileAdapter();
+                                            adp = new FileAdapter(noteList);
                                             note.setAdapter(adp);
                                             Intent intent = new Intent(MainActivity.this, Player.class);
                                             intent.putExtra("file", name);
@@ -546,7 +666,7 @@ public class MainActivity extends AppCompatActivity {
                                                 noteList.add(temp.trim());
                                             }
                                             Collections.sort((List) noteList);
-                                            adp = new FileAdapter();
+                                            adp = new FileAdapter(noteList);
                                             note.setAdapter(adp);
                                             Intent intent = new Intent(MainActivity.this, Player.class);
                                             intent.putExtra("file", name);
@@ -571,14 +691,27 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+
+    /**
+     * Navigates to search
+     */
     private void navigateToSearch() {
         Intent intent = new Intent(this, Search.class);
         startActivity(intent);
     }
 
+
+    /**
+     * Private Class for listView
+     */
     private class FileAdapter extends BaseAdapter
     {
 
+        ArrayList<String> s;
+        protected FileAdapter(ArrayList<String> s1)
+        {
+            s = s1;
+        }
         /**
          * gets the size of conversatrion list
          * @return size of conversation list
@@ -586,7 +719,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public int getCount()
         {
-            return noteList.size();
+            return s.size();
         }
 
         /**
@@ -597,7 +730,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public String getItem(int arg0)
         {
-            return noteList.get(arg0);
+            return s.get(arg0);
         }
 
         /**
@@ -628,7 +761,7 @@ public class MainActivity extends AppCompatActivity {
                 v = getLayoutInflater().inflate(R.layout.file_list, null);
 
             TextView lbl = (TextView) v.findViewById(R.id.name);
-            lbl.setText(noteList.get(pos));
+            lbl.setText(s.get(pos));
 
             return v;
         }
