@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
                                                     e.putString("myFolders", temp + name.trim()
                                                             + " (FOLDER)" + "\n");
                                                     e.commit();
-                                                    noteList.add(name.trim() + " (FOLDER)");
+                                                    noteList.add(name.trim());
                                                     Collections.sort((List) noteList);
                                                     //ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
                                                     //        android.R.layout.simple_list_item_1, noteList);
@@ -146,15 +146,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 file = noteList.get(position);
-                if (!file.contains("(FOLDER)")) {
-                    if (!myPrefs.getString(file, "").equals("")) {
+                if (myPrefs.getString(file, "").contains("content:/")) {
                         Intent intent = new Intent(MainActivity.this, Player.class);
                         intent.putExtra("file", file);
                         startActivity(intent);
-                    }
                 } else {
                     noteList = new ArrayList<>();
-                    Scanner in = new Scanner(myPrefs.getString(file, ""));
+                    Scanner in = new Scanner(myPrefs.getString(file + " (FOLDER)", ""));
                     while (in.hasNextLine()) {
                         String temp = in.nextLine();
                         noteList.add(temp.trim());
@@ -162,11 +160,8 @@ public class MainActivity extends AppCompatActivity {
                     noteList.remove("");
                     title.setVisibility(View.VISIBLE);
                     back.setVisibility(View.VISIBLE);
-                    file = file.replace(" (FOLDER)", "");
                     title.setText(file);
                     Collections.sort((List) noteList);
-                    //ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
-                    //        android.R.layout.simple_list_item_1, noteList);
                     adp = new FileAdapter();
                     note.setAdapter(adp);
                 }
@@ -178,13 +173,20 @@ public class MainActivity extends AppCompatActivity {
             public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
                 alertDialog.setTitle(note.getItemAtPosition(position).toString());
-                alertDialog.setMessage("Delete the file");
+                if(myPrefs.getString(note.getItemAtPosition(position).toString(), "").contains("content:/"))
+                {
+                    alertDialog.setMessage("Delete the file");
+                }
+                else
+                {
+                    alertDialog.setMessage("Delete the folder");
+                }
                 alertDialog.setPositiveButton("Delete",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 SharedPreferences.Editor e = myPrefs.edit();
-                                String temp = "";
-                                if ((!note.getItemAtPosition(position).toString().contains(" (FOLDER)")) &&
+                                String temp;
+                                if ((myPrefs.getString(note.getItemAtPosition(position).toString(), "").contains("content:/")) &&
                                         title.getVisibility() == View.INVISIBLE) {
                                     temp = myPrefs.getString("myFiles", "");
                                     String t = note.getItemAtPosition(position).toString() + "\n";
@@ -204,9 +206,11 @@ public class MainActivity extends AppCompatActivity {
                                     in = new Scanner(myPrefs.getString("myFolders", ""));
                                     while (in.hasNextLine()) {
                                         String x = in.nextLine();
+                                        x = x.replace(" (FOLDER)", "");
                                         noteList.add(x.trim());
                                     }
-                                } else if ((!note.getItemAtPosition(position).toString().contains(" (FOLDER)")) &&
+                                } else if ((myPrefs.getString(note.getItemAtPosition(position).toString(), "")
+                                        .contains("content:/")) &&
                                         title.getVisibility() == View.VISIBLE) {
                                     temp = myPrefs.getString(title.getText().toString().trim() + " (FOLDER)", "");
                                     String t = noteList.get(position) + "\n";
@@ -225,9 +229,9 @@ public class MainActivity extends AppCompatActivity {
                                         noteList.add(x.trim());
                                     }
                                 } else {
-                                    String t = noteList.get(position) + "\n";
+                                    String t = noteList.get(position) + " (FOLDER)" + "\n";
                                     Scanner in = new Scanner(myPrefs.getString(
-                                            noteList.get(position), ""));
+                                            noteList.get(position) + " (FOLDER)", ""));
                                     while (in.hasNextLine()) {
                                         temp = in.nextLine();
                                         Log.d("Deleted", myPrefs.getString(temp
@@ -235,14 +239,14 @@ public class MainActivity extends AppCompatActivity {
                                         e.remove(myPrefs.getString(temp
                                                 , ""));  //deletes notes in the audio file
                                         Log.d("Deleted", temp);
-                                        e.remove(temp);
+                                        e.remove(temp);  //delete the audio file
                                         e.commit();
 
                                     }
                                     temp = myPrefs.getString("myFolders", "");
-                                    temp = temp.replace(t, "");     //deletes the audio file from the app
+                                    temp = temp.replace(t, "");     //deletes the folder from the app
                                     e.putString("myFolders", temp);
-                                    e.remove(note.getItemAtPosition(position).toString().trim());
+                                    e.remove(note.getItemAtPosition(position).toString() + " (FOLDER)");
                                     e.commit();
                                     noteList = new ArrayList<>();
                                     in = new Scanner(myPrefs.getString("myFiles", ""));
@@ -253,6 +257,7 @@ public class MainActivity extends AppCompatActivity {
                                     in = new Scanner(myPrefs.getString("myFolders", ""));
                                     while (in.hasNextLine()) {
                                         String x = in.nextLine();
+                                        x = x.replace(" (FOLDER)", "");
                                         noteList.add(x.trim());
                                     }
                                 }
@@ -309,6 +314,7 @@ public class MainActivity extends AppCompatActivity {
         while(in.hasNextLine())
         {
             String temp = in.nextLine();
+            temp = temp.replace(" (FOLDER)", "");
             noteList.add(temp.trim());
         }
         noteList.remove("");
@@ -349,8 +355,9 @@ public class MainActivity extends AppCompatActivity {
                 alertDialog.setPositiveButton("Create",
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
-                                    imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+
                                     if(title.getVisibility() == View.INVISIBLE) {
+                                        imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
                                         String name = input.getText().toString();
                                         name = name.substring(0,1).toUpperCase() + name.substring(1);
                                         if (!myPrefs.getString("myFiles", "").contains(name)) {
@@ -369,12 +376,11 @@ public class MainActivity extends AppCompatActivity {
                                             in = new Scanner(myPrefs.getString("myFolders", ""));
                                             while (in.hasNextLine()) {
                                                 String temp = in.nextLine();
+                                                temp = temp.replace(" (FOLDER)", "");
                                                 noteList.add(temp.trim());
                                             }
                                             noteList.remove("");
                                             Collections.sort((List) noteList);
-                                            //ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
-                                            //        android.R.layout.simple_list_item_1, noteList);
                                             adp = new FileAdapter();
                                             note.setAdapter(adp);
                                             Intent intent = new Intent(MainActivity.this, Player.class);
@@ -386,6 +392,7 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                     else
                                     {
+                                        imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
                                         String name = input.getText().toString();
                                         name = name.substring(0,1).toUpperCase() + name.substring(1);
                                         String f = myPrefs.getString(title.getText().toString().trim() + " (FOLDER)", "");
@@ -404,8 +411,6 @@ public class MainActivity extends AppCompatActivity {
                                                 noteList.add(temp.trim());
                                             }
                                             Collections.sort((List) noteList);
-                                            //ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
-                                            //        android.R.layout.simple_list_item_1, noteList);
                                             adp = new FileAdapter();
                                             note.setAdapter(adp);
                                             Intent intent = new Intent(MainActivity.this, Player.class);
@@ -482,7 +487,7 @@ public class MainActivity extends AppCompatActivity {
         public View getView(int pos, View v, ViewGroup arg2)
         {
             String c = getItem(pos);
-            if (c.contains(" (FOLDER)"))
+            if (!myPrefs.getString(c, "").contains("content:/"))
                 v = getLayoutInflater().inflate(R.layout.folder_list, null);
             else
                 v = getLayoutInflater().inflate(R.layout.file_list, null);
