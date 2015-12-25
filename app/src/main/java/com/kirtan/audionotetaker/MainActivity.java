@@ -409,7 +409,7 @@ public class MainActivity extends AppCompatActivity {
                                             adp = new FileAdapter();
                                             note.setAdapter(adp);
                                             Intent intent = new Intent(MainActivity.this, Player.class);
-                                            intent.putExtra("file", file);
+                                            intent.putExtra("file", name);
                                             startActivity(intent);
                                         } else {
                                             Toast.makeText(MainActivity.this, "This file already exists. Name it differently!", Toast.LENGTH_LONG).show();
