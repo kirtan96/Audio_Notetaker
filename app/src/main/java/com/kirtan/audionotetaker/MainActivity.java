@@ -12,9 +12,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -39,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     ImageView back;
     TextView title;
     Button search;
+    FileAdapter adp;
 
 
     @Override
@@ -50,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
         FloatingActionButton add = (FloatingActionButton) findViewById(R.id.fab);
         setTitle("All Notes");
+
 
         search = (Button) findViewById(R.id.search_button);
         back = (ImageView) findViewById(R.id.back);
@@ -95,9 +98,10 @@ public class MainActivity extends AppCompatActivity {
                                                     e.commit();
                                                     noteList.add(name.trim() + " (FOLDER)");
                                                     Collections.sort((List) noteList);
-                                                    ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
-                                                            android.R.layout.simple_list_item_1, noteList);
-                                                    note.setAdapter(arrayAdapter);
+                                                    //ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
+                                                    //        android.R.layout.simple_list_item_1, noteList);
+                                                    adp = new FileAdapter();
+                                                    note.setAdapter(adp);
                                                 } else {
                                                     Toast.makeText(MainActivity.this,
                                                             "Folder with this name already exists!",
@@ -161,9 +165,10 @@ public class MainActivity extends AppCompatActivity {
                     file = file.replace(" (FOLDER)", "");
                     title.setText(file);
                     Collections.sort((List) noteList);
-                    ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
-                            android.R.layout.simple_list_item_1, noteList);
-                    note.setAdapter(arrayAdapter);
+                    //ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
+                    //        android.R.layout.simple_list_item_1, noteList);
+                    adp = new FileAdapter();
+                    note.setAdapter(adp);
                 }
             }
         });
@@ -256,9 +261,10 @@ public class MainActivity extends AppCompatActivity {
                                 noteList.remove("");
                                 noteList.remove("");
                                 Collections.sort((List) noteList);
-                                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
-                                        android.R.layout.simple_list_item_1, noteList);
-                                note.setAdapter(arrayAdapter);
+                                //ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
+                                //        android.R.layout.simple_list_item_1, noteList);
+                                adp = new FileAdapter();
+                                note.setAdapter(adp);
                                 Toast.makeText(MainActivity.this, "Deleted...", Toast.LENGTH_LONG).show();
                             }
                         });
@@ -308,9 +314,10 @@ public class MainActivity extends AppCompatActivity {
         noteList.remove("");
         noteList.remove("");
         Collections.sort((List) (noteList));
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
-                android.R.layout.simple_list_item_1, noteList);
-        note.setAdapter(arrayAdapter);
+        //ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
+        //        android.R.layout.simple_list_item_1, noteList);
+        adp = new FileAdapter();
+        note.setAdapter(adp);
     }
 
     @Override
@@ -366,9 +373,10 @@ public class MainActivity extends AppCompatActivity {
                                             }
                                             noteList.remove("");
                                             Collections.sort((List) noteList);
-                                            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
-                                                    android.R.layout.simple_list_item_1, noteList);
-                                            note.setAdapter(arrayAdapter);
+                                            //ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
+                                            //        android.R.layout.simple_list_item_1, noteList);
+                                            adp = new FileAdapter();
+                                            note.setAdapter(adp);
                                             Intent intent = new Intent(MainActivity.this, Player.class);
                                             intent.putExtra("file", name);
                                             startActivity(intent);
@@ -396,9 +404,10 @@ public class MainActivity extends AppCompatActivity {
                                                 noteList.add(temp.trim());
                                             }
                                             Collections.sort((List) noteList);
-                                            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
-                                                    android.R.layout.simple_list_item_1, noteList);
-                                            note.setAdapter(arrayAdapter);
+                                            //ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
+                                            //        android.R.layout.simple_list_item_1, noteList);
+                                            adp = new FileAdapter();
+                                            note.setAdapter(adp);
                                             Intent intent = new Intent(MainActivity.this, Player.class);
                                             intent.putExtra("file", file);
                                             startActivity(intent);
@@ -425,6 +434,65 @@ public class MainActivity extends AppCompatActivity {
     private void navigateToSearch() {
         Intent intent = new Intent(this, Search.class);
         startActivity(intent);
+    }
+
+    private class FileAdapter extends BaseAdapter
+    {
+
+        /**
+         * gets the size of conversatrion list
+         * @return size of conversation list
+         */
+        @Override
+        public int getCount()
+        {
+            return noteList.size();
+        }
+
+        /**
+         * gets the selected conversation
+         * @param arg0 the position on the list
+         * @return the conversation at a selected position
+         */
+        @Override
+        public String getItem(int arg0)
+        {
+            return noteList.get(arg0);
+        }
+
+        /**
+         * gets the id for a selected positon
+         * @param arg0 the position on the list
+         * @return the id for the position
+         */
+        @Override
+        public long getItemId(int arg0)
+        {
+            return arg0;
+        }
+
+        /**
+         * gets the layout for a conversation
+         * @param pos the psoition of the conversation
+         * @param v the view for how the conversation is laid out
+         * @param arg2 the view group
+         * @return the overall layout of a conversation
+         */
+        @Override
+        public View getView(int pos, View v, ViewGroup arg2)
+        {
+            String c = getItem(pos);
+            if (c.contains(" (FOLDER)"))
+                v = getLayoutInflater().inflate(R.layout.folder_list, null);
+            else
+                v = getLayoutInflater().inflate(R.layout.file_list, null);
+
+            TextView lbl = (TextView) v.findViewById(R.id.name);
+            lbl.setText(noteList.get(pos));
+
+            return v;
+        }
+
     }
 
 }

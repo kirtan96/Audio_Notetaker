@@ -24,7 +24,8 @@
                 android:layout_height="30dp"
                 android:id="@+id/search_button"
                 android:background="@android:drawable/ic_menu_search"
-                android:layout_marginLeft="200dp"/>
+                android:layout_marginLeft="200dp"
+                />
             </android.support.v7.widget.Toolbar>
 
     </android.support.design.widget.AppBarLayout>
