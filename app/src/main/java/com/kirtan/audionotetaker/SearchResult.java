@@ -19,6 +19,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -97,13 +98,44 @@ public class SearchResult extends AppCompatActivity {
                 alertDialog.setMessage("Insert notes here:");
 
                 final EditText input = new EditText(SearchResult.this);
+                input.setSingleLine();
                 final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.MATCH_PARENT);
                 input.setLayoutParams(lp);
-                alertDialog.setView(input);
+
+                final CheckBox checkBox = new CheckBox(SearchResult.this);
+                checkBox.setText("Continue playing the audio");
+                checkBox.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (checkBox.isChecked()) {
+                            mediaPlayer.start();
+                            myHandler.postDelayed(UpdateSongTime, 100);
+                            SharedPreferences.Editor e = myPrefs.edit();
+                            e.putBoolean("checkBox", checkBox.isChecked());
+                            e.commit();
+                        } else {
+                            mediaPlayer.pause();
+                            SharedPreferences.Editor e = myPrefs.edit();
+                            e.putBoolean("checkBox", checkBox.isChecked());
+                            e.commit();
+                        }
+                    }
+                });
+                if(myPrefs.getBoolean("checkBox", false))
+                {
+                    mediaPlayer.start();
+                    myHandler.postDelayed(UpdateSongTime, 100);
+                    checkBox.setChecked(true);
+                }
+                LinearLayout ll = new LinearLayout(SearchResult.this);
+                ll.setOrientation(LinearLayout.VERTICAL);
+                ll.addView(input);
+                ll.addView(checkBox);
+                alertDialog.setView(ll);
 
                 alertDialog.setPositiveButton("Add",
                         new DialogInterface.OnClickListener() {
@@ -178,7 +210,7 @@ public class SearchResult extends AppCompatActivity {
         Intent intent = getIntent();
         String file = intent.getStringExtra("file");
         title.setText(file);
-        getSupportActionBar().setTitle(file);
+        setTitle(file);
         Uri myUri = Uri.parse(myPrefs.getString(file, ""));
         search = intent.getStringExtra("search");
         uri = myUri.toString();
@@ -258,13 +290,44 @@ public class SearchResult extends AppCompatActivity {
                             alertDialog.setMessage("Note:");
 
                             final EditText input = new EditText(SearchResult.this);
+                            input.setSingleLine();
                             final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                             imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
                             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                                     LinearLayout.LayoutParams.MATCH_PARENT,
                                     LinearLayout.LayoutParams.MATCH_PARENT);
                             input.setLayoutParams(lp);
-                            alertDialog.setView(input);
+
+                            final CheckBox checkBox = new CheckBox(SearchResult.this);
+                            checkBox.setText("Continue playing the audio");
+                            checkBox.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    if (checkBox.isChecked()) {
+                                        mediaPlayer.start();
+                                        myHandler.postDelayed(UpdateSongTime, 100);
+                                        SharedPreferences.Editor e = myPrefs.edit();
+                                        e.putBoolean("checkBox", checkBox.isChecked());
+                                        e.commit();
+                                    } else {
+                                        mediaPlayer.pause();
+                                        SharedPreferences.Editor e = myPrefs.edit();
+                                        e.putBoolean("checkBox", checkBox.isChecked());
+                                        e.commit();
+                                    }
+                                }
+                            });
+                            if(myPrefs.getBoolean("checkBox", false))
+                            {
+                                mediaPlayer.start();
+                                myHandler.postDelayed(UpdateSongTime, 100);
+                                checkBox.setChecked(true);
+                            }
+                            LinearLayout ll = new LinearLayout(SearchResult.this);
+                            ll.setOrientation(LinearLayout.VERTICAL);
+                            ll.addView(input);
+                            ll.addView(checkBox);
+                            alertDialog.setView(ll);
                             real = noteList.get(position);
                             final String x = noteList.get(position).substring(
                                     noteList.get(position).indexOf(" ") + 1,

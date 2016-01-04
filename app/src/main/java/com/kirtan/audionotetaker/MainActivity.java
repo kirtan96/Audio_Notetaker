@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
                                 alertDialog.setMessage("Add a Folder:");
 
                                 final EditText input = new EditText(MainActivity.this);
+                                input.setSingleLine();
                                 final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
                                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
@@ -162,6 +163,7 @@ public class MainActivity extends AppCompatActivity {
                     title.setVisibility(View.VISIBLE);
                     back.setVisibility(View.VISIBLE);
                     title.setText(file);
+                    setTitle(file);
                     Collections.sort((List) noteList);
                     adp = new FileAdapter(noteList);
                     note.setAdapter(adp);
@@ -208,6 +210,7 @@ public class MainActivity extends AppCompatActivity {
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                setTitle("All Notes");
                 update();
             }
         });
@@ -245,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
         }
         if(title.getVisibility() == View.VISIBLE)
         {
-            list.add("General");
+            list.add("All Notes");
             list.remove(title.getText().toString().trim());
         }
         list.remove("");
@@ -271,7 +274,7 @@ public class MainActivity extends AppCompatActivity {
                     temp[0] = myPrefs.getString(title.getText().toString() + " (FOLDER)", "");
                     t[0] = noteList.get(position) + "\n";
                     temp[0] = temp[0].replace(t[0].toString(), "");
-                    if(!list.get(p).equals("General"))
+                    if(!list.get(p).equals("All Notes"))
                     {
                         t2[0] = list.get(p) + " (FOLDER)";
                     }
@@ -305,7 +308,7 @@ public class MainActivity extends AppCompatActivity {
                         i[0] == 1){
                     SharedPreferences.Editor e = myPrefs.edit();
                     e.putString(title.getText().toString() + " (FOLDER)", temp[0]);
-                    if(!t2[0].equals("General"))
+                    if(!t2[0].equals("All Notes"))
                     {
                         e.putString(t2[0].toString(), myPrefs.getString(t2[0].toString(), "") + t[0]);
                     }
@@ -338,6 +341,7 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("Rename");
         final EditText input = new EditText(MainActivity.this);
+        input.setSingleLine();
         final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
@@ -597,6 +601,7 @@ public class MainActivity extends AppCompatActivity {
                 alertDialog.setMessage("Name the file:");
 
                 final EditText input = new EditText(MainActivity.this);
+                input.setSingleLine();
                 final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
