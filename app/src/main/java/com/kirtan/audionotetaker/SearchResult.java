@@ -323,6 +323,10 @@ public class SearchResult extends AppCompatActivity {
                                 myHandler.postDelayed(UpdateSongTime, 100);
                                 checkBox.setChecked(true);
                             }
+                            else
+                            {
+                                mediaPlayer.pause();
+                            }
                             LinearLayout ll = new LinearLayout(SearchResult.this);
                             ll.setOrientation(LinearLayout.VERTICAL);
                             ll.addView(input);
@@ -351,6 +355,8 @@ public class SearchResult extends AppCompatActivity {
                                             ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(SearchResult.this,
                                                     android.R.layout.simple_list_item_1, noteList);
                                             note.setAdapter(arrayAdapter);
+                                            mediaPlayer.start();
+                                            myHandler.postDelayed(UpdateSongTime, 100);
                                         }
                                     });
 
@@ -358,6 +364,8 @@ public class SearchResult extends AppCompatActivity {
                                     new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int which) {
                                             imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                                            mediaPlayer.start();
+                                            myHandler.postDelayed(UpdateSongTime, 100);
                                             dialog.cancel();
                                         }
                                     });

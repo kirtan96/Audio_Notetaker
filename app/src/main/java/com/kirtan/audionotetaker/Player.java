@@ -279,6 +279,10 @@ public class Player extends AppCompatActivity {
                                 myHandler.postDelayed(UpdateSongTime, 100);
                                 checkBox.setChecked(true);
                             }
+                            else
+                            {
+                                mediaPlayer.pause();
+                            }
                             LinearLayout ll = new LinearLayout(Player.this);
                             ll.setOrientation(LinearLayout.VERTICAL);
                             ll.addView(input);
@@ -307,6 +311,8 @@ public class Player extends AppCompatActivity {
                                             ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(Player.this,
                                                     android.R.layout.simple_list_item_1, noteList);
                                             note.setAdapter(arrayAdapter);
+                                            mediaPlayer.start();
+                                            myHandler.postDelayed(UpdateSongTime, 100);
                                         }
                                     });
 
@@ -314,6 +320,8 @@ public class Player extends AppCompatActivity {
                                     new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int which) {
                                             imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                                            mediaPlayer.start();
+                                            myHandler.postDelayed(UpdateSongTime, 100);
                                             dialog.cancel();
                                         }
                                     });
