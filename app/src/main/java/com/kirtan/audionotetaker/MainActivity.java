@@ -42,7 +42,8 @@ public class MainActivity extends AppCompatActivity {
     Button search;
     FileAdapter adp;
     public View row;
-
+    ArrayList<String> folderLists;
+    ArrayList<String> fileLists;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,10 +99,11 @@ public class MainActivity extends AppCompatActivity {
                                                     e.putString("myFolders", temp + name.trim()
                                                             + " (FOLDER)" + "\n");
                                                     e.commit();
-                                                    noteList.add(name.trim());
-                                                    Collections.sort((List) noteList);
-                                                    //ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
-                                                    //        android.R.layout.simple_list_item_1, noteList);
+                                                    folderLists.add(name.trim());
+                                                    Collections.sort((List) folderLists);
+                                                    noteList = new ArrayList<>();
+                                                    noteList.addAll(folderLists);
+                                                    noteList.addAll(fileLists);
                                                     adp = new FileAdapter(noteList);
                                                     note.setAdapter(adp);
                                                 } else {
@@ -301,8 +303,7 @@ public class MainActivity extends AppCompatActivity {
                     e.putString("myFiles", temp[0]);
                     e.putString(t2[0].toString(), myPrefs.getString(t2[0].toString(), "") + t[0]);
                     e.commit();
-                    noteList.remove(position);
-                    note.setAdapter(new FileAdapter(noteList));
+                    update();
                 }
                 else if(title.getVisibility() == View.VISIBLE &&
                         i[0] == 1){
@@ -317,8 +318,7 @@ public class MainActivity extends AppCompatActivity {
                         e.putString("myFiles", myPrefs.getString("myFiles", "") + t[0]);
                     }
                     e.commit();
-                    noteList.remove(position);
-                    note.setAdapter(new FileAdapter(noteList));
+                    update();
                 }
             }
         });
@@ -377,11 +377,7 @@ public class MainActivity extends AppCompatActivity {
                             e.putString("myFiles", temp);
                             e.remove(currentName);
                             e.commit();
-                            noteList.remove(currentName);
-                            noteList.add(changedName);
-                            Collections.sort((List) noteList);
-                            adp = new FileAdapter(noteList);
-                            note.setAdapter(adp);
+                            update();
                         }
                         else if(!myPrefs.getString(currentName,"").contains("content:/") &&
                                 !myPrefs.getString("myFolders", "").contains(input.getText().toString()
@@ -407,11 +403,7 @@ public class MainActivity extends AppCompatActivity {
                             e.putString("myFolders", temp);
                             e.remove(currentName + " (FOLDER)");
                             e.commit();
-                            noteList.remove(currentName);
-                            noteList.add(changedName);
-                            Collections.sort((List) noteList);
-                            adp = new FileAdapter(noteList);
-                            note.setAdapter(adp);
+                            update();
                         }
                         else if(!myPrefs.getString(title.getText().toString(), "").contains(
                                 input.getText().toString() + "\n"
@@ -437,11 +429,7 @@ public class MainActivity extends AppCompatActivity {
                             e.putString(title.getText().toString() + " (FOLDER)", temp);
                             e.remove(currentName);
                             e.commit();
-                            noteList.remove(currentName);
-                            noteList.add(changedName);
-                            Collections.sort((List) noteList);
-                            adp = new FileAdapter(noteList);
-                            note.setAdapter(adp);
+                            update();
                         }
                     }
                 });
@@ -476,18 +464,7 @@ public class MainActivity extends AppCompatActivity {
             e.putString("myFiles", temp);
             e.remove(note.getItemAtPosition(position).toString());
             e.commit();
-            noteList = new ArrayList<>();
-            Scanner in = new Scanner(myPrefs.getString("myFiles", ""));
-            while (in.hasNextLine()) {
-                String x = in.nextLine();
-                noteList.add(x.trim());
-            }
-            in = new Scanner(myPrefs.getString("myFolders", ""));
-            while (in.hasNextLine()) {
-                String x = in.nextLine();
-                x = x.replace(" (FOLDER)", "");
-                noteList.add(x.trim());
-            }
+            update();
         } else if ((myPrefs.getString(note.getItemAtPosition(position).toString(), "")
                 .contains("content:/")) &&
                 title.getVisibility() == View.VISIBLE) {
@@ -500,13 +477,7 @@ public class MainActivity extends AppCompatActivity {
             e.putString(title.getText().toString().trim() + " (FOLDER)", temp);
             e.remove(noteList.get(position));
             e.commit();
-            noteList = new ArrayList<>();
-            Scanner in = new Scanner(myPrefs.getString(
-                    title.getText().toString().trim() + " (FOLDER)", ""));
-            while (in.hasNextLine()) {
-                String x = in.nextLine();
-                noteList.add(x.trim());
-            }
+            update();
         } else {
             String t = noteList.get(position) + " (FOLDER)" + "\n";
             Scanner in = new Scanner(myPrefs.getString(
@@ -520,33 +491,15 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("Deleted", temp);
                 e.remove(temp);  //delete the audio file
                 e.commit();
-
             }
             temp = myPrefs.getString("myFolders", "");
             temp = temp.replace(t, "");     //deletes the folder from the app
             e.putString("myFolders", temp);
             e.remove(note.getItemAtPosition(position).toString() + " (FOLDER)");
             e.commit();
-            noteList = new ArrayList<>();
-            in = new Scanner(myPrefs.getString("myFiles", ""));
-            while (in.hasNextLine()) {
-                String x = in.nextLine();
-                noteList.add(x.trim());
-            }
-            in = new Scanner(myPrefs.getString("myFolders", ""));
-            while (in.hasNextLine()) {
-                String x = in.nextLine();
-                x = x.replace(" (FOLDER)", "");
-                noteList.add(x.trim());
-            }
+            update();
         }
-        noteList.remove("");
-        noteList.remove("");
-        Collections.sort((List) noteList);
-        //ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MainActivity.this,
-        //        android.R.layout.simple_list_item_1, noteList);
-        adp = new FileAdapter(noteList);
-        note.setAdapter(adp);
+        update();
         Toast.makeText(MainActivity.this, "Deleted...", Toast.LENGTH_LONG).show();
     }
 
@@ -558,22 +511,27 @@ public class MainActivity extends AppCompatActivity {
         back.setVisibility(View.INVISIBLE);
         title.setVisibility(View.INVISIBLE);
         noteList = new ArrayList<>();
+        fileLists = new ArrayList<>();
+        folderLists = new ArrayList<>();
         Scanner in = new Scanner(myPrefs.getString("myFiles", ""));
         while(in.hasNextLine())
         {
             String temp = in.nextLine();
-            noteList.add(temp.trim());
+            fileLists.add(temp.trim());
         }
         in = new Scanner(myPrefs.getString("myFolders", ""));
         while(in.hasNextLine())
         {
             String temp = in.nextLine();
             temp = temp.replace(" (FOLDER)", "");
-            noteList.add(temp.trim());
+            folderLists.add(temp.trim());
         }
-        noteList.remove("");
-        noteList.remove("");
-        Collections.sort((List) (noteList));
+        fileLists.remove("");
+        folderLists.remove("");
+        Collections.sort((List) (fileLists));
+        Collections.sort((List) (folderLists));
+        noteList.addAll(folderLists);
+        noteList.addAll(fileLists);
         adp = new FileAdapter(noteList);
         note.setAdapter(adp);
     }
@@ -627,22 +585,7 @@ public class MainActivity extends AppCompatActivity {
                                             e.putString("myFiles", myFiles + name + "\n");
                                             e.putString(name, uri);
                                             e.commit();
-                                            noteList = new ArrayList<>();
-                                            Scanner in = new Scanner(myPrefs.getString("myFiles", ""));
-                                            while (in.hasNextLine()) {
-                                                String temp = in.nextLine();
-                                                noteList.add(temp.trim());
-                                            }
-                                            in = new Scanner(myPrefs.getString("myFolders", ""));
-                                            while (in.hasNextLine()) {
-                                                String temp = in.nextLine();
-                                                temp = temp.replace(" (FOLDER)", "");
-                                                noteList.add(temp.trim());
-                                            }
-                                            noteList.remove("");
-                                            Collections.sort((List) noteList);
-                                            adp = new FileAdapter(noteList);
-                                            note.setAdapter(adp);
+                                            update();
                                             Intent intent = new Intent(MainActivity.this, Player.class);
                                             intent.putExtra("file", name);
                                             startActivity(intent);
@@ -663,16 +606,7 @@ public class MainActivity extends AppCompatActivity {
                                                     f + name + "\n");
                                             e.putString(name, uri);
                                             e.commit();
-                                            noteList = new ArrayList<>();
-                                            Scanner in = new Scanner(myPrefs.getString(
-                                                    title.getText().toString().trim() + " (FOLDER)", ""));
-                                            while (in.hasNextLine()) {
-                                                String temp = in.nextLine();
-                                                noteList.add(temp.trim());
-                                            }
-                                            Collections.sort((List) noteList);
-                                            adp = new FileAdapter(noteList);
-                                            note.setAdapter(adp);
+                                            update();
                                             Intent intent = new Intent(MainActivity.this, Player.class);
                                             intent.putExtra("file", name);
                                             startActivity(intent);
