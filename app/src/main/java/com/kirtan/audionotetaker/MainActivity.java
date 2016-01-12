@@ -150,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 file = noteList.get(position);
-                if (myPrefs.getString(file, "").contains("content:/")) {
+                if (position >= folderLists.size()) {
                     Intent intent = new Intent(MainActivity.this, Player.class);
                     intent.putExtra("file", file);
                     startActivity(intent);
@@ -178,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
             public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
                 alertDialog.setTitle(note.getItemAtPosition(position).toString());
-                if (myPrefs.getString(note.getItemAtPosition(position).toString(), "").contains("content:/")) {
+                if (position >= folderLists.size()) {
                     alertDialog.setItems(new String[]{"Rename", "Move to...", "Delete"}, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -694,7 +694,7 @@ public class MainActivity extends AppCompatActivity {
         public View getView(int pos, View v, ViewGroup arg2)
         {
             String c = getItem(pos);
-            if (!myPrefs.getString(c, "").contains("content:/"))
+            if (pos < folderLists.size())
                 v = getLayoutInflater().inflate(R.layout.folder_list, null);
             else
                 v = getLayoutInflater().inflate(R.layout.file_list, null);
