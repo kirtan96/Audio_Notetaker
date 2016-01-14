@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 builder.setTitle("Choose an option:");
                 if (title.getVisibility() == View.INVISIBLE) {
-                    builder.setItems(new String[]{"Select a File", "Create a Folder"}, new DialogInterface.OnClickListener() {
+                    builder.setItems(new String[]{"Select an Audio File", "Create a Folder"}, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             if (which == 1) {
@@ -91,11 +91,16 @@ public class MainActivity extends AppCompatActivity {
                                         new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int which) {
                                                 imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-                                                if (!myPrefs.getString("myFolders", "").contains(input.getText().toString())) {
+                                                System.out.println(myPrefs.getString("myFolders", ""));
+                                                String name = input.getText().toString();
+                                                if(name.length()>=1)
+                                                {
+                                                    name = name.substring(0, 1).toUpperCase() + name.substring(1);
+                                                }
+                                                if (!myPrefs.getString("myFolders", "").contains(name.trim() + " (FOLDER)") &&
+                                                        !name.trim().equals("")) {
                                                     SharedPreferences.Editor e = myPrefs.edit();
                                                     String temp = myPrefs.getString("myFolders", "");
-                                                    String name = input.getText().toString();
-                                                    name = name.substring(0, 1).toUpperCase() + name.substring(1);
                                                     e.putString("myFolders", temp + name.trim()
                                                             + " (FOLDER)" + "\n");
                                                     e.commit();
@@ -132,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
                 } else {
-                    builder.setItems(new String[]{"File"}, new DialogInterface.OnClickListener() {
+                    builder.setItems(new String[]{"Audio File"}, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             Intent intent_upload = new Intent();
@@ -155,6 +160,7 @@ public class MainActivity extends AppCompatActivity {
                     intent.putExtra("file", file);
                     startActivity(intent);
                 } else {
+                    folderLists = new ArrayList<>();
                     noteList = new ArrayList<>();
                     Scanner in = new Scanner(myPrefs.getString(file + " (FOLDER)", ""));
                     while (in.hasNextLine()) {
@@ -270,18 +276,13 @@ public class MainActivity extends AppCompatActivity {
                     temp[0] = temp[0].replace(t[0].toString(), "");
                     t2[0] = list.get(p) + " (FOLDER)";
                     i[0] = 1;
-                }
-                else if(title.getVisibility() == View.VISIBLE)
-                {
+                } else if (title.getVisibility() == View.VISIBLE) {
                     temp[0] = myPrefs.getString(title.getText().toString() + " (FOLDER)", "");
                     t[0] = noteList.get(position) + "\n";
                     temp[0] = temp[0].replace(t[0].toString(), "");
-                    if(!list.get(p).equals("All Notes"))
-                    {
+                    if (!list.get(p).equals("All Notes")) {
                         t2[0] = list.get(p) + " (FOLDER)";
-                    }
-                    else
-                    {
+                    } else {
                         t2[0] = list.get(p);
                     }
                     i[0] = 1;
@@ -349,18 +350,22 @@ public class MainActivity extends AppCompatActivity {
                 LinearLayout.LayoutParams.MATCH_PARENT);
         input.setLayoutParams(lp);
         builder.setView(input);
+        input.setText(currentName);
 
         builder.setPositiveButton("Save",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-                        if (myPrefs.getString(currentName,"").contains("content:/") &&
-                                title.getVisibility() == View.INVISIBLE &&
-                                !myPrefs.getString("myFiles", "").contains(input.getText().toString() + "\n")) {
-                            SharedPreferences.Editor e = myPrefs.edit();
-                            String changedName = input.getText().toString().trim();
+                        String changedName = input.getText().toString().trim();
+                        if(changedName.length()>=1)
+                        {
                             changedName = changedName.substring(0,1).toUpperCase()
                                     + changedName.substring(1);
+                        }
+                        if (myPrefs.getString(currentName,"").contains("content:/") &&
+                                title.getVisibility() == View.INVISIBLE &&
+                                !myPrefs.getString("myFiles", "").contains(changedName.trim() + "\n")) {
+                            SharedPreferences.Editor e = myPrefs.edit();
                             String temp = myPrefs.getString("myFiles", "");
                             String t = "\n" + currentName + "\n";
                             if(!temp.contains(t))
@@ -380,13 +385,11 @@ public class MainActivity extends AppCompatActivity {
                             update();
                         }
                         else if(!myPrefs.getString(currentName,"").contains("content:/") &&
-                                !myPrefs.getString("myFolders", "").contains(input.getText().toString()
-                                        + " (FOLDER)" + "\n"))
+                                !myPrefs.getString("myFolders", "").contains(changedName.trim()
+                                        + " (FOLDER)" + "\n") &&
+                                title.getVisibility() == View.INVISIBLE)
                         {
                             SharedPreferences.Editor e = myPrefs.edit();
-                            String changedName = input.getText().toString().trim();
-                            changedName = changedName.substring(0,1).toUpperCase()
-                                    + changedName.substring(1);
                             String temp = myPrefs.getString("myFolders", "");
                             String t = "\n" + currentName + " (FOLDER)" + "\n";
                             if(!temp.contains(t))
@@ -405,13 +408,10 @@ public class MainActivity extends AppCompatActivity {
                             e.commit();
                             update();
                         }
-                        else if(!myPrefs.getString(title.getText().toString(), "").contains(
-                                input.getText().toString() + "\n"
-                        )){
+                        else if(!myPrefs.getString(title.getText().toString().trim() + " (FOLDER)", "").contains(
+                                changedName.trim() + "\n") &&
+                                title.getVisibility() == View.VISIBLE){
                             SharedPreferences.Editor e = myPrefs.edit();
-                            String changedName = input.getText().toString().trim();
-                            changedName = changedName.substring(0,1).toUpperCase()
-                                    + changedName.substring(1);
                             String temp = myPrefs.getString(title.getText().toString()+ " (FOLDER)",
                                     "");
                             String t = "\n" + currentName + "\n";
@@ -430,6 +430,12 @@ public class MainActivity extends AppCompatActivity {
                             e.remove(currentName);
                             e.commit();
                             update();
+                        }
+                        else
+                        {
+                            Toast.makeText(MainActivity.this,
+                                    "A file/folder with this name already exists!",
+                                    Toast.LENGTH_LONG).show();
                         }
                     }
                 });
@@ -571,51 +577,53 @@ public class MainActivity extends AppCompatActivity {
                 final String myFiles = myPrefs.getString("myFiles", "");
 
                 alertDialog.setPositiveButton("Create",
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
 
-                                    if(title.getVisibility() == View.INVISIBLE) {
-                                        imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-                                        String name = input.getText().toString();
-                                        name = name.substring(0,1).toUpperCase() + name.substring(1);
-                                        if (!myPrefs.getString("myFiles", "").contains(name)) {
-                                            file = input.getText().toString();
-                                            SharedPreferences.Editor e = myPrefs.edit();
-
-                                            e.putString("myFiles", myFiles + name + "\n");
-                                            e.putString(name, uri);
-                                            e.commit();
-                                            update();
-                                            Intent intent = new Intent(MainActivity.this, Player.class);
-                                            intent.putExtra("file", name);
-                                            startActivity(intent);
-                                        } else {
-                                            Toast.makeText(MainActivity.this, "This file already exists. Name it differently!", Toast.LENGTH_LONG).show();
-                                        }
-                                    }
-                                    else
-                                    {
-                                        imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-                                        String name = input.getText().toString();
-                                        name = name.substring(0,1).toUpperCase() + name.substring(1);
-                                        String f = myPrefs.getString(title.getText().toString().trim() + " (FOLDER)", "");
-                                        if (!myPrefs.getString(f, "").contains(name)) {
-                                            file = input.getText().toString();
-                                            SharedPreferences.Editor e = myPrefs.edit();
-                                            e.putString(title.getText().toString().trim() + " (FOLDER)",
-                                                    f + name + "\n");
-                                            e.putString(name, uri);
-                                            e.commit();
-                                            update();
-                                            Intent intent = new Intent(MainActivity.this, Player.class);
-                                            intent.putExtra("file", name);
-                                            startActivity(intent);
-                                        } else {
-                                            Toast.makeText(MainActivity.this, "This file already exists. Name it differently!", Toast.LENGTH_LONG).show();
-                                        }
-                                    }
+                                String name = input.getText().toString();
+                                if(name.length()>=1)
+                                {
+                                    name = name.substring(0, 1).toUpperCase() + name.substring(1);
                                 }
-                            });
+                                if (title.getVisibility() == View.INVISIBLE &&
+                                        !input.getText().toString().trim().equals("")) {
+                                    imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                                    if (!myPrefs.getString("myFiles", "").contains(name)) {
+                                        file = input.getText().toString();
+                                        SharedPreferences.Editor e = myPrefs.edit();
+                                        e.putString("myFiles", myFiles + name + "\n");
+                                        e.putString(name, uri);
+                                        e.commit();
+                                        update();
+                                        Intent intent = new Intent(MainActivity.this, Player.class);
+                                        intent.putExtra("file", name);
+                                        startActivity(intent);
+                                    } else {
+                                        Toast.makeText(MainActivity.this, "This file already exists. Name it differently!", Toast.LENGTH_LONG).show();
+                                    }
+                                } else if (title.getVisibility() == View.VISIBLE &&
+                                        !name.trim().equals("")) {
+                                    imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                                    String f = myPrefs.getString(title.getText().toString().trim() + " (FOLDER)", "");
+                                    if (!myPrefs.getString(f, "").contains(name)) {
+                                        file = input.getText().toString();
+                                        SharedPreferences.Editor e = myPrefs.edit();
+                                        e.putString(title.getText().toString().trim() + " (FOLDER)",
+                                                f + name + "\n");
+                                        e.putString(name, uri);
+                                        e.commit();
+                                        update();
+                                        Intent intent = new Intent(MainActivity.this, Player.class);
+                                        intent.putExtra("file", name);
+                                        startActivity(intent);
+                                    } else {
+                                        Toast.makeText(MainActivity.this, "This file already exists. Name it differently!", Toast.LENGTH_LONG).show();
+                                    }
+                                } else {
+                                    Toast.makeText(MainActivity.this, "Sorry. Cannot create a file with this name!", Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        });
 
                 alertDialog.setNegativeButton("Cancel",
                         new DialogInterface.OnClickListener() {

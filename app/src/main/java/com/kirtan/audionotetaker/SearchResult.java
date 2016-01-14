@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -25,6 +26,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -67,7 +69,7 @@ public class SearchResult extends AppCompatActivity {
         myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
 
         FloatingActionButton add = (FloatingActionButton) findViewById(R.id.fab);
-
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         pause.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,7 +94,7 @@ public class SearchResult extends AppCompatActivity {
             @Override
             public void onClick(View arg0) {
                 final String current = currentTime.getText().toString();
-                mediaPlayer.pause();
+                //mediaPlayer.pause();
                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(SearchResult.this);
                 alertDialog.setTitle("Notes");
                 alertDialog.setMessage("Insert notes here:");
@@ -131,6 +133,10 @@ public class SearchResult extends AppCompatActivity {
                     myHandler.postDelayed(UpdateSongTime, 100);
                     checkBox.setChecked(true);
                 }
+                else
+                {
+                    mediaPlayer.pause();
+                }
                 LinearLayout ll = new LinearLayout(SearchResult.this);
                 ll.setOrientation(LinearLayout.VERTICAL);
                 ll.addView(input);
@@ -143,31 +149,37 @@ public class SearchResult extends AppCompatActivity {
                                 imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
                                 mediaPlayer.start();
                                 myHandler.postDelayed(UpdateSongTime, 100);
-                                if (!n.equals("")) {
-                                    n = n + "\n" + current + ": " +
-                                            input.getText().toString();
-                                } else {
-                                    n = current + ": " + input.getText().toString();
+                                if(!input.getText().toString().trim().equals("")) {
+                                    if (!n.equals("")) {
+                                        n = n + "\n" + current + ": " +
+                                                input.getText().toString();
+                                    } else {
+                                        n = current + ": " + input.getText().toString();
+                                    }
+                                    Scanner in = new Scanner(n);
+                                    noteList = new ArrayList<>();
+                                    while (in.hasNextLine()) {
+                                        noteList.add(in.nextLine());
+                                    }
+                                    noteList.remove("");
+                                    Collections.sort((List) (noteList));     //sort
+                                    n = "";
+                                    for (int i = 0; i < noteList.size(); i++) {
+                                        n = n + noteList.get(i) + "\n";
+                                    }
+                                    ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(SearchResult.this,
+                                            android.R.layout.simple_list_item_1, noteList);
+                                    note.setAdapter(arrayAdapter);
+                                    SharedPreferences myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
+                                    SharedPreferences.Editor e = myPrefs.edit();
+                                    e.putString(uri,
+                                            n);
+                                    e.commit();
                                 }
-                                Scanner in = new Scanner(n);
-                                noteList = new ArrayList<>();
-                                while (in.hasNextLine()) {
-                                    noteList.add(in.nextLine());
+                                else
+                                {
+                                    Toast.makeText(SearchResult.this, "Cannot add empty note!", Toast.LENGTH_LONG).show();
                                 }
-                                noteList.remove("");
-                                Collections.sort((List) (noteList));     //sort
-                                n = "";
-                                for (int i = 0; i < noteList.size(); i++) {
-                                    n = n + noteList.get(i) + "\n";
-                                }
-                                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(SearchResult.this,
-                                        android.R.layout.simple_list_item_1, noteList);
-                                note.setAdapter(arrayAdapter);
-                                SharedPreferences myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
-                                SharedPreferences.Editor e = myPrefs.edit();
-                                e.putString(uri,
-                                        n);
-                                e.commit();
                             }
                         });
 
@@ -342,19 +354,24 @@ public class SearchResult extends AppCompatActivity {
                                     new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int which) {
                                             imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-                                            SharedPreferences.Editor e = myPrefs.edit();
-                                            real = real.replace(x, input.getText());
-                                            noteList.set(position, real);
-                                            n = "";
-                                            for(int i = 0; i < noteList.size(); i++)
-                                            {
-                                                n = n + noteList.get(i) + "\n";
+                                            if(!input.getText().toString().trim().equals("")) {
+                                                SharedPreferences.Editor e = myPrefs.edit();
+                                                real = real.replace(x, input.getText());
+                                                noteList.set(position, real);
+                                                n = "";
+                                                for (int i = 0; i < noteList.size(); i++) {
+                                                    n = n + noteList.get(i) + "\n";
+                                                }
+                                                e.putString(uri, n);
+                                                e.commit();
+                                                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(SearchResult.this,
+                                                        android.R.layout.simple_list_item_1, noteList);
+                                                note.setAdapter(arrayAdapter);
                                             }
-                                            e.putString(uri, n);
-                                            e.commit();
-                                            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(SearchResult.this,
-                                                    android.R.layout.simple_list_item_1, noteList);
-                                            note.setAdapter(arrayAdapter);
+                                            else
+                                            {
+                                                Toast.makeText(SearchResult.this, "Cannot add empty note!", Toast.LENGTH_LONG).show();
+                                            }
                                             mediaPlayer.start();
                                             myHandler.postDelayed(UpdateSongTime, 100);
                                         }
