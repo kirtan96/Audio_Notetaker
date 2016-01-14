@@ -55,7 +55,8 @@
             android:name=".RecordAudio"
             android:label="@string/title_activity_record_audio"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.kirtan.audionotetaker.MainActivity" />

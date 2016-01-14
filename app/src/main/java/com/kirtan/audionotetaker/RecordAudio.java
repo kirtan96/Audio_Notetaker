@@ -14,27 +14,31 @@ public class RecordAudio extends AppCompatActivity {
         setContentView(R.layout.activity_record_audio);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
     }
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        AlertDialog.Builder builder = new AlertDialog.Builder(RecordAudio.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setCancelable(false);
         builder.setTitle("WARNING");
-        builder.setMessage("You will lose this recording. Are you sure you want to continue?");
-        builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+        builder.setMessage("You will lose this recording. Do you want to continue?");
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                //if user pressed "yes", then he is allowed to exit from application
                 finish();
             }
         });
-        builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
+                //if user select "No", just cancel this dialog and continue with app
+                dialog.cancel();
             }
         });
-        builder.show();
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 }

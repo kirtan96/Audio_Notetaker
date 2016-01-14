@@ -53,14 +53,6 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         FloatingActionButton add = (FloatingActionButton) findViewById(R.id.fab);
-        FloatingActionButton mic = (FloatingActionButton) findViewById(R.id.mic);
-        mic.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, RecordAudio.class);
-                startActivity(intent);
-            }
-        });
         setTitle("All Notes");
 
 
@@ -77,10 +69,10 @@ public class MainActivity extends AppCompatActivity {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 builder.setTitle("Choose an option:");
                 if (title.getVisibility() == View.INVISIBLE) {
-                    builder.setItems(new String[]{"Select an Audio File", "Create a Folder"}, new DialogInterface.OnClickListener() {
+                    builder.setItems(new String[]{"Open Audio File", "Start New Recording", "Create New Folder"}, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            if (which == 1) {
+                            if (which == 2) {
                                 final AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
                                 alertDialog.setTitle("Folder");
                                 alertDialog.setMessage("Add a Folder:");
@@ -136,16 +128,21 @@ public class MainActivity extends AppCompatActivity {
                                         });
 
                                 alertDialog.show();
-                            } else {
+                            } else if(which == 0){
                                 Intent intent_upload = new Intent();
                                 intent_upload.setType("audio/*");
                                 intent_upload.setAction(Intent.ACTION_GET_CONTENT);
                                 startActivityForResult(intent_upload, 1);
                             }
+                            else if(which == 1)
+                            {
+                                Intent intent = new Intent(MainActivity.this, RecordAudio.class);
+                                startActivity(intent);
+                            }
                         }
                     });
                 } else {
-                    builder.setItems(new String[]{"Audio File"}, new DialogInterface.OnClickListener() {
+                    builder.setItems(new String[]{"Select Audio File"}, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             Intent intent_upload = new Intent();
