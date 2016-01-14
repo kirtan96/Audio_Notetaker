@@ -251,12 +251,17 @@ public class MainActivity extends AppCompatActivity {
         while(in.hasNextLine())
         {
             String temp = in.nextLine();
-            temp = temp.replace(" (FOLDER)","");
-            list.add(temp.trim());
+            temp = temp.replace(" (FOLDER)", "");
+            if(!myPrefs.getString(temp.trim() + " (FOLDER)", "").contains(currentName))
+            {
+                list.add(temp.trim());
+            }
         }
         if(title.getVisibility() == View.VISIBLE)
         {
-            list.add("All Notes");
+            if(!myPrefs.getString("myFiles", "").contains(currentName)) {
+                list.add("All Notes");
+            }
             list.remove(title.getText().toString().trim());
         }
         list.remove("");
@@ -581,8 +586,7 @@ public class MainActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int which) {
 
                                 String name = input.getText().toString();
-                                if(name.length()>=1)
-                                {
+                                if (name.length() >= 1) {
                                     name = name.substring(0, 1).toUpperCase() + name.substring(1);
                                 }
                                 if (title.getVisibility() == View.INVISIBLE &&
