@@ -53,6 +53,14 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         FloatingActionButton add = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton mic = (FloatingActionButton) findViewById(R.id.mic);
+        mic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, RecordAudio.class);
+                startActivity(intent);
+            }
+        });
         setTitle("All Notes");
 
 
