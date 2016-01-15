@@ -27,7 +27,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Stop Recording"
-        android:id="@+id/button"
+        android:id="@+id/stop"
         android:layout_below="@+id/start"
         android:layout_centerHorizontal="true" />
 </RelativeLayout>

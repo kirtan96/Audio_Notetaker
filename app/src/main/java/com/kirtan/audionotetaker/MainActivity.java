@@ -98,7 +98,8 @@ public class MainActivity extends AppCompatActivity {
                                                     name = name.substring(0, 1).toUpperCase() + name.substring(1);
                                                 }
                                                 if (!myPrefs.getString("myFolders", "").contains(name.trim() + " (FOLDER)") &&
-                                                        !name.trim().equals("")) {
+                                                        !name.trim().equals("") &&
+                                                        !name.trim().equals("All Notes")) {
                                                     SharedPreferences.Editor e = myPrefs.edit();
                                                     String temp = myPrefs.getString("myFolders", "");
                                                     e.putString("myFolders", temp + name.trim()
@@ -136,19 +137,116 @@ public class MainActivity extends AppCompatActivity {
                             }
                             else if(which == 1)
                             {
-                                Intent intent = new Intent(MainActivity.this, RecordAudio.class);
-                                startActivity(intent);
+                                final AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+                                alertDialog.setTitle("Recording File");
+                                alertDialog.setMessage("File Name:");
+
+                                final EditText input = new EditText(MainActivity.this);
+                                input.setSingleLine();
+                                final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                                        LinearLayout.LayoutParams.MATCH_PARENT,
+                                        LinearLayout.LayoutParams.MATCH_PARENT);
+                                input.setLayoutParams(lp);
+                                alertDialog.setView(input);
+
+                                alertDialog.setPositiveButton("Add",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                String name = input.getText().toString().trim();
+                                                if(name.length()>=1)
+                                                {
+                                                    name = name.substring(0, 1).toUpperCase() + name.substring(1);
+                                                }
+                                                if (!myPrefs.getString("myFiles", "").contains(name) &&
+                                                        !name.trim().equals("")) {
+                                                    Intent intent = new Intent(MainActivity.this, RecordAudio.class);
+                                                    intent.putExtra("fileName", name);
+                                                    intent.putExtra("folderName", "All Notes");
+                                                    startActivity(intent);
+                                                }
+                                                else {
+                                                    Toast.makeText(MainActivity.this,
+                                                            "Invalid File Name!",
+                                                            Toast.LENGTH_LONG).show();
+                                                }
+                                                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                                            }
+                                        });
+
+                                alertDialog.setNegativeButton("Cancel",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                                                dialog.cancel();
+                                            }
+                                        });
+
+                                alertDialog.show();
                             }
                         }
                     });
                 } else {
-                    builder.setItems(new String[]{"Select Audio File"}, new DialogInterface.OnClickListener() {
+                    builder.setItems(new String[]{"Open Audio File", "Start New Recording"}, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            Intent intent_upload = new Intent();
-                            intent_upload.setType("audio/*");
-                            intent_upload.setAction(Intent.ACTION_GET_CONTENT);
-                            startActivityForResult(intent_upload, 1);
+                            if(which == 0) {
+                                Intent intent_upload = new Intent();
+                                intent_upload.setType("audio/*");
+                                intent_upload.setAction(Intent.ACTION_GET_CONTENT);
+                                startActivityForResult(intent_upload, 1);
+                            }
+                            else if(which == 1)
+                            {
+                                final AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+                                alertDialog.setTitle("Recording File");
+                                alertDialog.setMessage("File Name:");
+
+                                final EditText input = new EditText(MainActivity.this);
+                                input.setSingleLine();
+                                final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                                        LinearLayout.LayoutParams.MATCH_PARENT,
+                                        LinearLayout.LayoutParams.MATCH_PARENT);
+                                input.setLayoutParams(lp);
+                                alertDialog.setView(input);
+
+                                alertDialog.setPositiveButton("Add",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                String name = input.getText().toString().trim();
+                                                if(name.length()>=1)
+                                                {
+                                                    name = name.substring(0, 1).toUpperCase() + name.substring(1);
+                                                }
+                                                if (!myPrefs.getString("myFiles", "").contains(name) &&
+                                                        !name.trim().equals("")) {
+                                                    Intent intent = new Intent(MainActivity.this, RecordAudio.class);
+                                                    intent.putExtra("fileName", name);
+                                                    intent.putExtra("folderName", title.getText().toString());
+                                                    startActivity(intent);
+                                                }
+                                                else {
+                                                    Toast.makeText(MainActivity.this,
+                                                            "Invalid File Name!",
+                                                            Toast.LENGTH_LONG).show();
+                                                }
+                                                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                                            }
+                                        });
+
+                                alertDialog.setNegativeButton("Cancel",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                                                dialog.cancel();
+                                            }
+                                        });
+
+                                alertDialog.show();
+                            }
                         }
                     });
                 }
@@ -481,9 +579,7 @@ public class MainActivity extends AppCompatActivity {
             e.remove(note.getItemAtPosition(position).toString());
             e.commit();
             update();
-        } else if ((myPrefs.getString(note.getItemAtPosition(position).toString(), "")
-                .contains("content:/")) &&
-                title.getVisibility() == View.VISIBLE) {
+        } else if (title.getVisibility() == View.VISIBLE) {
             temp = myPrefs.getString(title.getText().toString().trim() + " (FOLDER)", "");
             String t = noteList.get(position) + "\n";
             e.remove(myPrefs.getString(
