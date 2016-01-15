@@ -225,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
                                                         !name.trim().equals("")) {
                                                     Intent intent = new Intent(MainActivity.this, RecordAudio.class);
                                                     intent.putExtra("fileName", name);
-                                                    intent.putExtra("folderName", title.getText().toString());
+                                                    intent.putExtra("folderName", title.getText().toString().trim());
                                                     startActivity(intent);
                                                 }
                                                 else {

@@ -51,9 +51,7 @@ public class RecordAudio extends AppCompatActivity {
             folder.mkdir();
         }
         SharedPreferences.Editor e = myPrefs.edit();
-        e.putInt("recordingsInt", 1);
-        e.commit();
-        outputFile = folder + "/recordings " + myPrefs.getInt("recordingsInt", 0) + ".3gp";
+        outputFile = folder + "/recordings " + myPrefs.getInt("recordingsInt", 1) + ".3gp";
         System.out.println(outputFile);
         mediaRecorder.setOutputFile(outputFile);
 
@@ -100,7 +98,7 @@ public class RecordAudio extends AppCompatActivity {
         }
         else
         {
-            editor.putString(folderName, myPrefs.getString(folderName + " (FOLDER)", "") + fileName + "\n");
+            editor.putString(folderName + " (FOLDER)", myPrefs.getString(folderName + " (FOLDER)", "") + fileName + "\n");
             editor.commit();
         }
         editor.putString(fileName, Uri.fromFile(new File(outputFile)).toString());
