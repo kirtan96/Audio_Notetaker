@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
                                                     note.setAdapter(adp);
                                                 } else {
                                                     Toast.makeText(MainActivity.this,
-                                                            "Folder with this name already exists!",
+                                                            "Cannot create a folder with this name!",
                                                             Toast.LENGTH_LONG).show();
                                                 }
                                             }
@@ -343,6 +343,7 @@ public class MainActivity extends AppCompatActivity {
         final String currentName = noteList.get(position);
         final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("Move to...");
+        builder.setCancelable(false);
         final ListView listView = new ListView(MainActivity.this);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -449,6 +450,7 @@ public class MainActivity extends AppCompatActivity {
         final String currentName = noteList.get(position);
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("Rename");
+        builder.setCancelable(false);
         final EditText input = new EditText(MainActivity.this);
         input.setSingleLine();
         final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -567,7 +569,7 @@ public class MainActivity extends AppCompatActivity {
     private void delete(int position) {
         SharedPreferences.Editor e = myPrefs.edit();
         String temp;
-        if ((myPrefs.getString(note.getItemAtPosition(position).toString(), "").contains("content:/")) &&
+        if (position >= folderLists.size() &&
                 title.getVisibility() == View.INVISIBLE) {
             temp = myPrefs.getString("myFiles", "");
             String t = note.getItemAtPosition(position).toString() + "\n";

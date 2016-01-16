@@ -443,6 +443,10 @@ public class SearchResult extends AppCompatActivity {
                                                 toMinutes((long) startTime)))
                 );
                 seekBar.setProgress((int) startTime);
+                if(currentTime.getText().toString().equals(finalTime.getText().toString()))
+                {
+                    pause.setText("Play");
+                }
                 myHandler.postDelayed(this, 100);
             }
         }
