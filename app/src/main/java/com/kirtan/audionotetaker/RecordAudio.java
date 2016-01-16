@@ -173,7 +173,15 @@ public class RecordAudio extends AppCompatActivity {
                                     Collections.sort((List) (noteList));    //sort
                                     n = "";
                                     for (int i = 0; i < noteList.size(); i++) {
-                                        n = n + noteList.get(i) + "\n";
+                                        if(noteList.get(i).trim().equals(""))
+                                        {
+                                            noteList.remove(i);
+                                            i--;
+                                        }
+                                        else
+                                        {
+                                            n = n + noteList.get(i) + "\n";
+                                        }
                                     }
                                     noteList.remove("");
                                     noteList.remove("");
@@ -246,7 +254,15 @@ public class RecordAudio extends AppCompatActivity {
                                                 noteList.set(position, real);
                                                 n = "";
                                                 for (int i = 0; i < noteList.size(); i++) {
-                                                    n = n + noteList.get(i) + "\n";
+                                                    if(noteList.get(i).trim().equals(""))
+                                                    {
+                                                        noteList.remove(i);
+                                                        i--;
+                                                    }
+                                                    else
+                                                    {
+                                                        n = n + noteList.get(i) + "\n";
+                                                    }
                                                 }
                                                 e.putString(myUri, n);
                                                 e.commit();
@@ -273,7 +289,15 @@ public class RecordAudio extends AppCompatActivity {
                             noteList.remove(position);
                             n = "";
                             for (int i = 0; i < noteList.size(); i++) {
-                                n = n + noteList.get(i) + "\n";
+                                if(noteList.get(i).trim().equals(""))
+                                {
+                                    noteList.remove(i);
+                                    i--;
+                                }
+                                else
+                                {
+                                    n = n + noteList.get(i) + "\n";
+                                }
                             }
                             e.putString(myUri, n);
                             e.commit();

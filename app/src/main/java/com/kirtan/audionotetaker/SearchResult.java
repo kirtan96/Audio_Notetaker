@@ -165,7 +165,15 @@ public class SearchResult extends AppCompatActivity {
                                     Collections.sort((List) (noteList));     //sort
                                     n = "";
                                     for (int i = 0; i < noteList.size(); i++) {
-                                        n = n + noteList.get(i) + "\n";
+                                        if(noteList.get(i).trim().equals(""))
+                                        {
+                                            noteList.remove(i);
+                                            i--;
+                                        }
+                                        else
+                                        {
+                                            n = n + noteList.get(i) + "\n";
+                                        }
                                     }
                                     ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(SearchResult.this,
                                             android.R.layout.simple_list_item_1, noteList);
@@ -360,7 +368,15 @@ public class SearchResult extends AppCompatActivity {
                                                 noteList.set(position, real);
                                                 n = "";
                                                 for (int i = 0; i < noteList.size(); i++) {
-                                                    n = n + noteList.get(i) + "\n";
+                                                    if(noteList.get(i).trim().equals(""))
+                                                    {
+                                                        noteList.remove(i);
+                                                        i--;
+                                                    }
+                                                    else
+                                                    {
+                                                        n = n + noteList.get(i) + "\n";
+                                                    }
                                                 }
                                                 e.putString(uri, n);
                                                 e.commit();
@@ -394,7 +410,15 @@ public class SearchResult extends AppCompatActivity {
                             n = "";
                             for(int i = 0; i < noteList.size(); i++)
                             {
-                                n = n + noteList.get(i) + "\n";
+                                if(noteList.get(i).trim().equals(""))
+                                {
+                                    noteList.remove(i);
+                                    i--;
+                                }
+                                else
+                                {
+                                    n = n + noteList.get(i) + "\n";
+                                }
                             }
                             e.putString(uri, n);
                             e.commit();

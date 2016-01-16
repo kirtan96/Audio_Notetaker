@@ -170,10 +170,17 @@ public class Player extends AppCompatActivity {
                                     Collections.sort((List) (noteList));    //sort
                                     n = "";
                                     for (int i = 0; i < noteList.size(); i++) {
-                                        n = n + noteList.get(i) + "\n";
+
+                                        if(noteList.get(i).trim().equals(""))
+                                        {
+                                            noteList.remove(i);
+                                            i--;
+                                        }
+                                        else
+                                        {
+                                            n = n + noteList.get(i) + "\n";
+                                        }
                                     }
-                                    noteList.remove("");
-                                    noteList.remove("");
                                     ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(Player.this,
                                             android.R.layout.simple_list_item_1, noteList);
                                     note.setAdapter(arrayAdapter);
@@ -313,7 +320,15 @@ public class Player extends AppCompatActivity {
                                                 noteList.set(position, real);
                                                 n = "";
                                                 for (int i = 0; i < noteList.size(); i++) {
-                                                    n = n + noteList.get(i) + "\n";
+                                                    if(noteList.get(i).trim().equals(""))
+                                                    {
+                                                        noteList.remove(i);
+                                                        i--;
+                                                    }
+                                                    else
+                                                    {
+                                                        n = n + noteList.get(i) + "\n";
+                                                    }
                                                 }
                                                 e.putString(uri, n);
                                                 e.commit();
@@ -347,7 +362,15 @@ public class Player extends AppCompatActivity {
                             n = "";
                             for(int i = 0; i < noteList.size(); i++)
                             {
-                                n = n + noteList.get(i) + "\n";
+                                if(noteList.get(i).trim().equals(""))
+                                {
+                                    noteList.remove(i);
+                                    i--;
+                                }
+                                else
+                                {
+                                    n = n + noteList.get(i) + "\n";
+                                }
                             }
                             e.putString(uri, n);
                             e.commit();
