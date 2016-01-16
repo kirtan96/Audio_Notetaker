@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     public View row;
     ArrayList<String> folderLists;
     ArrayList<String> fileLists;
+    ArrayList<String> recordLists;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,6 +111,7 @@ public class MainActivity extends AppCompatActivity {
                                                     noteList = new ArrayList<>();
                                                     noteList.addAll(folderLists);
                                                     noteList.addAll(fileLists);
+                                                    noteList.addAll(recordLists);
                                                     adp = new FileAdapter(noteList);
                                                     note.setAdapter(adp);
                                                 } else {
@@ -266,16 +268,30 @@ public class MainActivity extends AppCompatActivity {
                     folderLists = new ArrayList<>();
                     noteList = new ArrayList<>();
                     Scanner in = new Scanner(myPrefs.getString(file + " (FOLDER)", ""));
-                    while (in.hasNextLine()) {
-                        String temp = in.nextLine();
-                        noteList.add(temp.trim());
+                    fileLists = new ArrayList<>();
+                    recordLists = new ArrayList<>();
+                    while(in.hasNextLine())
+                    {
+                        String temp = in.nextLine().trim();
+                        if(myPrefs.getString(temp, "").contains("file:/"))
+                        {
+                            recordLists.add(temp);
+                        }
+                        else {
+                            fileLists.add(temp);
+                        }
                     }
+                    recordLists.remove("");
+                    fileLists.remove("");
+                    Collections.sort((List) recordLists);
+                    Collections.sort((List) fileLists);
+                    noteList.addAll(fileLists);
+                    noteList.addAll(recordLists);
                     noteList.remove("");
                     title.setVisibility(View.VISIBLE);
                     back.setVisibility(View.VISIBLE);
                     title.setText(file);
                     setTitle(file);
-                    Collections.sort((List) noteList);
                     adp = new FileAdapter(noteList);
                     note.setAdapter(adp);
                 }
@@ -414,17 +430,13 @@ public class MainActivity extends AppCompatActivity {
                     e.putString(t2[0].toString(), myPrefs.getString(t2[0].toString(), "") + t[0]);
                     e.commit();
                     update();
-                }
-                else if(title.getVisibility() == View.VISIBLE &&
-                        i[0] == 1){
+                } else if (title.getVisibility() == View.VISIBLE &&
+                        i[0] == 1) {
                     SharedPreferences.Editor e = myPrefs.edit();
                     e.putString(title.getText().toString() + " (FOLDER)", temp[0]);
-                    if(!t2[0].equals("All Notes"))
-                    {
+                    if (!t2[0].equals("All Notes")) {
                         e.putString(t2[0].toString(), myPrefs.getString(t2[0].toString(), "") + t[0]);
-                    }
-                    else
-                    {
+                    } else {
                         e.putString("myFiles", myPrefs.getString("myFiles", "") + t[0]);
                     }
                     e.commit();
@@ -627,11 +639,18 @@ public class MainActivity extends AppCompatActivity {
         noteList = new ArrayList<>();
         fileLists = new ArrayList<>();
         folderLists = new ArrayList<>();
+        recordLists = new ArrayList<>();
         Scanner in = new Scanner(myPrefs.getString("myFiles", ""));
         while(in.hasNextLine())
         {
-            String temp = in.nextLine();
-            fileLists.add(temp.trim());
+            String temp = in.nextLine().trim();
+            if(myPrefs.getString(temp, "").contains("file:/"))
+            {
+                recordLists.add(temp);
+            }
+            else {
+                fileLists.add(temp);
+            }
         }
         in = new Scanner(myPrefs.getString("myFolders", ""));
         while(in.hasNextLine())
@@ -642,10 +661,13 @@ public class MainActivity extends AppCompatActivity {
         }
         fileLists.remove("");
         folderLists.remove("");
-        Collections.sort((List) (fileLists));
-        Collections.sort((List) (folderLists));
+        recordLists.remove("");
+        Collections.sort((List) fileLists);
+        Collections.sort((List) folderLists);
+        Collections.sort((List) recordLists);
         noteList.addAll(folderLists);
         noteList.addAll(fileLists);
+        noteList.addAll(recordLists);
         adp = new FileAdapter(noteList);
         note.setAdapter(adp);
     }
@@ -811,6 +833,8 @@ public class MainActivity extends AppCompatActivity {
             String c = getItem(pos);
             if (pos < folderLists.size())
                 v = getLayoutInflater().inflate(R.layout.folder_list, null);
+            else if(myPrefs.getString(noteList.get(pos), "").contains("file://"))
+                v = getLayoutInflater().inflate(R.layout.recordings_list, null);
             else
                 v = getLayoutInflater().inflate(R.layout.file_list, null);
 

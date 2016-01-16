@@ -373,7 +373,7 @@ public class RecordAudio extends AppCompatActivity {
             mins = secs / 60;
             secs = secs % 60;
             timer.setText("" + String.format("%02d", mins) + ":"
-                            + String.format("%02d", secs));
+                    + String.format("%02d", secs));
             myHandler.postDelayed(this,100);
         }
     };
