@@ -97,8 +97,6 @@ public class Player extends AppCompatActivity {
             @Override
             public void onClick(View arg0) {
                 final String current = currentTime.getText().toString();
-                // get prompts.xml view
-                //mediaPlayer.pause();
                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(Player.this);
                 alertDialog.setTitle("Notes");
                 alertDialog.setMessage("Insert notes here:");
@@ -409,7 +407,7 @@ public class Player extends AppCompatActivity {
                 Scanner in = new Scanner(n);
                 noteList = new ArrayList<>();
                 while (in.hasNextLine()) {
-                    noteList.add(in.nextLine().trim());
+                    noteList.add((in.nextLine().trim()));
                 }
                 noteList.remove("");
                 Collections.sort((List)noteList);
@@ -483,5 +481,6 @@ public class Player extends AppCompatActivity {
             }
         }
     };
+
 
 }
