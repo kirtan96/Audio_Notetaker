@@ -458,7 +458,7 @@ public class MainActivity extends AppCompatActivity {
      * Renames the selected file or folder
      * @param position - renames the file/folder at the given position
      */
-    private void rename(int position) {
+    private void rename(final int position) {
         final String currentName = noteList.get(position);
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("Rename");
@@ -484,9 +484,8 @@ public class MainActivity extends AppCompatActivity {
                             changedName = changedName.substring(0,1).toUpperCase()
                                     + changedName.substring(1);
                         }
-                        if (myPrefs.getString(currentName,"").contains("content:/") &&
-                                title.getVisibility() == View.INVISIBLE &&
-                                !myPrefs.getString("myFiles", "").contains(changedName.trim() + "\n")) {
+                        if (position >= folderLists.size() &&
+                                title.getVisibility() == View.INVISIBLE) {
                             SharedPreferences.Editor e = myPrefs.edit();
                             String temp = myPrefs.getString("myFiles", "");
                             String t = "\n" + currentName + "\n";
@@ -506,9 +505,7 @@ public class MainActivity extends AppCompatActivity {
                             e.commit();
                             update();
                         }
-                        else if(!myPrefs.getString(currentName,"").contains("content:/") &&
-                                !myPrefs.getString("myFolders", "").contains(changedName.trim()
-                                        + " (FOLDER)" + "\n") &&
+                        else if(position < folderLists.size() &&
                                 title.getVisibility() == View.INVISIBLE)
                         {
                             SharedPreferences.Editor e = myPrefs.edit();

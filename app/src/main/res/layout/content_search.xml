@@ -30,4 +30,16 @@
         android:layout_below="@+id/searchText"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="No Result Found!"
+        android:id="@+id/no_result"
+        android:textSize="16dp"
+        android:textColor="#000"
+        android:layout_alignTop="@+id/listView"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="10dp" />
 </RelativeLayout>

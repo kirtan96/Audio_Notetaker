@@ -17,6 +17,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 public class Search extends AppCompatActivity {
@@ -24,6 +26,7 @@ public class Search extends AppCompatActivity {
     ArrayList<String> key;
     String search;
     String file = "";
+    TextView nrf;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +38,8 @@ public class Search extends AppCompatActivity {
 
 
         listView = (ListView) findViewById(R.id.listView);
+        nrf = (TextView) findViewById(R.id.no_result);
+        nrf.setVisibility(View.INVISIBLE);
 
         final EditText editText = (EditText) findViewById(R.id.searchText);
         editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -53,15 +58,26 @@ public class Search extends AppCompatActivity {
                         SharedPreferences myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
                         Map<String, ?> keys = myPrefs.getAll();
                         for (Map.Entry<String, ?> entryKey : keys.entrySet()) {
-                            if ((!entryKey.getKey().equals("myFiles")) &&
+                            if (//(!entryKey.getKey().equals("myFiles")) &&
                                     (!entryKey.getKey().contains("content://")) &&
+                                    (!entryKey.getKey().contains("file://")) &&
                                     (!entryKey.getKey().contains("(FOLDER)")) &&
                                     (!entryKey.getKey().contains("myFolders"))) {
-                                if (myPrefs.getString(entryKey.getValue().toString(), "").contains(search)) {
+                                if (myPrefs.getString(entryKey.getValue().toString(), "").contains(search) ||
+                                        entryKey.getKey().toString().contains(search)) {
                                     key.add(entryKey.getKey());
                                 }
                             }
                         }
+                        if(key.isEmpty())
+                        {
+                            nrf.setVisibility(View.VISIBLE);
+                        }
+                        else
+                        {
+                            nrf.setVisibility(View.INVISIBLE);
+                        }
+                        Collections.sort((List)key);
                         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(Search.this,
                                 android.R.layout.simple_list_item_1, key);
                         listView.setAdapter(arrayAdapter);
