@@ -248,7 +248,7 @@ public class SearchResult extends AppCompatActivity {
                 {
                     String temp = in.nextLine();
                     noteList.add(temp.trim());
-                    if(temp.contains(search))
+                    if(temp.toLowerCase().contains(search.toLowerCase()))
                     {
                         temp = temp.substring(0, 5);
                         int min = Integer.parseInt(temp.substring(0,2));
