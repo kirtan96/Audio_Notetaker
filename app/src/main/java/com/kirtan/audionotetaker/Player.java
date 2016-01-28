@@ -15,10 +15,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -52,6 +53,8 @@ public class Player extends AppCompatActivity {
     ArrayList<String> noteList;
     SharedPreferences myPrefs;
     String real = "";
+    int currentNotePos;
+    NoteListAdapter nla;
 
 
     @Override
@@ -115,15 +118,13 @@ public class Player extends AppCompatActivity {
                 checkBox.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if(checkBox.isChecked()) {
+                        if (checkBox.isChecked()) {
                             mediaPlayer.start();
                             myHandler.postDelayed(UpdateSongTime, 100);
                             SharedPreferences.Editor e = myPrefs.edit();
                             e.putBoolean("checkBox", checkBox.isChecked());
                             e.commit();
-                        }
-                        else
-                        {
+                        } else {
                             mediaPlayer.pause();
                             SharedPreferences.Editor e = myPrefs.edit();
                             e.putBoolean("checkBox", checkBox.isChecked());
@@ -131,14 +132,11 @@ public class Player extends AppCompatActivity {
                         }
                     }
                 });
-                if(myPrefs.getBoolean("checkBox", false))
-                {
+                if (myPrefs.getBoolean("checkBox", false)) {
                     mediaPlayer.start();
                     myHandler.postDelayed(UpdateSongTime, 100);
                     checkBox.setChecked(true);
-                }
-                else
-                {
+                } else {
                     mediaPlayer.pause();
                 }
                 LinearLayout ll = new LinearLayout(Player.this);
@@ -153,7 +151,7 @@ public class Player extends AppCompatActivity {
                                 imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
                                 mediaPlayer.start();
                                 myHandler.postDelayed(UpdateSongTime, 100);
-                                if(!input.getText().toString().trim().equals("")) {
+                                if (!input.getText().toString().trim().equals("")) {
                                     if (!n.equals("")) {
                                         n = n + "\n" + current + ": " +
                                                 input.getText().toString();
@@ -169,27 +167,21 @@ public class Player extends AppCompatActivity {
                                     n = "";
                                     for (int i = 0; i < noteList.size(); i++) {
 
-                                        if(noteList.get(i).trim().equals(""))
-                                        {
+                                        if (noteList.get(i).trim().equals("")) {
                                             noteList.remove(i);
                                             i--;
-                                        }
-                                        else
-                                        {
+                                        } else {
                                             n = n + noteList.get(i) + "\n";
                                         }
                                     }
-                                    ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(Player.this,
-                                            android.R.layout.simple_list_item_1, noteList);
-                                    note.setAdapter(arrayAdapter);
+                                    nla = new NoteListAdapter(noteList);
+                                    note.setAdapter(nla);
 
                                     SharedPreferences.Editor e = myPrefs.edit();
                                     e.putString(uri,
                                             n);
                                     e.commit();
-                                }
-                                else
-                                {
+                                } else {
                                     Toast.makeText(Player.this, "Cannot add empty note!", Toast.LENGTH_LONG).show();
                                 }
                             }
@@ -330,9 +322,8 @@ public class Player extends AppCompatActivity {
                                                 }
                                                 e.putString(uri, n);
                                                 e.commit();
-                                                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(Player.this,
-                                                        android.R.layout.simple_list_item_1, noteList);
-                                                note.setAdapter(arrayAdapter);
+                                                nla = new NoteListAdapter(noteList);
+                                                note.setAdapter(nla);
                                             }
                                             else
                                             {
@@ -372,9 +363,8 @@ public class Player extends AppCompatActivity {
                             }
                             e.putString(uri, n);
                             e.commit();
-                            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(Player.this,
-                                    android.R.layout.simple_list_item_1, noteList);
-                            note.setAdapter(arrayAdapter);
+                            nla = new NoteListAdapter(noteList);
+                            note.setAdapter(nla);
                         }
                     }
                 });
@@ -384,6 +374,7 @@ public class Player extends AppCompatActivity {
             }
         });
 
+        currentNotePos = -1;
         Intent intent = getIntent();
         String file = intent.getStringExtra("file");
         getSupportActionBar().setTitle(file);
@@ -410,10 +401,9 @@ public class Player extends AppCompatActivity {
                     noteList.add((in.nextLine().trim()));
                 }
                 noteList.remove("");
-                Collections.sort((List)noteList);
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(Player.this,
-                        android.R.layout.simple_list_item_1, noteList);
-                note.setAdapter(arrayAdapter);
+                Collections.sort((List) noteList);
+                nla = new NoteListAdapter(noteList);
+                note.setAdapter(nla);
             }
             double fTime = mediaPlayer.getDuration();
             seekBar.setMax((int) fTime);
@@ -477,10 +467,96 @@ public class Player extends AppCompatActivity {
                 {
                     pause.setText("Play");
                 }
+                checkCurrentPos();
                 myHandler.postDelayed(this, 100);
             }
         }
     };
 
+    private void checkCurrentPos() {
+        for(int i = 0; i < noteList.size(); i++)
+        {
+            String temp = noteList.get(i);
+            String toCheck = temp.substring(0, temp.indexOf(" ")-1);
+            if(currentTime.getText().toString().equals(toCheck))
+            {
+                currentNotePos = i;
+                nla = new NoteListAdapter(noteList);
+                note.setAdapter(nla);
+                break;
+            }
+        }
+    }
+
+    /**
+     * Private Class for listView
+     */
+    private class NoteListAdapter extends BaseAdapter
+    {
+
+        ArrayList<String> s;
+        protected NoteListAdapter(ArrayList<String> s1)
+        {
+            s = s1;
+        }
+        /**
+         * gets the size of conversatrion list
+         * @return size of conversation list
+         */
+        @Override
+        public int getCount()
+        {
+            return s.size();
+        }
+
+        /**
+         * gets the selected conversation
+         * @param arg0 the position on the list
+         * @return the conversation at a selected position
+         */
+        @Override
+        public String getItem(int arg0)
+        {
+            return s.get(arg0);
+        }
+
+        /**
+         * gets the id for a selected positon
+         * @param arg0 the position on the list
+         * @return the id for the position
+         */
+        @Override
+        public long getItemId(int arg0)
+        {
+            return arg0;
+        }
+
+        /**
+         * gets the layout for a conversation
+         * @param pos the psoition of the conversation
+         * @param v the view for how the conversation is laid out
+         * @param arg2 the view group
+         * @return the overall layout of a conversation
+         */
+        @Override
+        public View getView(int pos, View v, ViewGroup arg2)
+        {
+            if (pos != currentNotePos)
+                v = getLayoutInflater().inflate(R.layout.player_list, null);
+            else
+                v = getLayoutInflater().inflate(R.layout.player_current_list, null);
+
+            TextView lbl = (TextView) v.findViewById(R.id.note);
+            TextView ts = (TextView) v.findViewById(R.id.timeStamp);
+            String temp = s.get(pos);
+            String n = temp.substring(temp.indexOf(" ") + 1);
+            String t = temp.substring(0, temp.indexOf(" "));
+            ts.setText(t);
+            lbl.setText(n);
+
+            return v;
+        }
+
+    }
 
 }

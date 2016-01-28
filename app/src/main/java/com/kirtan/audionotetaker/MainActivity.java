@@ -835,7 +835,7 @@ public class MainActivity extends AppCompatActivity {
             else
                 v = getLayoutInflater().inflate(R.layout.file_list, null);
 
-            TextView lbl = (TextView) v.findViewById(R.id.name);
+            TextView lbl = (TextView) v.findViewById(R.id.note);
             lbl.setText(s.get(pos));
 
             return v;

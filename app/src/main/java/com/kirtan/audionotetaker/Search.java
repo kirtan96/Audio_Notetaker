@@ -62,9 +62,12 @@ public class Search extends AppCompatActivity {
                                     (!entryKey.getKey().contains("content://")) &&
                                     (!entryKey.getKey().contains("file://")) &&
                                     (!entryKey.getKey().contains("(FOLDER)")) &&
-                                    (!entryKey.getKey().contains("myFolders"))) {
+                                    (!entryKey.getKey().contains("myFolders")) &&
+                                    (!entryKey.getKey().contains("recordingsInt"))) {
                                 if (myPrefs.getString(entryKey.getValue().toString(), "").toLowerCase().contains(search.toLowerCase()) ||
-                                        entryKey.getKey().toString().toLowerCase().contains(search.toLowerCase())) {
+                                        ((!entryKey.getKey().toString().equals("myFiles") &&
+                                                (entryKey.getKey().toString().toLowerCase().contains(search.toLowerCase())))))
+                                {
                                     key.add(entryKey.getKey());
                                 }
                             }
