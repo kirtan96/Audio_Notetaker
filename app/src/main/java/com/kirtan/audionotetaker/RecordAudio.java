@@ -15,9 +15,10 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -50,6 +51,7 @@ public class RecordAudio extends AppCompatActivity {
     FloatingActionButton add;
     ArrayList<String> noteList;
     String myUri, n, real;
+    NoteListAdapter nla;
 
 
     @Override
@@ -185,9 +187,8 @@ public class RecordAudio extends AppCompatActivity {
                                     }
                                     noteList.remove("");
                                     noteList.remove("");
-                                    ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(RecordAudio.this,
-                                            android.R.layout.simple_list_item_1, noteList);
-                                    note.setAdapter(arrayAdapter);
+                                    nla = new NoteListAdapter(noteList);
+                                    note.setAdapter(nla);
 
                                     SharedPreferences.Editor e = myPrefs.edit();
                                     e.putString(myUri, n);
@@ -266,9 +267,8 @@ public class RecordAudio extends AppCompatActivity {
                                                 }
                                                 e.putString(myUri, n);
                                                 e.commit();
-                                                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(RecordAudio.this,
-                                                        android.R.layout.simple_list_item_1, noteList);
-                                                note.setAdapter(arrayAdapter);
+                                                nla = new NoteListAdapter(noteList);
+                                                note.setAdapter(nla);
                                             } else {
                                                 Toast.makeText(RecordAudio.this, "Cannot add empty note!", Toast.LENGTH_LONG).show();
                                             }
@@ -301,9 +301,8 @@ public class RecordAudio extends AppCompatActivity {
                             }
                             e.putString(myUri, n);
                             e.commit();
-                            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(RecordAudio.this,
-                                    android.R.layout.simple_list_item_1, noteList);
-                            note.setAdapter(arrayAdapter);
+                            nla = new NoteListAdapter(noteList);
+                            note.setAdapter(nla);
                         }
                     }
                 });
@@ -377,4 +376,72 @@ public class RecordAudio extends AppCompatActivity {
             myHandler.postDelayed(this,100);
         }
     };
+
+    /**
+     * Private Class for listView
+     */
+    private class NoteListAdapter extends BaseAdapter
+    {
+
+        ArrayList<String> s;
+        protected NoteListAdapter(ArrayList<String> s1)
+        {
+            s = s1;
+        }
+        /**
+         * gets the size of conversatrion list
+         * @return size of conversation list
+         */
+        @Override
+        public int getCount()
+        {
+            return s.size();
+        }
+
+        /**
+         * gets the selected conversation
+         * @param arg0 the position on the list
+         * @return the conversation at a selected position
+         */
+        @Override
+        public String getItem(int arg0)
+        {
+            return s.get(arg0);
+        }
+
+        /**
+         * gets the id for a selected positon
+         * @param arg0 the position on the list
+         * @return the id for the position
+         */
+        @Override
+        public long getItemId(int arg0)
+        {
+            return arg0;
+        }
+
+        /**
+         * gets the layout for a conversation
+         * @param pos the psoition of the conversation
+         * @param v the view for how the conversation is laid out
+         * @param arg2 the view group
+         * @return the overall layout of a conversation
+         */
+        @Override
+        public View getView(int pos, View v, ViewGroup arg2)
+        {
+            v = getLayoutInflater().inflate(R.layout.player_current_list, null);
+
+            TextView lbl = (TextView) v.findViewById(R.id.note);
+            TextView ts = (TextView) v.findViewById(R.id.timeStamp);
+            String temp = s.get(pos);
+            String n = temp.substring(temp.indexOf(" ") + 1);
+            String t = temp.substring(0, temp.indexOf(" "));
+            ts.setText(t);
+            lbl.setText(n);
+
+            return v;
+        }
+
+    }
 }
