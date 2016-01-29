@@ -474,17 +474,17 @@ public class Player extends AppCompatActivity {
     };
 
     private void checkCurrentPos() {
-        for(int i = 0; i < noteList.size(); i++)
-        {
-            String temp = noteList.get(i);
-            String toCheck = temp.substring(0, temp.indexOf(" ")-1);
-            if(currentTime.getText().toString().equals(toCheck))
-            {
-                currentNotePos = i;
-                nla = new NoteListAdapter(noteList);
-                note.setAdapter(nla);
-                note.setSelection(currentNotePos);
-                break;
+        if(noteList != null) {
+            for (int i = 0; i < noteList.size(); i++) {
+                String temp = noteList.get(i);
+                String toCheck = temp.substring(0, temp.indexOf(" ") - 1);
+                if (currentTime.getText().toString().equals(toCheck)) {
+                    currentNotePos = i;
+                    nla = new NoteListAdapter(noteList);
+                    note.setAdapter(nla);
+                    note.setSelection(currentNotePos);
+                    break;
+                }
             }
         }
     }
