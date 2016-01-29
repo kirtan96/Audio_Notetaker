@@ -495,6 +495,7 @@ public class SearchResult extends AppCompatActivity {
                 currentNotePos = i;
                 nla = new NoteListAdapter(noteList);
                 note.setAdapter(nla);
+                note.setSelection(currentNotePos);
                 break;
             }
         }
