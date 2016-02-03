@@ -40,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 public class Player extends AppCompatActivity {
 
     MediaPlayer mediaPlayer;
-    Button pause;
+    Button pause, skipLeft, skipRight;
     TextView currentTime;
     TextView finalTime;
     SeekBar seekBar;
@@ -73,7 +73,11 @@ public class Player extends AppCompatActivity {
         title = (TextView) findViewById(R.id.title);
         note = (ListView) findViewById(R.id.note);
         t = (TextView) findViewById(R.id.noteText);
+        skipLeft = (Button) findViewById(R.id.leftskip);
+        skipLeft.setEnabled(false);
+        skipRight = (Button) findViewById(R.id.rightskip);
         mediaPlayer = new MediaPlayer();
+
         myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
 
         FloatingActionButton add = (FloatingActionButton) findViewById(R.id.fab);
@@ -92,6 +96,78 @@ public class Player extends AppCompatActivity {
                     pause.setText("Pause");
                     mediaPlayer.start();
                     myHandler.postDelayed(UpdateSongTime, 100);
+                }
+            }
+        });
+
+        skipLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String temp = currentTime.getText().toString();
+                String temp2 = finalTime.getText().toString();
+                int cn = Integer.parseInt(Integer.parseInt(temp.substring(0, temp.indexOf(":"))) + "" +
+                        (Integer.parseInt(temp.substring(temp.indexOf(":") + 1))));
+                int fn = Integer.parseInt(Integer.parseInt(temp2.substring(0, temp2.indexOf(":"))) + "" +
+                        Integer.parseInt(temp2.substring(temp2.indexOf(":") + 1)));
+                cn = cn-10;
+                int min = (Integer.parseInt(temp.substring(0, temp.indexOf(":"))));
+                int sec = (Integer.parseInt(temp.substring(temp.indexOf(":") + 1))-10);
+                int t = (int)(TimeUnit.MINUTES.toMillis(min) + TimeUnit.SECONDS.toMillis(sec));
+                mediaPlayer.pause();
+                mediaPlayer.seekTo(t);
+                mediaPlayer.start();
+                myHandler.postDelayed(UpdateSongTime, 100);
+                if(cn > 10)
+                {
+                    skipLeft.setEnabled(true);
+                }
+                else
+                {
+                    skipLeft.setEnabled(false);
+                }
+                if(cn > fn-10)
+                {
+                    skipRight.setEnabled(false);
+                }
+                else
+                {
+                    skipRight.setEnabled(true);
+                }
+            }
+        });
+
+        skipRight.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String temp = currentTime.getText().toString();
+                String temp2 = finalTime.getText().toString();
+                int cn = Integer.parseInt(Integer.parseInt(temp.substring(0, temp.indexOf(":"))) + "" +
+                        Integer.parseInt(temp.substring(temp.indexOf(":") + 1)));
+                int fn = Integer.parseInt(Integer.parseInt(temp2.substring(0, temp2.indexOf(":"))) + "" +
+                        Integer.parseInt(temp2.substring(temp2.indexOf(":") + 1)));
+                cn = cn+10;
+                int min = (Integer.parseInt(temp.substring(0, temp.indexOf(":"))));
+                int sec = (Integer.parseInt(temp.substring(temp.indexOf(":") + 1))+10);
+                int t = (int)(TimeUnit.MINUTES.toMillis(min) + TimeUnit.SECONDS.toMillis(sec));
+                mediaPlayer.pause();
+                mediaPlayer.seekTo(t);
+                mediaPlayer.start();
+                myHandler.postDelayed(UpdateSongTime, 100);
+                if(cn > 10)
+                {
+                    skipLeft.setEnabled(true);
+                }
+                else
+                {
+                    skipLeft.setEnabled(false);
+                }
+                if(cn > fn-10)
+                {
+                    skipRight.setEnabled(false);
+                }
+                else
+                {
+                    skipRight.setEnabled(true);
                 }
             }
         });
@@ -498,6 +574,28 @@ public class Player extends AppCompatActivity {
                     break;
                 }
             }
+        }
+        String temp = currentTime.getText().toString();
+        String temp2 = finalTime.getText().toString();
+        int cn = Integer.parseInt(Integer.parseInt(temp.substring(0, temp.indexOf(":"))) + "" +
+                Integer.parseInt(temp.substring(temp.indexOf(":") + 1)));
+        int fn = Integer.parseInt(Integer.parseInt(temp2.substring(0, temp2.indexOf(":"))) + "" +
+                Integer.parseInt(temp2.substring(temp2.indexOf(":")+1)));
+        if(cn > 10)
+        {
+            skipLeft.setEnabled(true);
+        }
+        else
+        {
+            skipLeft.setEnabled(false);
+        }
+        if(cn > fn-10)
+        {
+            skipRight.setEnabled(false);
+        }
+        else
+        {
+            skipRight.setEnabled(true);
         }
     }
 
