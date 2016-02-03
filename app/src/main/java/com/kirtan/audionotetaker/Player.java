@@ -515,7 +515,6 @@ public class Player extends AppCompatActivity {
         if(mediaPlayer != null && mediaPlayer.isPlaying())
         {
             mediaPlayer.start();
-            myHandler.postDelayed(UpdateSongTime, 100);
         }
     }
 
@@ -669,5 +668,4 @@ public class Player extends AppCompatActivity {
         }
 
     }
-
 }

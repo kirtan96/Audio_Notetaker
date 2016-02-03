@@ -522,7 +522,6 @@ public class SearchResult extends AppCompatActivity {
         if(mediaPlayer != null && mediaPlayer.isPlaying())
         {
             mediaPlayer.start();
-            myHandler.postDelayed(UpdateSongTime, 100);
         }
     }
 
