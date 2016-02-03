@@ -13,10 +13,11 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
@@ -63,7 +64,7 @@ public class Player extends AppCompatActivity {
         setContentView(R.layout.activity_player);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        //getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         pause = (Button) findViewById(R.id.pauseButton);
         currentTime = (TextView) findViewById(R.id.currentTime);
@@ -105,7 +106,12 @@ public class Player extends AppCompatActivity {
                 alertDialog.setMessage("Insert notes here:");
 
                 final EditText input = new EditText(Player.this);
-                input.setSingleLine();
+                input.setInputType(
+                        InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+                input.setSingleLine(true);
+                input.setLines(4); // desired number of lines
+                input.setHorizontallyScrolling(false);
+                input.setImeOptions(EditorInfo.IME_ACTION_DONE);
                 final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
@@ -252,7 +258,12 @@ public class Player extends AppCompatActivity {
                             alertDialog.setMessage("Note:");
 
                             final EditText input = new EditText(Player.this);
-                            input.setSingleLine();
+                            input.setInputType(
+                                    InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+                            input.setSingleLine(true);
+                            input.setLines(4); // desired number of lines
+                            input.setHorizontallyScrolling(false);
+                            input.setImeOptions(EditorInfo.IME_ACTION_DONE);
                             final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                             imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
                             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
@@ -425,9 +436,10 @@ public class Player extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if(mediaPlayer != null)
+        if(mediaPlayer != null && mediaPlayer.isPlaying())
         {
-            mediaPlayer.pause();
+            mediaPlayer.start();
+            myHandler.postDelayed(UpdateSongTime, 100);
         }
     }
 

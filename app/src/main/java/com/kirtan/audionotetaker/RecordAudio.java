@@ -14,8 +14,10 @@ import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
@@ -143,7 +145,12 @@ public class RecordAudio extends AppCompatActivity {
                 alertDialog.setMessage("Insert notes here:");
 
                 final EditText input = new EditText(RecordAudio.this);
-                input.setSingleLine();
+                input.setInputType(
+                        InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+                input.setSingleLine(true);
+                input.setLines(4); // desired number of lines
+                input.setHorizontallyScrolling(false);
+                input.setImeOptions(EditorInfo.IME_ACTION_DONE);
                 final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
@@ -226,7 +233,12 @@ public class RecordAudio extends AppCompatActivity {
                             alertDialog.setMessage("Note:");
 
                             final EditText input = new EditText(RecordAudio.this);
-                            input.setSingleLine();
+                            input.setInputType(
+                                    InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+                            input.setSingleLine(true);
+                            input.setLines(4); // desired number of lines
+                            input.setHorizontallyScrolling(false);
+                            input.setImeOptions(EditorInfo.IME_ACTION_DONE);
                             final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                             imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
                             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
