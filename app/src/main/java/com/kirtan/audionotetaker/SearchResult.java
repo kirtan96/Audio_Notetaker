@@ -446,6 +446,15 @@ public class SearchResult extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if(mediaPlayer != null && mediaPlayer.isPlaying())
+        {
+            mediaPlayer.start();
+            myHandler.postDelayed(UpdateSongTime, 100);
+        }
+    }
 
     @Override
     protected void onResume() {
@@ -488,14 +497,6 @@ public class SearchResult extends AppCompatActivity {
             }
         }
     };
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if(mediaPlayer != null) {
-            mediaPlayer.pause();
-        }
-    }
 
     private void checkCurrentPos() {
         if(noteList != null) {
