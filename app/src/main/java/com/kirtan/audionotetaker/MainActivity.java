@@ -479,9 +479,8 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
                         String changedName = input.getText().toString().trim();
-                        if(changedName.length()>=1)
-                        {
-                            changedName = changedName.substring(0,1).toUpperCase()
+                        if (changedName.length() >= 1) {
+                            changedName = changedName.substring(0, 1).toUpperCase()
                                     + changedName.substring(1);
                         }
                         if (position >= folderLists.size() &&
@@ -489,13 +488,10 @@ public class MainActivity extends AppCompatActivity {
                             SharedPreferences.Editor e = myPrefs.edit();
                             String temp = myPrefs.getString("myFiles", "");
                             String t = "\n" + currentName + "\n";
-                            if(!temp.contains(t))
-                            {
+                            if (!temp.contains(t)) {
                                 t = currentName + "\n";
                                 temp = temp.replace(t, changedName + "\n");
-                            }
-                            else
-                            {
+                            } else {
                                 temp = temp.replace(t, "\n" + changedName + "\n");
                             }
                             e.putString(changedName, myPrefs.getString(currentName, ""));
@@ -504,20 +500,15 @@ public class MainActivity extends AppCompatActivity {
                             e.remove(currentName);
                             e.commit();
                             update();
-                        }
-                        else if(position < folderLists.size() &&
-                                title.getVisibility() == View.INVISIBLE)
-                        {
+                        } else if (position < folderLists.size() &&
+                                title.getVisibility() == View.INVISIBLE) {
                             SharedPreferences.Editor e = myPrefs.edit();
                             String temp = myPrefs.getString("myFolders", "");
                             String t = "\n" + currentName + " (FOLDER)" + "\n";
-                            if(!temp.contains(t))
-                            {
+                            if (!temp.contains(t)) {
                                 t = currentName + " (FOLDER)" + "\n";
                                 temp = temp.replace(t, changedName + " (FOLDER)" + "\n");
-                            }
-                            else
-                            {
+                            } else {
                                 temp = temp.replace(t, "\n" + changedName + " (FOLDER)" + "\n");
                             }
                             e.putString(changedName + " (FOLDER)", myPrefs.getString(currentName + " (FOLDER)", ""));
@@ -526,21 +517,17 @@ public class MainActivity extends AppCompatActivity {
                             e.remove(currentName + " (FOLDER)");
                             e.commit();
                             update();
-                        }
-                        else if(!myPrefs.getString(title.getText().toString().trim() + " (FOLDER)", "").contains(
+                        } else if (!myPrefs.getString(title.getText().toString().trim() + " (FOLDER)", "").contains(
                                 changedName.trim() + "\n") &&
-                                title.getVisibility() == View.VISIBLE){
+                                title.getVisibility() == View.VISIBLE) {
                             SharedPreferences.Editor e = myPrefs.edit();
-                            String temp = myPrefs.getString(title.getText().toString()+ " (FOLDER)",
+                            String temp = myPrefs.getString(title.getText().toString() + " (FOLDER)",
                                     "");
                             String t = "\n" + currentName + "\n";
-                            if(!temp.contains(t))
-                            {
+                            if (!temp.contains(t)) {
                                 t = currentName + "\n";
                                 temp = temp.replace(t, changedName + "\n");
-                            }
-                            else
-                            {
+                            } else {
                                 temp = temp.replace(t, "\n" + changedName + "\n");
                             }
                             e.putString(changedName, myPrefs.getString(currentName, ""));
@@ -549,9 +536,7 @@ public class MainActivity extends AppCompatActivity {
                             e.remove(currentName);
                             e.commit();
                             update();
-                        }
-                        else
-                        {
+                        } else {
                             Toast.makeText(MainActivity.this,
                                     "A file/folder with this name already exists!",
                                     Toast.LENGTH_LONG).show();
@@ -842,5 +827,22 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
+    /*@Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.mainactivity_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        super.onOptionsItemSelected(item);
+        if(item.getItemId() == R.id.about)
+        {
+            Intent intent = new Intent(this, About.class);
+            startActivity(intent);
+        }
+        return true;
+    }*/
 
 }

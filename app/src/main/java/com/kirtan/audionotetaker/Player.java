@@ -8,6 +8,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
@@ -15,6 +16,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -30,7 +33,10 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -667,5 +673,38 @@ public class Player extends AppCompatActivity {
             return v;
         }
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        super.onOptionsItemSelected(item);
+        if(item.getItemId() == R.id.export)
+        {
+            File folder = new File(Environment.getExternalStorageDirectory() +
+                    File.separator + "Audio Note" + File.separator + "Notes");
+            if (!folder.exists()) {
+                folder.mkdirs();
+            }
+            String outputFile = folder + File.separator + title.getText().toString() + ".txt";
+            File n = new File(outputFile);
+            try {
+                PrintWriter pw = new PrintWriter(n);
+                for(String note: noteList)
+                {
+                    pw.println(note);
+                }
+                pw.close();
+                Toast.makeText(Player.this, "Exported Successfully!", Toast.LENGTH_LONG).show();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        return true;
     }
 }

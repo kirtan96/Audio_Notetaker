@@ -9,4 +9,6 @@
     <string name="title_activity_search_result">Search Result</string>
     <string name="title_activity_player">Player</string>
     <string name="title_activity_record_audio">Record</string>
+    <string name="title_activity_random">random</string>
+    <string name="title_activity_about">About</string>
 </resources>
