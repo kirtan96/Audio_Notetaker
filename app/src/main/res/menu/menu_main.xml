@@ -6,6 +6,6 @@
     <item
         android:id="@+id/export"
         android:orderInCategory="100"
-        android:title="Export as txt"
+        android:title="Export as .txt"
         app:showAsAction="never" />
 </menu>

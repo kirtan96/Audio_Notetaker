@@ -94,8 +94,7 @@ public class MainActivity extends AppCompatActivity {
                                                 imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
                                                 System.out.println(myPrefs.getString("myFolders", ""));
                                                 String name = input.getText().toString();
-                                                if(name.length()>=1)
-                                                {
+                                                if (name.length() >= 1) {
                                                     name = name.substring(0, 1).toUpperCase() + name.substring(1);
                                                 }
                                                 if (!myPrefs.getString("myFolders", "").contains(name.trim() + " (FOLDER)") &&
@@ -131,14 +130,12 @@ public class MainActivity extends AppCompatActivity {
                                         });
 
                                 alertDialog.show();
-                            } else if(which == 0){
+                            } else if (which == 0) {
                                 Intent intent_upload = new Intent();
                                 intent_upload.setType("audio/*");
                                 intent_upload.setAction(Intent.ACTION_GET_CONTENT);
                                 startActivityForResult(intent_upload, 1);
-                            }
-                            else if(which == 1)
-                            {
+                            } else if (which == 1) {
                                 final AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
                                 alertDialog.setTitle("Recording File");
                                 alertDialog.setMessage("File Name:");
@@ -157,8 +154,7 @@ public class MainActivity extends AppCompatActivity {
                                         new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int which) {
                                                 String name = input.getText().toString().trim();
-                                                if(name.length()>=1)
-                                                {
+                                                if (name.length() >= 1) {
                                                     name = name.substring(0, 1).toUpperCase() + name.substring(1);
                                                 }
                                                 if (!myPrefs.getString("myFiles", "").contains(name) &&
@@ -167,8 +163,7 @@ public class MainActivity extends AppCompatActivity {
                                                     intent.putExtra("fileName", name);
                                                     intent.putExtra("folderName", "All Notes");
                                                     startActivity(intent);
-                                                }
-                                                else {
+                                                } else {
                                                     Toast.makeText(MainActivity.this,
                                                             "Invalid File Name!",
                                                             Toast.LENGTH_LONG).show();
@@ -193,14 +188,12 @@ public class MainActivity extends AppCompatActivity {
                     builder.setItems(new String[]{"Open Audio File", "Start New Recording"}, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            if(which == 0) {
+                            if (which == 0) {
                                 Intent intent_upload = new Intent();
                                 intent_upload.setType("audio/*");
                                 intent_upload.setAction(Intent.ACTION_GET_CONTENT);
                                 startActivityForResult(intent_upload, 1);
-                            }
-                            else if(which == 1)
-                            {
+                            } else if (which == 1) {
                                 final AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
                                 alertDialog.setTitle("Recording File");
                                 alertDialog.setMessage("File Name:");
@@ -219,8 +212,7 @@ public class MainActivity extends AppCompatActivity {
                                         new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int which) {
                                                 String name = input.getText().toString().trim();
-                                                if(name.length()>=1)
-                                                {
+                                                if (name.length() >= 1) {
                                                     name = name.substring(0, 1).toUpperCase() + name.substring(1);
                                                 }
                                                 if (!myPrefs.getString("myFiles", "").contains(name) &&
@@ -229,8 +221,7 @@ public class MainActivity extends AppCompatActivity {
                                                     intent.putExtra("fileName", name);
                                                     intent.putExtra("folderName", title.getText().toString().trim());
                                                     startActivity(intent);
-                                                }
-                                                else {
+                                                } else {
                                                     Toast.makeText(MainActivity.this,
                                                             "Invalid File Name!",
                                                             Toast.LENGTH_LONG).show();
@@ -270,14 +261,11 @@ public class MainActivity extends AppCompatActivity {
                     Scanner in = new Scanner(myPrefs.getString(file + " (FOLDER)", ""));
                     fileLists = new ArrayList<>();
                     recordLists = new ArrayList<>();
-                    while(in.hasNextLine())
-                    {
+                    while (in.hasNextLine()) {
                         String temp = in.nextLine().trim();
-                        if(myPrefs.getString(temp, "").contains("file:/"))
-                        {
+                        if (myPrefs.getString(temp, "").contains("file:/")) {
                             recordLists.add(temp);
-                        }
-                        else {
+                        } else {
                             fileLists.add(temp);
                         }
                     }

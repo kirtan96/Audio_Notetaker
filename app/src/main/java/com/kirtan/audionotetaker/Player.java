@@ -62,7 +62,7 @@ public class Player extends AppCompatActivity {
     String real = "";
     int currentNotePos;
     NoteListAdapter nla;
-
+    boolean isAppOpen;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +70,7 @@ public class Player extends AppCompatActivity {
         setContentView(R.layout.activity_player);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        //getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
 
         pause = (Button) findViewById(R.id.pauseButton);
         currentTime = (TextView) findViewById(R.id.currentTime);
@@ -82,12 +82,13 @@ public class Player extends AppCompatActivity {
         skipLeft = (Button) findViewById(R.id.leftskip);
         skipLeft.setEnabled(false);
         skipRight = (Button) findViewById(R.id.rightskip);
+        isAppOpen = true;
         mediaPlayer = new MediaPlayer();
 
         myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
 
         FloatingActionButton add = (FloatingActionButton) findViewById(R.id.fab);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         pause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -123,7 +124,7 @@ public class Player extends AppCompatActivity {
                 mediaPlayer.seekTo(t);
                 mediaPlayer.start();
                 myHandler.postDelayed(UpdateSongTime, 100);
-                if(cn > 10)
+                if(cn >= 10)
                 {
                     skipLeft.setEnabled(true);
                 }
@@ -131,7 +132,7 @@ public class Player extends AppCompatActivity {
                 {
                     skipLeft.setEnabled(false);
                 }
-                if(cn > fn-10)
+                if(cn >= fn-10)
                 {
                     skipRight.setEnabled(false);
                 }
@@ -159,7 +160,7 @@ public class Player extends AppCompatActivity {
                 mediaPlayer.seekTo(t);
                 mediaPlayer.start();
                 myHandler.postDelayed(UpdateSongTime, 100);
-                if(cn > 10)
+                if(cn >= 10)
                 {
                     skipLeft.setEnabled(true);
                 }
@@ -167,7 +168,7 @@ public class Player extends AppCompatActivity {
                 {
                     skipLeft.setEnabled(false);
                 }
-                if(cn > fn-10)
+                if(cn >= fn-10)
                 {
                     skipRight.setEnabled(false);
                 }
@@ -518,6 +519,7 @@ public class Player extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        isAppOpen = false;
         if(mediaPlayer != null && mediaPlayer.isPlaying())
         {
             mediaPlayer.start();
@@ -527,6 +529,7 @@ public class Player extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        isAppOpen = true;
         if(mediaPlayer != null)
         {
             mediaPlayer.start();
@@ -537,6 +540,7 @@ public class Player extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        isAppOpen = false;
         if(mediaPlayer != null)
         {
             mediaPlayer.stop();
@@ -546,7 +550,7 @@ public class Player extends AppCompatActivity {
     private Runnable UpdateSongTime = new Runnable() {
         public void run() {
 
-            if (mediaPlayer.isPlaying()) {
+            if (mediaPlayer.isPlaying() && isAppOpen) {
                 startTime = mediaPlayer.getCurrentPosition();
                 currentTime.setText(String.format("%02d:%02d",
 
@@ -586,7 +590,7 @@ public class Player extends AppCompatActivity {
                 Integer.parseInt(temp.substring(temp.indexOf(":") + 1)));
         int fn = Integer.parseInt(Integer.parseInt(temp2.substring(0, temp2.indexOf(":"))) + "" +
                 Integer.parseInt(temp2.substring(temp2.indexOf(":")+1)));
-        if(cn > 10)
+        if(cn >= 10)
         {
             skipLeft.setEnabled(true);
         }
@@ -594,11 +598,10 @@ public class Player extends AppCompatActivity {
         {
             skipLeft.setEnabled(false);
         }
-        if(cn > fn-10)
+        if(cn >= fn-10)
         {
             skipRight.setEnabled(false);
-        }
-        else
+        } else
         {
             skipRight.setEnabled(true);
         }
