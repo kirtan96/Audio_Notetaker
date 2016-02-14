@@ -341,7 +341,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Moves the selected file to selected folder
-     * @param position - moves the file at the given position
+     * @param position - moves the file to a different folder
      */
     private void move(final int position) {
         final String currentName = noteList.get(position);
