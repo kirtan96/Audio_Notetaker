@@ -590,6 +590,9 @@ public class Player extends AppCompatActivity {
                 {
                     pause.setText("Play");
                 }
+                else {
+                    pause.setText("Pause");
+                }
                 checkCurrentPos();
                 myHandler.postDelayed(this, 100);
             }
