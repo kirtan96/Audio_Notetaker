@@ -65,6 +65,7 @@ public class Player extends AppCompatActivity {
     NoteListAdapter nla;
     boolean isAppOpen;
     ImageView shareButton;
+    final int PICK_FILE = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -733,6 +734,56 @@ public class Player extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+        else
+        {
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("text/plain");
+            //intent.setAction(Intent.ACTION_GET_CONTENT);
+            startActivityForResult(Intent.createChooser(intent, "Select a file"), PICK_FILE );
+
+        }
         return true;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PICK_FILE && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            Uri uri = data.getData();
+            File f = new File(uri.getPath());
+            importFrom(f);
+        }
+    }
+
+    private void importFrom(File f) {
+        try {
+            Scanner scanner = new Scanner(f);
+            n = myPrefs.getString(uri, "");
+            String temp = "";
+            while(scanner.hasNextLine())
+            {
+                temp = scanner.nextLine();
+                if(!n.contains(temp))
+                {
+                    n += scanner.nextLine() + "\n";
+                }
+            }
+            SharedPreferences.Editor editor = myPrefs.edit();
+            editor.putString(uri, n);
+            editor.commit();
+            Scanner in = new Scanner(n);
+            noteList = new ArrayList<>();
+            while (in.hasNextLine()) {
+                noteList.add((in.nextLine().trim()));
+            }
+            noteList.remove("");
+            Collections.sort((List) noteList);
+            nla = new NoteListAdapter(noteList);
+            note.setAdapter(nla);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
     }
 }
