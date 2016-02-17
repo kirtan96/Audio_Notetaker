@@ -27,6 +27,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SeekBar;
@@ -63,6 +64,7 @@ public class Player extends AppCompatActivity {
     int currentNotePos;
     NoteListAdapter nla;
     boolean isAppOpen;
+    ImageView shareButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +73,7 @@ public class Player extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
+        shareButton = (ImageView) findViewById(R.id.shareButton);
         pause = (Button) findViewById(R.id.pauseButton);
         currentTime = (TextView) findViewById(R.id.currentTime);
         finalTime = (TextView) findViewById(R.id.finalTime);
@@ -88,6 +90,14 @@ public class Player extends AppCompatActivity {
         myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
 
         FloatingActionButton add = (FloatingActionButton) findViewById(R.id.fab);
+
+
+        shareButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                share();
+            }
+        });
 
         pause.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -516,6 +526,19 @@ public class Player extends AppCompatActivity {
         }
     }
 
+    private void share() {
+        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+        sharingIntent.setType("text/plain");
+        String s = "";
+        for(String notes: noteList)
+        {
+            s+= notes + "\n";
+        }
+        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Notes for " + title.getText().toString());
+        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, s);
+        startActivity(Intent.createChooser(sharingIntent, "Share notes via"));
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -532,8 +555,10 @@ public class Player extends AppCompatActivity {
         isAppOpen = true;
         if(mediaPlayer != null)
         {
-            mediaPlayer.start();
-            myHandler.postDelayed(UpdateSongTime, 100);
+            if(mediaPlayer.isPlaying()) {
+                mediaPlayer.start();
+                myHandler.postDelayed(UpdateSongTime, 100);
+            }
         }
     }
 
