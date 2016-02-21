@@ -66,6 +66,8 @@ public class Player extends AppCompatActivity {
     boolean isAppOpen;
     ImageView shareButton;
     final int PICK_FILE = 0;
+    Uri myUri;
+    File exportedFile = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -484,7 +486,7 @@ public class Player extends AppCompatActivity {
         String file = intent.getStringExtra("file");
         getSupportActionBar().setTitle(file);
         title.setText(file);
-        Uri myUri = Uri.parse(myPrefs.getString(file, ""));
+        myUri = Uri.parse(myPrefs.getString(file, ""));
         uri = myUri.toString();
         if(myPrefs.contains(uri))
         {
@@ -528,16 +530,23 @@ public class Player extends AppCompatActivity {
     }
 
     private void share() {
-        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+        export();
+        Intent sharingIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
         sharingIntent.setType("text/plain");
-        String s = "";
+        /*String s = "";
         for(String notes: noteList)
         {
             s+= notes + "\n";
         }
         sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Notes for " + title.getText().toString());
-        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, s);
-        startActivity(Intent.createChooser(sharingIntent, "Share notes via"));
+        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, s);*/
+
+        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Notes for " + title.getText().toString());
+        ArrayList<Uri> uris = new ArrayList<>();
+        uris.add(myUri);
+        uris.add(Uri.fromFile(exportedFile));
+        sharingIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
+        startActivity(Intent.createChooser(sharingIntent, "Share audio and notes via"));
     }
 
     @Override
@@ -718,23 +727,13 @@ public class Player extends AppCompatActivity {
         super.onOptionsItemSelected(item);
         if(item.getItemId() == R.id.export)
         {
-            File folder = new File(Environment.getExternalStorageDirectory() +
-                    File.separator + "Audio Note" + File.separator + "Notes");
-            if (!folder.exists()) {
-                folder.mkdirs();
+            if(export())
+            {
+                Toast.makeText(Player.this, "Exported Successfully to 'My Files/Audio Note/Notes/'", Toast.LENGTH_LONG).show();
             }
-            String outputFile = folder + File.separator + title.getText().toString() + ".txt";
-            File n = new File(outputFile);
-            try {
-                PrintWriter pw = new PrintWriter(n);
-                for(String note: noteList)
-                {
-                    pw.println(note);
-                }
-                pw.close();
-                Toast.makeText(Player.this, "Exported Successfully!", Toast.LENGTH_LONG).show();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
+            else
+            {
+                Toast.makeText(Player.this, "Export Unsuccessful!", Toast.LENGTH_LONG).show();
             }
         }
         else
@@ -746,6 +745,30 @@ public class Player extends AppCompatActivity {
 
         }
         return true;
+    }
+
+    private boolean export() {
+
+        File folder = new File(Environment.getExternalStorageDirectory() +
+                File.separator + "Audio Note" + File.separator + "Notes");
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+        String outputFile = folder + File.separator + title.getText().toString() + ".txt";
+        File n = new File(outputFile);
+        exportedFile = n;
+        try {
+            PrintWriter pw = new PrintWriter(n);
+            for(String note: noteList) {
+                pw.println(note);
+            }
+            pw.close();
+            //Toast.makeText(Player.this, "Exported Successfully!", Toast.LENGTH_LONG).show();
+            return true;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     @Override
