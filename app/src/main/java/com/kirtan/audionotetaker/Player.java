@@ -541,7 +541,7 @@ public class Player extends AppCompatActivity {
         sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Notes for " + title.getText().toString());
         sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, s);*/
 
-        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Notes for " + title.getText().toString());
+        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Audio and Notes for " + title.getText().toString());
         ArrayList<Uri> uris = new ArrayList<>();
         uris.add(myUri);
         uris.add(Uri.fromFile(exportedFile));
