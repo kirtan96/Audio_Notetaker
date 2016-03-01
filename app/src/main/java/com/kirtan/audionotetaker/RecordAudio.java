@@ -85,7 +85,7 @@ public class RecordAudio extends AppCompatActivity {
         File folder = new File(Environment.getExternalStorageDirectory() +
                 File.separator + "Audio Note" + File.separator + "Recordings");
         if (!folder.exists()) {
-            folder.mkdir();
+            folder.mkdirs();
         }
         SharedPreferences.Editor e = myPrefs.edit();
         if(myPrefs.getInt("recordingsInt", -1) == -1)
