@@ -792,7 +792,7 @@ public class Player extends AppCompatActivity {
                 temp = scanner.nextLine();
                 if(!n.contains(temp))
                 {
-                    n += scanner.nextLine() + "\n";
+                    n += temp + "\n";
                 }
             }
             SharedPreferences.Editor editor = myPrefs.edit();
