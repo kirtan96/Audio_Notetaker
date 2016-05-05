@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 builder.setTitle("Choose an option:");
                 if (title.getVisibility() == View.INVISIBLE) {
-                    builder.setItems(new String[]{"Open Audio File", "Start New Recording", "Create New Folder"}, new DialogInterface.OnClickListener() {
+                    builder.setItems(new String[]{"Open Audio File", "Start New Recording", "Create New Folder", "Open a YouTube Video"}, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             if (which == 2) {
@@ -181,6 +181,11 @@ public class MainActivity extends AppCompatActivity {
                                         });
 
                                 alertDialog.show();
+                            }
+                            else if(which == 3)
+                            {
+                                Intent intent = new Intent(MainActivity.this, YoutubeActivity.class);
+                                startActivity(intent);
                             }
                         }
                     });
