@@ -18,11 +18,17 @@ public class YoutubeActivity extends YouTubeBaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_youtube);
         youTubePlayerView = (YouTubePlayerView) findViewById(R.id.YoutubePlayer);
+        final String videoId = getIntent().getStringExtra("VideoID");
         onInitializedListener = new YouTubePlayer.OnInitializedListener() {
             @Override
             public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer yPlayer, boolean b) {
-                yPlayer.loadVideo("bAuWRvZefR0");
-                youTubePlayerView.initialize(String.valueOf(R.string.YAPI), onInitializedListener);
+                youTubePlayer = yPlayer;
+                youTubePlayer.loadVideo(videoId);
+                youTubePlayer.setFullscreenControlFlags(YouTubePlayer.FULLSCREEN_FLAG_CUSTOM_LAYOUT);
+                youTubePlayer.setOnFullscreenListener(new YouTubePlayer.OnFullscreenListener(){
+                    @Override
+                    public void onFullscreen(boolean arg0) {
+                    }});
             }
 
             @Override
@@ -30,5 +36,6 @@ public class YoutubeActivity extends YouTubeBaseActivity {
 
             }
         };
+        youTubePlayerView.initialize(String.valueOf(R.string.YAPI), onInitializedListener);
     }
 }

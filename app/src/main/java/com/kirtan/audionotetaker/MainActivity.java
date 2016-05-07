@@ -33,18 +33,24 @@ public class MainActivity extends AppCompatActivity {
 
 
     ListView note;
-    String uri = "";
-    String file = "";
-    ArrayList<String> noteList;
+    String uri = "", file = "";
     SharedPreferences myPrefs;
+    SharedPreferences.Editor editor;
     ImageView back;
     TextView title;
     Button search;
     FileAdapter adp;
     public View row;
-    ArrayList<String> folderLists;
-    ArrayList<String> fileLists;
-    ArrayList<String> recordLists;
+    ArrayList<String> folderLists, fileLists, recordLists, youTubeLists, noteList;
+    EditText input, input2;
+    LinearLayout.LayoutParams lp;
+    InputMethodManager imm;
+    LinearLayout ll;
+
+    final String MY_FILES = "myFiles",
+            MY_FOLDERS = "myFolders",
+            MY_YOUTUBE_FILES = "myYouTubeFiles",
+            MY_YOUTUBE_URLS = "myYouTubeURLS";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,15 +68,32 @@ public class MainActivity extends AppCompatActivity {
         back.setVisibility(View.INVISIBLE);
         note = (ListView) findViewById(R.id.listView2);
         myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
+        editor = myPrefs.edit();
         title = (TextView) findViewById(R.id.title);
+        input = new EditText(MainActivity.this);
+        input2 = new EditText(MainActivity.this);
+        lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        input.setLayoutParams(lp);
+        input.setSingleLine();
+        input2.setLayoutParams(lp);
+        input2.setSingleLine();
+        input.setHint("Name");
+        input2.setHint("Video URL");
+        ll = new LinearLayout(MainActivity.this);
+        ll.setOrientation(LinearLayout.VERTICAL);
         title.setVisibility(View.INVISIBLE);
+
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 builder.setTitle("Choose an option:");
                 if (title.getVisibility() == View.INVISIBLE) {
-                    builder.setItems(new String[]{"Open Audio File", "Start New Recording", "Create New Folder", "Open a YouTube Video"}, new DialogInterface.OnClickListener() {
+                    builder.setItems(new String[]{"Open Audio File", "Start New Recording", "Create New Folder", "Open a YouTube Video"},
+                            new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             if (which == 2) {
@@ -78,39 +101,32 @@ public class MainActivity extends AppCompatActivity {
                                 alertDialog.setTitle("Folder");
                                 alertDialog.setMessage("Add a Folder:");
 
-                                final EditText input = new EditText(MainActivity.this);
-                                input.setSingleLine();
-                                final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+
                                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-                                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                                        LinearLayout.LayoutParams.MATCH_PARENT,
-                                        LinearLayout.LayoutParams.MATCH_PARENT);
-                                input.setLayoutParams(lp);
                                 alertDialog.setView(input);
 
                                 alertDialog.setPositiveButton("Add",
                                         new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int which) {
                                                 imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-                                                System.out.println(myPrefs.getString("myFolders", ""));
                                                 String name = input.getText().toString();
                                                 if (name.length() >= 1) {
                                                     name = name.substring(0, 1).toUpperCase() + name.substring(1);
                                                 }
-                                                if (!myPrefs.getString("myFolders", "").contains(name.trim() + " (FOLDER)") &&
+                                                if (!myPrefs.getString(MY_FOLDERS, "").contains(name.trim() + " (FOLDER)") &&
                                                         !name.trim().equals("") &&
                                                         !name.trim().equals("All Notes")) {
-                                                    SharedPreferences.Editor e = myPrefs.edit();
-                                                    String temp = myPrefs.getString("myFolders", "");
-                                                    e.putString("myFolders", temp + name.trim()
+                                                    String temp = myPrefs.getString(MY_FOLDERS, "");
+                                                    editor.putString(MY_FOLDERS, temp + name.trim()
                                                             + " (FOLDER)" + "\n");
-                                                    e.commit();
+                                                    editor.commit();
                                                     folderLists.add(name.trim());
                                                     Collections.sort((List) folderLists);
                                                     noteList = new ArrayList<>();
                                                     noteList.addAll(folderLists);
                                                     noteList.addAll(fileLists);
                                                     noteList.addAll(recordLists);
+                                                    noteList.addAll(youTubeLists);
                                                     adp = new FileAdapter(noteList);
                                                     note.setAdapter(adp);
                                                 } else {
@@ -131,23 +147,13 @@ public class MainActivity extends AppCompatActivity {
 
                                 alertDialog.show();
                             } else if (which == 0) {
-                                Intent intent_upload = new Intent();
-                                intent_upload.setType("audio/*");
-                                intent_upload.setAction(Intent.ACTION_GET_CONTENT);
-                                startActivityForResult(intent_upload, 1);
+                                openAudioFile();
                             } else if (which == 1) {
                                 final AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
                                 alertDialog.setTitle("Recording File");
                                 alertDialog.setMessage("File Name:");
 
-                                final EditText input = new EditText(MainActivity.this);
-                                input.setSingleLine();
-                                final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-                                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                                        LinearLayout.LayoutParams.MATCH_PARENT,
-                                        LinearLayout.LayoutParams.MATCH_PARENT);
-                                input.setLayoutParams(lp);
                                 alertDialog.setView(input);
 
                                 alertDialog.setPositiveButton("Add",
@@ -157,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
                                                 if (name.length() >= 1) {
                                                     name = name.substring(0, 1).toUpperCase() + name.substring(1);
                                                 }
-                                                if (!myPrefs.getString("myFiles", "").contains(name) &&
+                                                if (!myPrefs.getString(MY_FILES, "").contains(name) &&
                                                         !name.trim().equals("")) {
                                                     Intent intent = new Intent(MainActivity.this, RecordAudio.class);
                                                     intent.putExtra("fileName", name);
@@ -184,8 +190,78 @@ public class MainActivity extends AppCompatActivity {
                             }
                             else if(which == 3)
                             {
-                                Intent intent = new Intent(MainActivity.this, YoutubeActivity.class);
-                                startActivity(intent);
+                                final AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+                                alertDialog.setTitle("Add a YouTube Video");
+
+                                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                                ll = new LinearLayout(MainActivity.this);
+                                ll.setOrientation(LinearLayout.VERTICAL);
+                                ll.addView(input);
+                                ll.addView(input2);
+                                alertDialog.setView(ll);
+
+                                alertDialog.setPositiveButton("Add",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                String name = input.getText().toString().trim();
+                                                String url = input2.getText().toString().trim();
+                                                String videoId = "";
+                                                if(url.contains("youtube.com/watch?v=")){
+                                                    videoId = url.substring(url.indexOf("=")+1);
+                                                }
+                                                else if(url.contains("youtu.be/")){
+                                                    videoId = url.substring(url.indexOf("be/") + 3);
+                                                }
+                                                if (name.length() >= 1)
+                                                {
+                                                    name = name.substring(0,1).toUpperCase()+name.substring(1);
+                                                    if (!myPrefs.getString(MY_YOUTUBE_FILES, "").contains(name) &&
+                                                            !name.trim().equals("")) {
+                                                        if (url.contains("youtube.com/watch?v=") ||
+                                                                url.contains("youtu.be/")){
+                                                            editor.putString(MY_YOUTUBE_FILES,
+                                                                    myPrefs.getString(MY_YOUTUBE_FILES, "")+
+                                                                    name + MY_YOUTUBE_FILES);
+                                                            Intent intent = new Intent(MainActivity.this,
+                                                                    YoutubeActivity.class);
+                                                            intent.putExtra("VideoID", videoId);
+                                                            editor.putString(MY_YOUTUBE_URLS,
+                                                                    myPrefs.getString(MY_YOUTUBE_URLS, "")+ videoId +
+                                                                            MY_YOUTUBE_URLS);
+                                                            editor.putString(name+MY_YOUTUBE_FILES, videoId);
+                                                            editor.commit();
+                                                            startActivity(intent);
+                                                        }
+                                                        else
+                                                        {
+                                                            Toast.makeText(MainActivity.this,
+                                                                    "Invalid URL!",
+                                                                    Toast.LENGTH_LONG).show();
+                                                        }
+                                                    }
+                                                    else{
+                                                        Toast.makeText(MainActivity.this,
+                                                                "File with this name already exists!",
+                                                                Toast.LENGTH_LONG).show();
+                                                    }
+                                                } else {
+                                                    Toast.makeText(MainActivity.this,
+                                                            "Invalid File Name!",
+                                                            Toast.LENGTH_LONG).show();
+                                                }
+                                                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                                            }
+                                        });
+
+                                alertDialog.setNegativeButton("Cancel",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                                                dialog.cancel();
+                                            }
+                                        });
+
+                                alertDialog.show();
                             }
                         }
                     });
@@ -194,23 +270,13 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             if (which == 0) {
-                                Intent intent_upload = new Intent();
-                                intent_upload.setType("audio/*");
-                                intent_upload.setAction(Intent.ACTION_GET_CONTENT);
-                                startActivityForResult(intent_upload, 1);
+                                openAudioFile();
                             } else if (which == 1) {
                                 final AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
                                 alertDialog.setTitle("Recording File");
                                 alertDialog.setMessage("File Name:");
 
-                                final EditText input = new EditText(MainActivity.this);
-                                input.setSingleLine();
-                                final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-                                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                                        LinearLayout.LayoutParams.MATCH_PARENT,
-                                        LinearLayout.LayoutParams.MATCH_PARENT);
-                                input.setLayoutParams(lp);
                                 alertDialog.setView(input);
 
                                 alertDialog.setPositiveButton("Add",
@@ -220,7 +286,7 @@ public class MainActivity extends AppCompatActivity {
                                                 if (name.length() >= 1) {
                                                     name = name.substring(0, 1).toUpperCase() + name.substring(1);
                                                 }
-                                                if (!myPrefs.getString("myFiles", "").contains(name) &&
+                                                if (!myPrefs.getString(MY_FILES, "").contains(name) &&
                                                         !name.trim().equals("")) {
                                                     Intent intent = new Intent(MainActivity.this, RecordAudio.class);
                                                     intent.putExtra("fileName", name);
@@ -256,11 +322,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 file = noteList.get(position);
-                if (position >= folderLists.size()) {
-                    Intent intent = new Intent(MainActivity.this, Player.class);
-                    intent.putExtra("file", file);
-                    startActivity(intent);
-                } else {
+                if (position >= folderLists.size()+fileLists.size()+recordLists.size()) {
+                    navigateToYoutube(file);
+                }
+                else if(position >= folderLists.size())
+                {
+                    navigateTo(file);
+                }
+                else {
                     folderLists = new ArrayList<>();
                     noteList = new ArrayList<>();
                     Scanner in = new Scanner(myPrefs.getString(file + " (FOLDER)", ""));
@@ -296,7 +365,8 @@ public class MainActivity extends AppCompatActivity {
             public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
                 alertDialog.setTitle(note.getItemAtPosition(position).toString());
-                if (position >= folderLists.size()) {
+                if (position >= folderLists.size() && position < folderLists.size()+
+                        fileLists.size()+recordLists.size()) {
                     alertDialog.setItems(new String[]{"Rename", "Move to...", "Delete"}, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -310,7 +380,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                     });
-                } else {
+                } else if(position < folderLists.size()){
                     alertDialog.setItems(new String[]{"Rename", "Delete"}, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -319,6 +389,18 @@ public class MainActivity extends AppCompatActivity {
                             } else {
                                 delete(position);
                             }
+                        }
+                    });
+                }
+                else
+                {
+                    alertDialog.setItems(new String[]{"Rename", "Delete"}, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if(which == 0)
+                                rename(position);
+                            else
+                                delete(position);
                         }
                     });
                 }
@@ -334,13 +416,83 @@ public class MainActivity extends AppCompatActivity {
                 update();
             }
         });
-        update();
         search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 navigateToSearch();
             }
         });
+        update();
+    }
+
+    private void navigateToYoutube(String file) {
+        Intent intent = new Intent(MainActivity.this, YoutubeActivity.class);
+        intent.putExtra("VideoID", myPrefs.getString(file+MY_YOUTUBE_FILES,""));
+        startActivity(intent);
+    }
+
+    /**
+     * Updates the listView
+     */
+    private void update() {
+        back.setVisibility(View.INVISIBLE);
+        title.setVisibility(View.INVISIBLE);
+        noteList = new ArrayList<>();
+        fileLists = new ArrayList<>();
+        folderLists = new ArrayList<>();
+        recordLists = new ArrayList<>();
+        youTubeLists = new ArrayList<>();
+        Scanner in = new Scanner(myPrefs.getString(MY_FILES, ""));
+        while(in.hasNextLine())
+        {
+            String temp = in.nextLine().trim();
+            if(myPrefs.getString(temp, "").contains("file:/"))
+            {
+                recordLists.add(temp);
+            }
+            else {
+                fileLists.add(temp);
+            }
+        }
+        in = new Scanner(myPrefs.getString(MY_FOLDERS, ""));
+        while(in.hasNextLine())
+        {
+            String temp = in.nextLine();
+            temp = temp.replace(" (FOLDER)", "");
+            folderLists.add(temp.trim());
+        }
+        in = new Scanner(myPrefs.getString(MY_YOUTUBE_FILES,""));
+        if(in.hasNextLine()) {
+            String youfilelist = in.nextLine();
+            for (String s : youfilelist.split(MY_YOUTUBE_FILES)) {
+                if (!s.equals("")) {
+                    youTubeLists.add(s);
+                }
+            }
+        }
+        fileLists.remove("");
+        folderLists.remove("");
+        recordLists.remove("");
+        Collections.sort((List) fileLists);
+        Collections.sort((List) folderLists);
+        Collections.sort((List) recordLists);
+        Collections.sort((List) youTubeLists);
+        noteList.addAll(folderLists);
+        noteList.addAll(fileLists);
+        noteList.addAll(recordLists);
+        noteList.addAll(youTubeLists);
+        adp = new FileAdapter(noteList);
+        note.setAdapter(adp);
+    }
+
+    /**
+     * Opens audio chooser
+     */
+    private void openAudioFile() {
+        Intent intent_upload = new Intent();
+        intent_upload.setType("audio/*");
+        intent_upload.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(intent_upload, 1);
     }
 
 
@@ -354,13 +506,10 @@ public class MainActivity extends AppCompatActivity {
         builder.setTitle("Move to...");
         builder.setCancelable(false);
         final ListView listView = new ListView(MainActivity.this);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
         listView.setLayoutParams(lp);
         builder.setView(listView);
         final ArrayList<String> list =  new ArrayList<>();
-        Scanner in = new Scanner(myPrefs.getString("myFolders", ""));
+        Scanner in = new Scanner(myPrefs.getString(MY_FOLDERS, ""));
         while(in.hasNextLine())
         {
             String temp = in.nextLine();
@@ -372,7 +521,7 @@ public class MainActivity extends AppCompatActivity {
         }
         if(title.getVisibility() == View.VISIBLE)
         {
-            if(!myPrefs.getString("myFiles", "").contains(currentName)) {
+            if(!myPrefs.getString(MY_FILES, "").contains(currentName)) {
                 list.add("All Notes");
             }
             list.remove(title.getText().toString().trim());
@@ -389,7 +538,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int p, long id) {
                 if (title.getVisibility() == View.INVISIBLE) {
-                    temp[0] = myPrefs.getString("myFiles", "");
+                    temp[0] = myPrefs.getString(MY_FILES, "");
                     t[0] = noteList.get(position) + "\n";
                     temp[0] = temp[0].replace(t[0].toString(), "");
                     t2[0] = list.get(p) + " (FOLDER)";
@@ -418,21 +567,19 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 if (title.getVisibility() == View.INVISIBLE &&
                         i[0] == 1) {
-                    SharedPreferences.Editor e = myPrefs.edit();
-                    e.putString("myFiles", temp[0]);
-                    e.putString(t2[0].toString(), myPrefs.getString(t2[0].toString(), "") + t[0]);
-                    e.commit();
+                    editor.putString(MY_FILES, temp[0]);
+                    editor.putString(t2[0].toString(), myPrefs.getString(t2[0].toString(), "") + t[0]);
+                    editor.commit();
                     update();
                 } else if (title.getVisibility() == View.VISIBLE &&
                         i[0] == 1) {
-                    SharedPreferences.Editor e = myPrefs.edit();
-                    e.putString(title.getText().toString() + " (FOLDER)", temp[0]);
+                    editor.putString(title.getText().toString() + " (FOLDER)", temp[0]);
                     if (!t2[0].equals("All Notes")) {
-                        e.putString(t2[0].toString(), myPrefs.getString(t2[0].toString(), "") + t[0]);
+                        editor.putString(t2[0].toString(), myPrefs.getString(t2[0].toString(), "") + t[0]);
                     } else {
-                        e.putString("myFiles", myPrefs.getString("myFiles", "") + t[0]);
+                        editor.putString(MY_FILES, myPrefs.getString(MY_FILES, "") + t[0]);
                     }
-                    e.commit();
+                    editor.commit();
                     update();
                 }
             }
@@ -456,14 +603,7 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("Rename");
         builder.setCancelable(false);
-        final EditText input = new EditText(MainActivity.this);
-        input.setSingleLine();
-        final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
-        input.setLayoutParams(lp);
         builder.setView(input);
         input.setText(currentName);
 
@@ -476,10 +616,11 @@ public class MainActivity extends AppCompatActivity {
                             changedName = changedName.substring(0, 1).toUpperCase()
                                     + changedName.substring(1);
                         }
-                        if (position >= folderLists.size() &&
+                        if (position >= folderLists.size() && position < folderLists.size()+
+                                fileLists.size()+
+                                recordLists.size() &&
                                 title.getVisibility() == View.INVISIBLE) {
-                            SharedPreferences.Editor e = myPrefs.edit();
-                            String temp = myPrefs.getString("myFiles", "");
+                            String temp = myPrefs.getString(MY_FILES, "");
                             String t = "\n" + currentName + "\n";
                             if (!temp.contains(t)) {
                                 t = currentName + "\n";
@@ -487,16 +628,15 @@ public class MainActivity extends AppCompatActivity {
                             } else {
                                 temp = temp.replace(t, "\n" + changedName + "\n");
                             }
-                            e.putString(changedName, myPrefs.getString(currentName, ""));
+                            editor.putString(changedName, myPrefs.getString(currentName, ""));
 
-                            e.putString("myFiles", temp);
-                            e.remove(currentName);
-                            e.commit();
+                            editor.putString(MY_FILES, temp);
+                            editor.remove(currentName);
+                            editor.commit();
                             update();
                         } else if (position < folderLists.size() &&
                                 title.getVisibility() == View.INVISIBLE) {
-                            SharedPreferences.Editor e = myPrefs.edit();
-                            String temp = myPrefs.getString("myFolders", "");
+                            String temp = myPrefs.getString(MY_FOLDERS, "");
                             String t = "\n" + currentName + " (FOLDER)" + "\n";
                             if (!temp.contains(t)) {
                                 t = currentName + " (FOLDER)" + "\n";
@@ -504,16 +644,15 @@ public class MainActivity extends AppCompatActivity {
                             } else {
                                 temp = temp.replace(t, "\n" + changedName + " (FOLDER)" + "\n");
                             }
-                            e.putString(changedName + " (FOLDER)", myPrefs.getString(currentName + " (FOLDER)", ""));
+                            editor.putString(changedName + " (FOLDER)", myPrefs.getString(currentName + " (FOLDER)", ""));
 
-                            e.putString("myFolders", temp);
-                            e.remove(currentName + " (FOLDER)");
-                            e.commit();
+                            editor.putString(MY_FOLDERS, temp);
+                            editor.remove(currentName + " (FOLDER)");
+                            editor.commit();
                             update();
                         } else if (!myPrefs.getString(title.getText().toString().trim() + " (FOLDER)", "").contains(
                                 changedName.trim() + "\n") &&
                                 title.getVisibility() == View.VISIBLE) {
-                            SharedPreferences.Editor e = myPrefs.edit();
                             String temp = myPrefs.getString(title.getText().toString() + " (FOLDER)",
                                     "");
                             String t = "\n" + currentName + "\n";
@@ -523,13 +662,37 @@ public class MainActivity extends AppCompatActivity {
                             } else {
                                 temp = temp.replace(t, "\n" + changedName + "\n");
                             }
-                            e.putString(changedName, myPrefs.getString(currentName, ""));
-
-                            e.putString(title.getText().toString() + " (FOLDER)", temp);
-                            e.remove(currentName);
-                            e.commit();
+                            editor.putString(changedName, myPrefs.getString(currentName, ""));
+                            editor.putString(title.getText().toString() + " (FOLDER)", temp);
+                            editor.remove(currentName);
+                            editor.commit();
                             update();
-                        } else {
+                        }
+                        else if(position >= folderLists.size()+fileLists.size()+recordLists.size()){
+                            String temp = myPrefs.getString(MY_YOUTUBE_FILES,"");
+                            String vID = myPrefs.getString(currentName+MY_YOUTUBE_FILES,"");
+                            for(String s: temp.split(MY_YOUTUBE_FILES))
+                            {
+                                if(s.equals(currentName))
+                                {
+                                    if(!temp.contains(changedName))
+                                    {
+                                        temp = temp.replace(currentName+MY_YOUTUBE_FILES, changedName+MY_YOUTUBE_FILES);
+                                        editor.putString(MY_YOUTUBE_FILES, temp);
+                                        editor.putString(changedName+MY_YOUTUBE_FILES, vID);
+                                        editor.remove(currentName+MY_YOUTUBE_FILES);
+                                        editor.commit();
+                                    }
+                                    else
+                                    {
+                                        Toast.makeText(MainActivity.this,
+                                                "A file with this name already exists!",
+                                                Toast.LENGTH_LONG).show();
+                                    }
+                                }
+                            }
+                        }
+                        else {
                             Toast.makeText(MainActivity.this,
                                     "A file/folder with this name already exists!",
                                     Toast.LENGTH_LONG).show();
@@ -554,32 +717,32 @@ public class MainActivity extends AppCompatActivity {
      * @param position deleted the file/folder at the given position
      */
     private void delete(int position) {
-        SharedPreferences.Editor e = myPrefs.edit();
         String temp;
         if (position >= folderLists.size() &&
+                position < folderLists.size()+fileLists.size()+recordLists.size() &&
                 title.getVisibility() == View.INVISIBLE) {
-            temp = myPrefs.getString("myFiles", "");
+            temp = myPrefs.getString(MY_FILES, "");
             String t = note.getItemAtPosition(position).toString() + "\n";
-            e.remove(myPrefs.getString(
+            editor.remove(myPrefs.getString(
                     note.getItemAtPosition(position).toString()
                     , ""));  //deletes notes in the audio file
             temp = temp.replace(t, "");     //deletes the audio file from the app
-            e.putString("myFiles", temp);
-            e.remove(note.getItemAtPosition(position).toString());
-            e.commit();
+            editor.putString(MY_FILES, temp);
+            editor.remove(note.getItemAtPosition(position).toString());
+            editor.commit();
             update();
         } else if (title.getVisibility() == View.VISIBLE) {
             temp = myPrefs.getString(title.getText().toString().trim() + " (FOLDER)", "");
             String t = noteList.get(position) + "\n";
-            e.remove(myPrefs.getString(
+            editor.remove(myPrefs.getString(
                     noteList.get(position)
                     , ""));  //deletes notes in the audio file
             temp = temp.replace(t, "");     //deletes the audio file from the app
-            e.putString(title.getText().toString().trim() + " (FOLDER)", temp);
-            e.remove(noteList.get(position));
-            e.commit();
+            editor.putString(title.getText().toString().trim() + " (FOLDER)", temp);
+            editor.remove(noteList.get(position));
+            editor.commit();
             update();
-        } else {
+        } else if(position < folderLists.size()){
             String t = noteList.get(position) + " (FOLDER)" + "\n";
             Scanner in = new Scanner(myPrefs.getString(
                     noteList.get(position) + " (FOLDER)", ""));
@@ -587,17 +750,31 @@ public class MainActivity extends AppCompatActivity {
                 temp = in.nextLine();
                 Log.d("Deleted", myPrefs.getString(temp
                         , ""));
-                e.remove(myPrefs.getString(temp
+                editor.remove(myPrefs.getString(temp
                         , ""));  //deletes notes in the audio file
                 Log.d("Deleted", temp);
-                e.remove(temp);  //delete the audio file
-                e.commit();
+                editor.remove(temp);  //delete the audio file
+                editor.commit();
             }
-            temp = myPrefs.getString("myFolders", "");
+            temp = myPrefs.getString(MY_FOLDERS, "");
             temp = temp.replace(t, "");     //deletes the folder from the app
-            e.putString("myFolders", temp);
-            e.remove(note.getItemAtPosition(position).toString() + " (FOLDER)");
-            e.commit();
+            editor.putString(MY_FOLDERS, temp);
+            editor.remove(note.getItemAtPosition(position).toString() + " (FOLDER)");
+            editor.commit();
+            update();
+        }
+        else if(position >= folderLists.size()+fileLists.size()+recordLists.size())
+        {
+            String name = noteList.get(position);
+            temp = myPrefs.getString(MY_YOUTUBE_FILES,"");
+            temp = temp.replace(name+MY_YOUTUBE_FILES, "");
+            editor.putString(MY_YOUTUBE_FILES, temp);
+
+            String t = myPrefs.getString(MY_YOUTUBE_URLS,"");
+            t = t.replace(myPrefs.getString(name+MY_YOUTUBE_FILES,"")+MY_YOUTUBE_URLS,"");
+            editor.putString(MY_YOUTUBE_URLS, t);
+            editor.remove(myPrefs.getString(name+MY_YOUTUBE_FILES,""));
+            editor.commit();
             update();
         }
         update();
@@ -605,47 +782,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    /**
-     * Updates the listView
-     */
-    private void update() {
-        back.setVisibility(View.INVISIBLE);
-        title.setVisibility(View.INVISIBLE);
-        noteList = new ArrayList<>();
-        fileLists = new ArrayList<>();
-        folderLists = new ArrayList<>();
-        recordLists = new ArrayList<>();
-        Scanner in = new Scanner(myPrefs.getString("myFiles", ""));
-        while(in.hasNextLine())
-        {
-            String temp = in.nextLine().trim();
-            if(myPrefs.getString(temp, "").contains("file:/"))
-            {
-                recordLists.add(temp);
-            }
-            else {
-                fileLists.add(temp);
-            }
-        }
-        in = new Scanner(myPrefs.getString("myFolders", ""));
-        while(in.hasNextLine())
-        {
-            String temp = in.nextLine();
-            temp = temp.replace(" (FOLDER)", "");
-            folderLists.add(temp.trim());
-        }
-        fileLists.remove("");
-        folderLists.remove("");
-        recordLists.remove("");
-        Collections.sort((List) fileLists);
-        Collections.sort((List) folderLists);
-        Collections.sort((List) recordLists);
-        noteList.addAll(folderLists);
-        noteList.addAll(fileLists);
-        noteList.addAll(recordLists);
-        adp = new FileAdapter(noteList);
-        note.setAdapter(adp);
-    }
+
 
 
     /**
@@ -669,17 +806,10 @@ public class MainActivity extends AppCompatActivity {
                 alertDialog.setTitle("Create");
                 alertDialog.setMessage("Name the file:");
 
-                final EditText input = new EditText(MainActivity.this);
-                input.setSingleLine();
-                final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.MATCH_PARENT);
-                input.setLayoutParams(lp);
                 alertDialog.setView(input);
 
-                final String myFiles = myPrefs.getString("myFiles", "");
+                final String myFiles = myPrefs.getString(MY_FILES, "");
 
                 alertDialog.setPositiveButton("Create",
                         new DialogInterface.OnClickListener() {
@@ -692,16 +822,13 @@ public class MainActivity extends AppCompatActivity {
                                 if (title.getVisibility() == View.INVISIBLE &&
                                         !input.getText().toString().trim().equals("")) {
                                     imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-                                    if (!myPrefs.getString("myFiles", "").contains(name)) {
+                                    if (!myPrefs.getString(MY_FILES, "").contains(name)) {
                                         file = input.getText().toString();
-                                        SharedPreferences.Editor e = myPrefs.edit();
-                                        e.putString("myFiles", myFiles + name + "\n");
-                                        e.putString(name, uri);
-                                        e.commit();
+                                        editor.putString(MY_FILES, myFiles + name + "\n");
+                                        editor.putString(name, uri);
+                                        editor.commit();
                                         update();
-                                        Intent intent = new Intent(MainActivity.this, Player.class);
-                                        intent.putExtra("file", name);
-                                        startActivity(intent);
+                                        navigateTo(name);
                                     } else {
                                         Toast.makeText(MainActivity.this, "This file already exists. Name it differently!", Toast.LENGTH_LONG).show();
                                     }
@@ -711,15 +838,12 @@ public class MainActivity extends AppCompatActivity {
                                     String f = myPrefs.getString(title.getText().toString().trim() + " (FOLDER)", "");
                                     if (!myPrefs.getString(f, "").contains(name)) {
                                         file = input.getText().toString();
-                                        SharedPreferences.Editor e = myPrefs.edit();
-                                        e.putString(title.getText().toString().trim() + " (FOLDER)",
+                                        editor.putString(title.getText().toString().trim() + " (FOLDER)",
                                                 f + name + "\n");
-                                        e.putString(name, uri);
-                                        e.commit();
+                                        editor.putString(name, uri);
+                                        editor.commit();
                                         update();
-                                        Intent intent = new Intent(MainActivity.this, Player.class);
-                                        intent.putExtra("file", name);
-                                        startActivity(intent);
+                                        navigateTo(name);
                                     } else {
                                         Toast.makeText(MainActivity.this, "This file already exists. Name it differently!", Toast.LENGTH_LONG).show();
                                     }
@@ -739,9 +863,18 @@ public class MainActivity extends AppCompatActivity {
 
             }
         }
+        else
+        {
+
+        }
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    private void navigateTo(String name) {
+        Intent intent = new Intent(MainActivity.this, Player.class);
+        intent.putExtra("file", name);
+        startActivity(intent);
+    }
 
     /**
      * Navigates to search
@@ -810,8 +943,10 @@ public class MainActivity extends AppCompatActivity {
                 v = getLayoutInflater().inflate(R.layout.folder_list, null);
             else if(myPrefs.getString(noteList.get(pos), "").contains("file://"))
                 v = getLayoutInflater().inflate(R.layout.recordings_list, null);
-            else
+            else if(pos < folderLists.size() + fileLists.size())
                 v = getLayoutInflater().inflate(R.layout.file_list, null);
+            else
+                v = getLayoutInflater().inflate(R.layout.youtube_list, null);
 
             TextView lbl = (TextView) v.findViewById(R.id.note);
             lbl.setText(s.get(pos));
@@ -820,6 +955,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
+
 
     /*@Override
     public boolean onCreateOptionsMenu(Menu menu) {

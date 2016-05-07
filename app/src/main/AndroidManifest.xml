@@ -73,7 +73,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.kirtan.audionotetaker.MainActivity" />
         </activity>
-        <activity android:name=".YoutubeActivity"></activity>
+        <activity android:name=".YoutubeActivity"
+            android:screenOrientation="portrait">
+
+        </activity>
     </application>
 
 </manifest>
