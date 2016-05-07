@@ -42,10 +42,6 @@ public class MainActivity extends AppCompatActivity {
     FileAdapter adp;
     public View row;
     ArrayList<String> folderLists, fileLists, recordLists, youTubeLists, noteList;
-    EditText input, input2;
-    LinearLayout.LayoutParams lp;
-    InputMethodManager imm;
-    LinearLayout ll;
 
     final String MY_FILES = "myFiles",
             MY_FOLDERS = "myFolders",
@@ -70,20 +66,6 @@ public class MainActivity extends AppCompatActivity {
         myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
         editor = myPrefs.edit();
         title = (TextView) findViewById(R.id.title);
-        input = new EditText(MainActivity.this);
-        input2 = new EditText(MainActivity.this);
-        lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
-        imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        input.setLayoutParams(lp);
-        input.setSingleLine();
-        input2.setLayoutParams(lp);
-        input2.setSingleLine();
-        input.setHint("Name");
-        input2.setHint("Video URL");
-        ll = new LinearLayout(MainActivity.this);
-        ll.setOrientation(LinearLayout.VERTICAL);
         title.setVisibility(View.INVISIBLE);
 
         add.setOnClickListener(new View.OnClickListener() {
@@ -102,7 +84,15 @@ public class MainActivity extends AppCompatActivity {
                                 alertDialog.setMessage("Add a Folder:");
 
 
+                                final EditText input = new EditText(MainActivity.this);
+                                input.setSingleLine();
+                                input.setHint("Name of the folder");
+                                final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                                        LinearLayout.LayoutParams.MATCH_PARENT,
+                                        LinearLayout.LayoutParams.MATCH_PARENT);
+                                input.setLayoutParams(lp);
                                 alertDialog.setView(input);
 
                                 alertDialog.setPositiveButton("Add",
@@ -153,7 +143,15 @@ public class MainActivity extends AppCompatActivity {
                                 alertDialog.setTitle("Recording File");
                                 alertDialog.setMessage("File Name:");
 
+                                final EditText input = new EditText(MainActivity.this);
+                                input.setSingleLine();
+                                input.setHint("Name of the file");
+                                final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                                        LinearLayout.LayoutParams.MATCH_PARENT,
+                                        LinearLayout.LayoutParams.MATCH_PARENT);
+                                input.setLayoutParams(lp);
                                 alertDialog.setView(input);
 
                                 alertDialog.setPositiveButton("Add",
@@ -193,8 +191,20 @@ public class MainActivity extends AppCompatActivity {
                                 final AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
                                 alertDialog.setTitle("Add a YouTube Video");
 
+                                final EditText input = new EditText(MainActivity.this);
+                                final EditText input2 = new EditText(MainActivity.this);
+                                input.setSingleLine();
+                                input.setHint("Name of the file");
+                                input2.setHint("YouTube URL");
+                                input2.setSingleLine();
+                                final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-                                ll = new LinearLayout(MainActivity.this);
+                                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                                        LinearLayout.LayoutParams.MATCH_PARENT,
+                                        LinearLayout.LayoutParams.MATCH_PARENT);
+                                input.setLayoutParams(lp);
+                                input2.setLayoutParams(lp);
+                                LinearLayout ll = new LinearLayout(MainActivity.this);
                                 ll.setOrientation(LinearLayout.VERTICAL);
                                 ll.addView(input);
                                 ll.addView(input2);
@@ -250,6 +260,7 @@ public class MainActivity extends AppCompatActivity {
                                                             Toast.LENGTH_LONG).show();
                                                 }
                                                 imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                                                update();
                                             }
                                         });
 
@@ -276,7 +287,15 @@ public class MainActivity extends AppCompatActivity {
                                 alertDialog.setTitle("Recording File");
                                 alertDialog.setMessage("File Name:");
 
+                                final EditText input = new EditText(MainActivity.this);
+                                input.setSingleLine();
+                                input.setHint("Name of the file");
+                                final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                                        LinearLayout.LayoutParams.MATCH_PARENT,
+                                        LinearLayout.LayoutParams.MATCH_PARENT);
+                                input.setLayoutParams(lp);
                                 alertDialog.setView(input);
 
                                 alertDialog.setPositiveButton("Add",
@@ -298,6 +317,7 @@ public class MainActivity extends AppCompatActivity {
                                                             Toast.LENGTH_LONG).show();
                                                 }
                                                 imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+
                                             }
                                         });
 
@@ -506,6 +526,9 @@ public class MainActivity extends AppCompatActivity {
         builder.setTitle("Move to...");
         builder.setCancelable(false);
         final ListView listView = new ListView(MainActivity.this);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
         listView.setLayoutParams(lp);
         builder.setView(listView);
         final ArrayList<String> list =  new ArrayList<>();
@@ -603,7 +626,15 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("Rename");
         builder.setCancelable(false);
+        final EditText input = new EditText(MainActivity.this);
+        input.setSingleLine();
+        input.setHint("Name of the file");
+        final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        input.setLayoutParams(lp);
         builder.setView(input);
         input.setText(currentName);
 
@@ -682,6 +713,8 @@ public class MainActivity extends AppCompatActivity {
                                         editor.putString(changedName+MY_YOUTUBE_FILES, vID);
                                         editor.remove(currentName+MY_YOUTUBE_FILES);
                                         editor.commit();
+                                        update();
+
                                     }
                                     else
                                     {
@@ -806,7 +839,15 @@ public class MainActivity extends AppCompatActivity {
                 alertDialog.setTitle("Create");
                 alertDialog.setMessage("Name the file:");
 
+                final EditText input = new EditText(MainActivity.this);
+                input.setSingleLine();
+                input.setHint("Name of the file");
+                final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT);
+                input.setLayoutParams(lp);
                 alertDialog.setView(input);
 
                 final String myFiles = myPrefs.getString(MY_FILES, "");
@@ -862,10 +903,6 @@ public class MainActivity extends AppCompatActivity {
                 alertDialog.show();
 
             }
-        }
-        else
-        {
-
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -955,24 +992,4 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
-
-
-
-    /*@Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.mainactivity_menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        super.onOptionsItemSelected(item);
-        if(item.getItemId() == R.id.about)
-        {
-            Intent intent = new Intent(this, About.class);
-            startActivity(intent);
-        }
-        return true;
-    }*/
-
 }
