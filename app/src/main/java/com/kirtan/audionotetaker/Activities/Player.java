@@ -1,4 +1,4 @@
-package com.kirtan.audionotetaker;
+package com.kirtan.audionotetaker.Activities;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -33,6 +33,8 @@ import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.kirtan.audionotetaker.R;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -225,12 +227,12 @@ public class Player extends AppCompatActivity {
                             myHandler.postDelayed(UpdateSongTime, 100);
                             SharedPreferences.Editor e = myPrefs.edit();
                             e.putBoolean("checkBox", checkBox.isChecked());
-                            e.commit();
+                            e.apply();
                         } else {
                             mediaPlayer.pause();
                             SharedPreferences.Editor e = myPrefs.edit();
                             e.putBoolean("checkBox", checkBox.isChecked());
-                            e.commit();
+                            e.apply();
                         }
                     }
                 });
@@ -282,7 +284,7 @@ public class Player extends AppCompatActivity {
                                     SharedPreferences.Editor e = myPrefs.edit();
                                     e.putString(uri,
                                             n);
-                                    e.commit();
+                                    e.apply();
                                 } else {
                                     Toast.makeText(Player.this, "Cannot add empty note!", Toast.LENGTH_LONG).show();
                                 }
@@ -377,12 +379,12 @@ public class Player extends AppCompatActivity {
                                         myHandler.postDelayed(UpdateSongTime, 100);
                                         SharedPreferences.Editor e = myPrefs.edit();
                                         e.putBoolean("checkBox", checkBox.isChecked());
-                                        e.commit();
+                                        e.apply();
                                     } else {
                                         mediaPlayer.pause();
                                         SharedPreferences.Editor e = myPrefs.edit();
                                         e.putBoolean("checkBox", checkBox.isChecked());
-                                        e.commit();
+                                        e.apply();
                                     }
                                 }
                             });
@@ -428,7 +430,7 @@ public class Player extends AppCompatActivity {
                                                     }
                                                 }
                                                 e.putString(uri, n);
-                                                e.commit();
+                                                e.apply();
                                                 nla = new NoteListAdapter(noteList);
                                                 note.setAdapter(nla);
                                             }
@@ -469,7 +471,7 @@ public class Player extends AppCompatActivity {
                                 }
                             }
                             e.putString(uri, n);
-                            e.commit();
+                            e.apply();
                             nla = new NoteListAdapter(noteList);
                             note.setAdapter(nla);
                         }
@@ -491,7 +493,7 @@ public class Player extends AppCompatActivity {
         if(myPrefs.contains(uri))
         {
             SharedPreferences.Editor e = myPrefs.edit();
-            e.commit();
+            e.apply();
         }
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -797,7 +799,7 @@ public class Player extends AppCompatActivity {
             }
             SharedPreferences.Editor editor = myPrefs.edit();
             editor.putString(uri, n);
-            editor.commit();
+            editor.apply();
             Scanner in = new Scanner(n);
             noteList = new ArrayList<>();
             while (in.hasNextLine()) {

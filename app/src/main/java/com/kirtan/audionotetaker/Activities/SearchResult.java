@@ -1,4 +1,4 @@
-package com.kirtan.audionotetaker;
+package com.kirtan.audionotetaker.Activities;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -30,6 +30,8 @@ import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.kirtan.audionotetaker.R;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -198,12 +200,12 @@ public class SearchResult extends AppCompatActivity {
                             myHandler.postDelayed(UpdateSongTime, 100);
                             SharedPreferences.Editor e = myPrefs.edit();
                             e.putBoolean("checkBox", checkBox.isChecked());
-                            e.commit();
+                            e.apply();
                         } else {
                             mediaPlayer.pause();
                             SharedPreferences.Editor e = myPrefs.edit();
                             e.putBoolean("checkBox", checkBox.isChecked());
-                            e.commit();
+                            e.apply();
                         }
                     }
                 });
@@ -261,7 +263,7 @@ public class SearchResult extends AppCompatActivity {
                                     SharedPreferences.Editor e = myPrefs.edit();
                                     e.putString(uri,
                                             n);
-                                    e.commit();
+                                    e.apply();
                                 }
                                 else
                                 {
@@ -412,12 +414,12 @@ public class SearchResult extends AppCompatActivity {
                                         myHandler.postDelayed(UpdateSongTime, 100);
                                         SharedPreferences.Editor e = myPrefs.edit();
                                         e.putBoolean("checkBox", checkBox.isChecked());
-                                        e.commit();
+                                        e.apply();
                                     } else {
                                         mediaPlayer.pause();
                                         SharedPreferences.Editor e = myPrefs.edit();
                                         e.putBoolean("checkBox", checkBox.isChecked());
-                                        e.commit();
+                                        e.apply();
                                     }
                                 }
                             });
@@ -463,7 +465,7 @@ public class SearchResult extends AppCompatActivity {
                                                     }
                                                 }
                                                 e.putString(uri, n);
-                                                e.commit();
+                                                e.apply();
                                                 nla = new NoteListAdapter(noteList);
                                                 note.setAdapter(nla);
                                             }
@@ -504,7 +506,7 @@ public class SearchResult extends AppCompatActivity {
                                 }
                             }
                             e.putString(uri, n);
-                            e.commit();
+                            e.apply();
                             nla = new NoteListAdapter(noteList);
                             note.setAdapter(nla);
                         }

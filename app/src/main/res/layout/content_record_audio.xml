@@ -9,7 +9,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.kirtan.audionotetaker.RecordAudio"
+    tools:context=".Activities.RecordAudio"
     tools:showIn="@layout/activity_record_audio"
     android:background="#F9F9E2">
 

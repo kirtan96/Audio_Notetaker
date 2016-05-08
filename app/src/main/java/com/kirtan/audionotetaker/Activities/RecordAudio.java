@@ -1,4 +1,4 @@
-package com.kirtan.audionotetaker;
+package com.kirtan.audionotetaker.Activities;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -27,6 +27,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.kirtan.audionotetaker.R;
 
 import java.io.File;
 import java.io.IOException;
@@ -91,7 +93,7 @@ public class RecordAudio extends AppCompatActivity {
         if(myPrefs.getInt("recordingsInt", -1) == -1)
         {
             e.putInt("recordingsInt", 1);
-            e.commit();
+            e.apply();
         }
         outputFile = folder + "/recordings " + myPrefs.getInt("recordingsInt", 1) + ".3gp";
         mediaRecorder.setOutputFile(outputFile);
@@ -199,7 +201,7 @@ public class RecordAudio extends AppCompatActivity {
 
                                     SharedPreferences.Editor e = myPrefs.edit();
                                     e.putString(myUri, n);
-                                    e.commit();
+                                    e.apply();
                                 } else {
                                     Toast.makeText(RecordAudio.this, "Cannot add empty note!", Toast.LENGTH_LONG).show();
                                 }
@@ -278,7 +280,7 @@ public class RecordAudio extends AppCompatActivity {
                                                     }
                                                 }
                                                 e.putString(myUri, n);
-                                                e.commit();
+                                                e.apply();
                                                 nla = new NoteListAdapter(noteList);
                                                 note.setAdapter(nla);
                                             } else {
@@ -312,7 +314,7 @@ public class RecordAudio extends AppCompatActivity {
                                 }
                             }
                             e.putString(myUri, n);
-                            e.commit();
+                            e.apply();
                             nla = new NoteListAdapter(noteList);
                             note.setAdapter(nla);
                         }
@@ -329,19 +331,19 @@ public class RecordAudio extends AppCompatActivity {
     private void save() {
         SharedPreferences.Editor editor = myPrefs.edit();
         editor.putInt("recordingsInt", myPrefs.getInt("recordingsInt", 1) + 1);
-        editor.commit();
+        editor.apply();
         if(folderName.equals("All Notes"))
         {
             editor.putString("myFiles", myPrefs.getString("myFiles", "") + fileName + "\n");
-            editor.commit();
+            editor.apply();
         }
         else
         {
             editor.putString(folderName + " (FOLDER)", myPrefs.getString(folderName + " (FOLDER)", "") + fileName + "\n");
-            editor.commit();
+            editor.apply();
         }
         editor.putString(fileName, myUri);
-        editor.commit();
+        editor.apply();
         Toast.makeText(this, "Recording Saved!", Toast.LENGTH_LONG).show();
         Intent intent = new Intent(RecordAudio.this, MainActivity.class);
         startActivity(intent);
@@ -361,7 +363,7 @@ public class RecordAudio extends AppCompatActivity {
                 f.delete();
                 SharedPreferences.Editor e = myPrefs.edit();
                 e.remove(myUri);
-                e.commit();
+                e.apply();
                 finish();
             }
         });

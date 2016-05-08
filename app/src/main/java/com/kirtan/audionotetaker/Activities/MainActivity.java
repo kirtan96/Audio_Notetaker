@@ -1,4 +1,4 @@
-package com.kirtan.audionotetaker;
+package com.kirtan.audionotetaker.Activities;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -23,6 +23,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.kirtan.audionotetaker.R;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -109,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
                                                     String temp = myPrefs.getString(MY_FOLDERS, "");
                                                     editor.putString(MY_FOLDERS, temp + name.trim()
                                                             + " (FOLDER)" + "\n");
-                                                    editor.commit();
+                                                    editor.apply();
                                                     folderLists.add(name.trim());
                                                     Collections.sort((List) folderLists);
                                                     noteList = new ArrayList<>();
@@ -239,7 +241,7 @@ public class MainActivity extends AppCompatActivity {
                                                                     myPrefs.getString(MY_YOUTUBE_URLS, "")+ videoId +
                                                                             MY_YOUTUBE_URLS);
                                                             editor.putString(name+MY_YOUTUBE_FILES, videoId);
-                                                            editor.commit();
+                                                            editor.apply();
                                                             startActivity(intent);
                                                         }
                                                         else
@@ -592,7 +594,7 @@ public class MainActivity extends AppCompatActivity {
                         i[0] == 1) {
                     editor.putString(MY_FILES, temp[0]);
                     editor.putString(t2[0].toString(), myPrefs.getString(t2[0].toString(), "") + t[0]);
-                    editor.commit();
+                    editor.apply();
                     update();
                 } else if (title.getVisibility() == View.VISIBLE &&
                         i[0] == 1) {
@@ -602,7 +604,7 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         editor.putString(MY_FILES, myPrefs.getString(MY_FILES, "") + t[0]);
                     }
-                    editor.commit();
+                    editor.apply();
                     update();
                 }
             }
@@ -663,7 +665,7 @@ public class MainActivity extends AppCompatActivity {
 
                             editor.putString(MY_FILES, temp);
                             editor.remove(currentName);
-                            editor.commit();
+                            editor.apply();
                             update();
                         } else if (position < folderLists.size() &&
                                 title.getVisibility() == View.INVISIBLE) {
@@ -679,7 +681,7 @@ public class MainActivity extends AppCompatActivity {
 
                             editor.putString(MY_FOLDERS, temp);
                             editor.remove(currentName + " (FOLDER)");
-                            editor.commit();
+                            editor.apply();
                             update();
                         } else if (!myPrefs.getString(title.getText().toString().trim() + " (FOLDER)", "").contains(
                                 changedName.trim() + "\n") &&
@@ -696,7 +698,7 @@ public class MainActivity extends AppCompatActivity {
                             editor.putString(changedName, myPrefs.getString(currentName, ""));
                             editor.putString(title.getText().toString() + " (FOLDER)", temp);
                             editor.remove(currentName);
-                            editor.commit();
+                            editor.apply();
                             update();
                         }
                         else if(position >= folderLists.size()+fileLists.size()+recordLists.size()){
@@ -712,7 +714,7 @@ public class MainActivity extends AppCompatActivity {
                                         editor.putString(MY_YOUTUBE_FILES, temp);
                                         editor.putString(changedName+MY_YOUTUBE_FILES, vID);
                                         editor.remove(currentName+MY_YOUTUBE_FILES);
-                                        editor.commit();
+                                        editor.apply();
                                         update();
 
                                     }
@@ -762,7 +764,7 @@ public class MainActivity extends AppCompatActivity {
             temp = temp.replace(t, "");     //deletes the audio file from the app
             editor.putString(MY_FILES, temp);
             editor.remove(note.getItemAtPosition(position).toString());
-            editor.commit();
+            editor.apply();
             update();
         } else if (title.getVisibility() == View.VISIBLE) {
             temp = myPrefs.getString(title.getText().toString().trim() + " (FOLDER)", "");
@@ -773,7 +775,7 @@ public class MainActivity extends AppCompatActivity {
             temp = temp.replace(t, "");     //deletes the audio file from the app
             editor.putString(title.getText().toString().trim() + " (FOLDER)", temp);
             editor.remove(noteList.get(position));
-            editor.commit();
+            editor.apply();
             update();
         } else if(position < folderLists.size()){
             String t = noteList.get(position) + " (FOLDER)" + "\n";
@@ -787,18 +789,19 @@ public class MainActivity extends AppCompatActivity {
                         , ""));  //deletes notes in the audio file
                 Log.d("Deleted", temp);
                 editor.remove(temp);  //delete the audio file
-                editor.commit();
+                editor.apply();
             }
             temp = myPrefs.getString(MY_FOLDERS, "");
             temp = temp.replace(t, "");     //deletes the folder from the app
             editor.putString(MY_FOLDERS, temp);
             editor.remove(note.getItemAtPosition(position).toString() + " (FOLDER)");
-            editor.commit();
+            editor.apply();
             update();
         }
         else if(position >= folderLists.size()+fileLists.size()+recordLists.size())
         {
             String name = noteList.get(position);
+            String vID = myPrefs.getString(name+MY_YOUTUBE_FILES,"");
             temp = myPrefs.getString(MY_YOUTUBE_FILES,"");
             temp = temp.replace(name+MY_YOUTUBE_FILES, "");
             editor.putString(MY_YOUTUBE_FILES, temp);
@@ -807,7 +810,8 @@ public class MainActivity extends AppCompatActivity {
             t = t.replace(myPrefs.getString(name+MY_YOUTUBE_FILES,"")+MY_YOUTUBE_URLS,"");
             editor.putString(MY_YOUTUBE_URLS, t);
             editor.remove(myPrefs.getString(name+MY_YOUTUBE_FILES,""));
-            editor.commit();
+            editor.remove(vID);
+            editor.apply();
             update();
         }
         update();
@@ -867,7 +871,7 @@ public class MainActivity extends AppCompatActivity {
                                         file = input.getText().toString();
                                         editor.putString(MY_FILES, myFiles + name + "\n");
                                         editor.putString(name, uri);
-                                        editor.commit();
+                                        editor.apply();
                                         update();
                                         navigateTo(name);
                                     } else {
@@ -882,7 +886,7 @@ public class MainActivity extends AppCompatActivity {
                                         editor.putString(title.getText().toString().trim() + " (FOLDER)",
                                                 f + name + "\n");
                                         editor.putString(name, uri);
-                                        editor.commit();
+                                        editor.apply();
                                         update();
                                         navigateTo(name);
                                     } else {

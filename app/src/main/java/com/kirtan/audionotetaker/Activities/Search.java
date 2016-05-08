@@ -1,4 +1,4 @@
-package com.kirtan.audionotetaker;
+package com.kirtan.audionotetaker.Activities;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +15,8 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.kirtan.audionotetaker.R;
 
 import java.util.ArrayList;
 import java.util.Collections;
