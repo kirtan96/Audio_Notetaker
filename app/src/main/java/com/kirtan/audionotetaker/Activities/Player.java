@@ -62,6 +62,7 @@ public class Player extends AppCompatActivity {
     String uri = "";
     ArrayList<String> noteList;
     SharedPreferences myPrefs;
+    SharedPreferences.Editor editor;
     String real = "";
     int currentNotePos;
     NoteListAdapter nla;
@@ -93,8 +94,49 @@ public class Player extends AppCompatActivity {
         mediaPlayer = new MediaPlayer();
 
         myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
+        editor = myPrefs.edit();
 
         FloatingActionButton add = (FloatingActionButton) findViewById(R.id.fab);
+
+        currentNotePos = -1;
+        Intent intent = getIntent();
+        String file = intent.getStringExtra("file");
+        getSupportActionBar().setTitle(file);
+        title.setText(file);
+        myUri = Uri.parse(myPrefs.getString(file, ""));
+        uri = myUri.toString();
+        Log.d("URI", uri);
+        mediaPlayer = new MediaPlayer();
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        try {
+            mediaPlayer.setDataSource(this.getBaseContext(), myUri);
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+            if (myPrefs.contains(uri)) {
+                n = myPrefs.getString(uri, "");
+                Scanner in = new Scanner(n);
+                noteList = new ArrayList<>();
+                while (in.hasNextLine()) {
+                    noteList.add((in.nextLine().trim()));
+                }
+                noteList.remove("");
+                Collections.sort((List) noteList);
+                nla = new NoteListAdapter(noteList);
+                note.setAdapter(nla);
+            }
+            double fTime = mediaPlayer.getDuration();
+            seekBar.setMax((int) fTime);
+            finalTime.setText(String.format("%02d:%02d",
+                    TimeUnit.MILLISECONDS.toMinutes((long) fTime),
+                    TimeUnit.MILLISECONDS.toSeconds((long) fTime) -
+                            TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) fTime)))
+            );
+
+            myHandler.postDelayed(UpdateSongTime, 100);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
 
 
         shareButton.setOnClickListener(new View.OnClickListener() {
@@ -194,6 +236,7 @@ public class Player extends AppCompatActivity {
             }
         });
 
+        assert add != null;
         add.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -225,14 +268,12 @@ public class Player extends AppCompatActivity {
                         if (checkBox.isChecked()) {
                             mediaPlayer.start();
                             myHandler.postDelayed(UpdateSongTime, 100);
-                            SharedPreferences.Editor e = myPrefs.edit();
-                            e.putBoolean("checkBox", checkBox.isChecked());
-                            e.apply();
+                            editor.putBoolean("checkBox", checkBox.isChecked());
+                            editor.apply();
                         } else {
                             mediaPlayer.pause();
-                            SharedPreferences.Editor e = myPrefs.edit();
-                            e.putBoolean("checkBox", checkBox.isChecked());
-                            e.apply();
+                            editor.putBoolean("checkBox", checkBox.isChecked());
+                            editor.apply();
                         }
                     }
                 });
@@ -280,11 +321,9 @@ public class Player extends AppCompatActivity {
                                     }
                                     nla = new NoteListAdapter(noteList);
                                     note.setAdapter(nla);
-
-                                    SharedPreferences.Editor e = myPrefs.edit();
-                                    e.putString(uri,
+                                    editor.putString(uri,
                                             n);
-                                    e.apply();
+                                    editor.apply();
                                 } else {
                                     Toast.makeText(Player.this, "Cannot add empty note!", Toast.LENGTH_LONG).show();
                                 }
@@ -377,14 +416,12 @@ public class Player extends AppCompatActivity {
                                     if (checkBox.isChecked()) {
                                         mediaPlayer.start();
                                         myHandler.postDelayed(UpdateSongTime, 100);
-                                        SharedPreferences.Editor e = myPrefs.edit();
-                                        e.putBoolean("checkBox", checkBox.isChecked());
-                                        e.apply();
+                                        editor.putBoolean("checkBox", checkBox.isChecked());
+                                        editor.apply();
                                     } else {
                                         mediaPlayer.pause();
-                                        SharedPreferences.Editor e = myPrefs.edit();
-                                        e.putBoolean("checkBox", checkBox.isChecked());
-                                        e.apply();
+                                        editor.putBoolean("checkBox", checkBox.isChecked());
+                                        editor.apply();
                                     }
                                 }
                             });
@@ -414,7 +451,6 @@ public class Player extends AppCompatActivity {
                                         public void onClick(DialogInterface dialog, int which) {
                                             imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
                                             if(!input.getText().toString().trim().equals("")) {
-                                                SharedPreferences.Editor e = myPrefs.edit();
                                                 real = real.replace(x, input.getText());
                                                 noteList.set(position, real);
                                                 n = "";
@@ -429,8 +465,8 @@ public class Player extends AppCompatActivity {
                                                         n = n + noteList.get(i) + "\n";
                                                     }
                                                 }
-                                                e.putString(uri, n);
-                                                e.apply();
+                                                editor.putString(uri, n);
+                                                editor.apply();
                                                 nla = new NoteListAdapter(noteList);
                                                 note.setAdapter(nla);
                                             }
@@ -455,7 +491,6 @@ public class Player extends AppCompatActivity {
 
                             alertDialog.show();
                         } else {
-                            SharedPreferences.Editor e = myPrefs.edit();
                             noteList.remove(position);
                             n = "";
                             for(int i = 0; i < noteList.size(); i++)
@@ -470,8 +505,8 @@ public class Player extends AppCompatActivity {
                                     n = n + noteList.get(i) + "\n";
                                 }
                             }
-                            e.putString(uri, n);
-                            e.apply();
+                            editor.putString(uri, n);
+                            editor.apply();
                             nla = new NoteListAdapter(noteList);
                             note.setAdapter(nla);
                         }
@@ -482,53 +517,6 @@ public class Player extends AppCompatActivity {
                 return true;
             }
         });
-
-        currentNotePos = -1;
-        Intent intent = getIntent();
-        String file = intent.getStringExtra("file");
-        getSupportActionBar().setTitle(file);
-        title.setText(file);
-        myUri = Uri.parse(myPrefs.getString(file, ""));
-        uri = myUri.toString();
-        if(myPrefs.contains(uri))
-        {
-            SharedPreferences.Editor e = myPrefs.edit();
-            e.apply();
-        }
-        mediaPlayer = new MediaPlayer();
-        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        try {
-            mediaPlayer.setDataSource(getApplicationContext(), myUri);
-            mediaPlayer.prepare();
-            mediaPlayer.start();
-            SharedPreferences myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
-            if (myPrefs.contains(uri)) {
-                n = myPrefs.getString(uri, "");
-                Scanner in = new Scanner(n);
-                noteList = new ArrayList<>();
-                while (in.hasNextLine()) {
-                    noteList.add((in.nextLine().trim()));
-                }
-                noteList.remove("");
-                Collections.sort((List) noteList);
-                nla = new NoteListAdapter(noteList);
-                note.setAdapter(nla);
-            }
-            double fTime = mediaPlayer.getDuration();
-            seekBar.setMax((int) fTime);
-            finalTime.setText(String.format("%02d:%02d",
-                            TimeUnit.MILLISECONDS.toMinutes((long) fTime),
-                            TimeUnit.MILLISECONDS.toSeconds((long) fTime) -
-                                    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) fTime)))
-            );
-
-            myHandler.postDelayed(UpdateSongTime, 100);
-            Log.d("Test Worked", "Music is Playing");
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-            Log.d("Test Failed", "Music was not played");
-        }
     }
 
     private void share() {
@@ -797,7 +785,6 @@ public class Player extends AppCompatActivity {
                     n += temp + "\n";
                 }
             }
-            SharedPreferences.Editor editor = myPrefs.edit();
             editor.putString(uri, n);
             editor.apply();
             Scanner in = new Scanner(n);

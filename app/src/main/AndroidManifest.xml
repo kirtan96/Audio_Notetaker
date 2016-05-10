@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.kirtan.audionotetaker">
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="21"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -66,8 +66,8 @@
         </activity>
         <activity
             android:name=".Activities.YoutubeActivity"
-            android:screenOrientation="portrait"></activity>
-        <activity android:name=".Fragments.NoteFragment"></activity>
+            android:screenOrientation="portrait"/>
+        <activity android:name=".Fragments.NoteFragment" />
     </application>
 
 </manifest>

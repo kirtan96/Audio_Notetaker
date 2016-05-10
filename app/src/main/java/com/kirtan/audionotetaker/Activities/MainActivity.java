@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
         title = (TextView) findViewById(R.id.title);
         title.setVisibility(View.INVISIBLE);
 
+        assert add != null;
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -349,7 +350,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else if(position >= folderLists.size())
                 {
-                    navigateTo(file);
+                    navigateTo(file.trim());
                 }
                 else {
                     folderLists = new ArrayList<>();
@@ -867,7 +868,7 @@ public class MainActivity extends AppCompatActivity {
                                 if (title.getVisibility() == View.INVISIBLE &&
                                         !input.getText().toString().trim().equals("")) {
                                     imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-                                    if (!myPrefs.getString(MY_FILES, "").contains(name)) {
+                                    if (!myFiles.contains(name)) {
                                         file = input.getText().toString();
                                         editor.putString(MY_FILES, myFiles + name + "\n");
                                         editor.putString(name, uri);

@@ -1,6 +1,8 @@
 package com.kirtan.audionotetaker.Activities;
 
+import android.app.AlertDialog;
 import android.app.FragmentManager;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -41,8 +43,8 @@ public class YoutubeActivity extends YouTubeBaseActivity implements NoteFragment
     private final String
             MY_YOUTUBE_FILES = "myYouTubeFiles",
             MY_YOUTUBE_URLS = "myYouTubeURLS";
-    private String cTime, videoId;
-    private String splitter;
+    private String cTime, videoId, splitter, nts;
+    public static String nt = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,8 +58,10 @@ public class YoutubeActivity extends YouTubeBaseActivity implements NoteFragment
         editor = myPrefs.edit();
         videoId = getIntent().getStringExtra("VideoID");
         splitter = "///" + videoId + "///";
+        nts = "";
         fragmentVisible = false;
         currentNotePos = -1;
+        ytnList.setLongClickable(true);
         onInitializedListener = new YouTubePlayer.OnInitializedListener() {
             @Override
             public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer yPlayer, boolean b) {
@@ -84,6 +88,7 @@ public class YoutubeActivity extends YouTubeBaseActivity implements NoteFragment
             public void onClick(View v) {
                 if(!fragmentVisible)
                 {
+                    nt = "";
                     int n = youTubePlayer.getCurrentTimeMillis();
                     cTime = String.format("%02d:%02d",
                             TimeUnit.MILLISECONDS.toMinutes((long) n),
@@ -108,7 +113,42 @@ public class YoutubeActivity extends YouTubeBaseActivity implements NoteFragment
             }
         });
 
-        //TODO: listview on long click listener
+        ytnList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(YoutubeActivity.this);
+                builder.setItems(new String[]{"Edit", "Delete"}, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String s = noteList.get(position);
+                        if(which == 0)
+                        {
+                            nts = s;
+                            edit(s);
+                        }
+                        else{
+
+                            delete(s);
+                        }
+                    }
+                });
+                builder.show();
+                return true;
+            }
+        });
+    }
+
+    private void edit(String s)
+    {
+        nt = s.substring(s.indexOf(" ") + 1);
+        cTime = s.substring(0, s.indexOf(" ")+1);
+        showFragment();
+    }
+
+    private void delete(String s)
+    {
+        noteList.remove(s);
+        updateList();
     }
 
     private void playFrom(String temp) {
@@ -150,6 +190,7 @@ public class YoutubeActivity extends YouTubeBaseActivity implements NoteFragment
     private void showFragment() {
         if(!fragmentVisible)
         {
+            youTubePlayer.pause();
             fragmentManager = getFragmentManager();
             noteFragment = new NoteFragment();
             fragmentManager.beginTransaction().
@@ -173,12 +214,22 @@ public class YoutubeActivity extends YouTubeBaseActivity implements NoteFragment
     }
 
     private void saveNote(String n) {
-        noteList.add(n);
-        Collections.sort((List)noteList);
-        String temp = "";
-        for(String s: noteList)
+        if(nt.equals("")) {
+            noteList.add(n);
+        }
+        else
         {
-            temp += s+splitter;
+            noteList.remove(nts);
+            noteList.add(n);
+        }
+        updateList();
+    }
+
+    private void updateList() {
+        Collections.sort((List) noteList);
+        String temp = "";
+        for (String s : noteList) {
+            temp += s + splitter;
         }
         editor.putString(videoId, temp);
         editor.apply();

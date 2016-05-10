@@ -12,7 +12,7 @@
         android:id="@+id/relativeLayout"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:background="#f5e8dd">
+        android:background="#b3ddd9">
 
         <EditText
             android:layout_width="fill_parent"
