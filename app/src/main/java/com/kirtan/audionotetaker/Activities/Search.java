@@ -44,6 +44,7 @@ public class Search extends AppCompatActivity {
         nrf.setVisibility(View.INVISIBLE);
 
         final EditText editText = (EditText) findViewById(R.id.searchText);
+        assert editText != null;
         editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -61,6 +62,9 @@ public class Search extends AppCompatActivity {
                         Map<String, ?> keys = myPrefs.getAll();
                         for (Map.Entry<String, ?> entryKey : keys.entrySet()) {
                             if (//(!entryKey.getKey().equals("myFiles")) &&
+                                    (!entryKey.getKey().contains("myYouTubeURLS")) &&
+                                    (!entryKey.getKey().contains("checkBox")) &&
+                                    (!entryKey.getKey().contains("myYouTubeFiles")) &&
                                     (!entryKey.getKey().contains("content://")) &&
                                     (!entryKey.getKey().contains("file://")) &&
                                     (!entryKey.getKey().contains("(FOLDER)")) &&
