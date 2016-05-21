@@ -1,7 +1,7 @@
 package com.kirtan.audionotetaker.Activities;
 
 import android.app.AlertDialog;
-import android.content.Context;
+import android.app.FragmentManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,20 +14,16 @@ import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.InputType;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.kirtan.audionotetaker.Fragments.NoteFragment;
 import com.kirtan.audionotetaker.R;
 
 import java.io.File;
@@ -35,27 +31,25 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Scanner;
 
-public class RecordAudio extends AppCompatActivity {
+public class RecordAudio extends AppCompatActivity implements NoteFragment.OnClickedListener{
 
     private MediaRecorder mediaRecorder;
     Button start, stop;
     SharedPreferences myPrefs;
-    String outputFile;
-    String fileName, folderName;
+    SharedPreferences.Editor editor;
+    String outputFile, fileName, myUri, n, real, folderName, cTime = "", nts = "", splitter = "/////";
     TextView timer;
     private Handler myHandler = new Handler();
-    private long startTime = 0L;
-    long timeInMilliseconds = 0L;
-    long timeSwapBuff = 0L;
-    long updatedTime = 0L;
+    private long startTime = 0L, timeInMilliseconds = 0L, timeSwapBuff = 0L, updatedTime = 0L;
     int mins, secs;
     ListView note;
     FloatingActionButton add;
     ArrayList<String> noteList;
-    String myUri, n, real;
     NoteListAdapter nla;
+    NoteFragment noteFragment;
+    boolean fragmentVisible;
+    FragmentManager fragmentManager;
 
 
     @Override
@@ -80,6 +74,8 @@ public class RecordAudio extends AppCompatActivity {
         setTitle(fileName);
         folderName = intent.getStringExtra("folderName");
         myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
+        editor = myPrefs.edit();
+        fragmentVisible = false;
         mediaRecorder = new MediaRecorder();
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
@@ -89,11 +85,10 @@ public class RecordAudio extends AppCompatActivity {
         if (!folder.exists()) {
             folder.mkdirs();
         }
-        SharedPreferences.Editor e = myPrefs.edit();
         if(myPrefs.getInt("recordingsInt", -1) == -1)
         {
-            e.putInt("recordingsInt", 1);
-            e.apply();
+            editor.putInt("recordingsInt", 1);
+            editor.apply();
         }
         outputFile = folder + "/recordings " + myPrefs.getInt("recordingsInt", 1) + ".3gp";
         mediaRecorder.setOutputFile(outputFile);
@@ -141,82 +136,16 @@ public class RecordAudio extends AppCompatActivity {
 
             @Override
             public void onClick(View arg0) {
-                final String current = timer.getText().toString();
-                AlertDialog.Builder alertDialog = new AlertDialog.Builder(RecordAudio.this);
-                alertDialog.setTitle("Notes");
-                alertDialog.setMessage("Insert notes here:");
-
-                final EditText input = new EditText(RecordAudio.this);
-                input.setInputType(
-                        InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-                input.setSingleLine(true);
-                input.setLines(4); // desired number of lines
-                input.setHorizontallyScrolling(false);
-                input.setImeOptions(EditorInfo.IME_ACTION_DONE);
-                final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.MATCH_PARENT);
-                input.setLayoutParams(lp);
-
-                LinearLayout ll = new LinearLayout(RecordAudio.this);
-                ll.setOrientation(LinearLayout.VERTICAL);
-                ll.addView(input);
-                alertDialog.setView(ll);
-
-                alertDialog.setPositiveButton("Add",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-                                if (!input.getText().toString().trim().equals("")) {
-                                    if (!n.equals("")) {
-                                        n = n + "\n" + current + ": " +
-                                                input.getText().toString();
-                                    } else {
-                                        n = current + ": " + input.getText().toString();
-                                    }
-                                    Scanner in = new Scanner(n);
-                                    noteList = new ArrayList<>();
-                                    while (in.hasNextLine()) {
-                                        noteList.add(in.nextLine());
-                                    }
-                                    Collections.sort((List) (noteList));    //sort
-                                    n = "";
-                                    for (int i = 0; i < noteList.size(); i++) {
-                                        if(noteList.get(i).trim().equals(""))
-                                        {
-                                            noteList.remove(i);
-                                            i--;
-                                        }
-                                        else
-                                        {
-                                            n = n + noteList.get(i) + "\n";
-                                        }
-                                    }
-                                    noteList.remove("");
-                                    noteList.remove("");
-                                    nla = new NoteListAdapter(noteList);
-                                    note.setAdapter(nla);
-
-                                    SharedPreferences.Editor e = myPrefs.edit();
-                                    e.putString(myUri, n);
-                                    e.apply();
-                                } else {
-                                    Toast.makeText(RecordAudio.this, "Cannot add empty note!", Toast.LENGTH_LONG).show();
-                                }
-                            }
-                        });
-
-                alertDialog.setNegativeButton("Cancel",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-                                dialog.cancel();
-                            }
-                        });
-
-                alertDialog.show();
+                if(!fragmentVisible)
+                {
+                    YoutubeActivity.nt = "";
+                    cTime = timer.getText().toString()+": ";
+                    showFragment();
+                }
+                else
+                {
+                    hideFragment();
+                }
             }
         });
 
@@ -224,103 +153,21 @@ public class RecordAudio extends AppCompatActivity {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(RecordAudio.this);
-                builder.setTitle("Choose an option:");
                 builder.setItems(new String[]{"Edit", "Delete"}, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if (which == 0) {
-                            AlertDialog.Builder alertDialog = new AlertDialog.Builder(RecordAudio.this);
-                            alertDialog.setCancelable(false);
-                            alertDialog.setTitle("Edit Note");
-                            alertDialog.setMessage("Note:");
+                        String s = noteList.get(position);
+                        if(which == 0)
+                        {
+                            nts = s;
+                            edit(s);
+                        }
+                        else{
 
-                            final EditText input = new EditText(RecordAudio.this);
-                            input.setInputType(
-                                    InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-                            input.setSingleLine(true);
-                            input.setLines(4); // desired number of lines
-                            input.setHorizontallyScrolling(false);
-                            input.setImeOptions(EditorInfo.IME_ACTION_DONE);
-                            final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-                            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                                    LinearLayout.LayoutParams.MATCH_PARENT,
-                                    LinearLayout.LayoutParams.MATCH_PARENT);
-                            input.setLayoutParams(lp);
-
-
-                            LinearLayout ll = new LinearLayout(RecordAudio.this);
-                            ll.setOrientation(LinearLayout.VERTICAL);
-                            ll.addView(input);
-                            alertDialog.setView(ll);
-                            real = noteList.get(position);
-                            final String x = noteList.get(position).substring(
-                                    noteList.get(position).indexOf(" ") + 1,
-                                    noteList.get(position).length());
-                            input.setText(x);
-
-                            alertDialog.setPositiveButton("Save",
-                                    new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-                                            if (!input.getText().toString().trim().equals("")) {
-                                                SharedPreferences.Editor e = myPrefs.edit();
-                                                real = real.replace(x, input.getText());
-                                                noteList.set(position, real);
-                                                n = "";
-                                                for (int i = 0; i < noteList.size(); i++) {
-                                                    if(noteList.get(i).trim().equals(""))
-                                                    {
-                                                        noteList.remove(i);
-                                                        i--;
-                                                    }
-                                                    else
-                                                    {
-                                                        n = n + noteList.get(i) + "\n";
-                                                    }
-                                                }
-                                                e.putString(myUri, n);
-                                                e.apply();
-                                                nla = new NoteListAdapter(noteList);
-                                                note.setAdapter(nla);
-                                            } else {
-                                                Toast.makeText(RecordAudio.this, "Cannot add empty note!", Toast.LENGTH_LONG).show();
-                                            }
-                                        }
-                                    });
-
-                            alertDialog.setNegativeButton("Cancel",
-                                    new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-                                            dialog.cancel();
-                                        }
-                                    });
-
-                            alertDialog.show();
-                        } else {
-                            SharedPreferences.Editor e = myPrefs.edit();
-                            noteList.remove(position);
-                            n = "";
-                            for (int i = 0; i < noteList.size(); i++) {
-                                if(noteList.get(i).trim().equals(""))
-                                {
-                                    noteList.remove(i);
-                                    i--;
-                                }
-                                else
-                                {
-                                    n = n + noteList.get(i) + "\n";
-                                }
-                            }
-                            e.putString(myUri, n);
-                            e.apply();
-                            nla = new NoteListAdapter(noteList);
-                            note.setAdapter(nla);
+                            delete(s);
                         }
                     }
                 });
-
                 builder.show();
                 return true;
             }
@@ -328,8 +175,20 @@ public class RecordAudio extends AppCompatActivity {
 
     }
 
+    private void edit(String s)
+    {
+        YoutubeActivity.nt = s.substring(s.indexOf(" ") + 1);
+        cTime = s.substring(0, s.indexOf(" ")+1);
+        showFragment();
+    }
+
+    private void delete(String s)
+    {
+        noteList.remove(s);
+        updateList();
+    }
+
     private void save() {
-        SharedPreferences.Editor editor = myPrefs.edit();
         editor.putInt("recordingsInt", myPrefs.getInt("recordingsInt", 1) + 1);
         editor.apply();
         if(folderName.equals("All Notes"))
@@ -361,9 +220,8 @@ public class RecordAudio extends AppCompatActivity {
                 //if user pressed "yes", then he is allowed to exit from application
                 File f = new File(outputFile);
                 f.delete();
-                SharedPreferences.Editor e = myPrefs.edit();
-                e.remove(myUri);
-                e.apply();
+                editor.remove(myUri);
+                editor.apply();
                 finish();
             }
         });
@@ -390,6 +248,66 @@ public class RecordAudio extends AppCompatActivity {
             myHandler.postDelayed(this,100);
         }
     };
+
+    @Override
+    public void onCloseClicked() {
+        hideFragment();
+    }
+
+    @Override
+    public void onOKClicked() {
+        String n = cTime + NoteFragment.note;
+        saveNote(n);
+        hideFragment();
+    }
+
+    private void saveNote(String n) {
+        if(YoutubeActivity.nt.equals("")) {
+            noteList.add(n);
+        }
+        else
+        {
+            noteList.remove(nts);
+            noteList.add(n);
+        }
+        updateList();
+    }
+
+    private void updateList() {
+        Collections.sort((List) noteList);
+        String temp = "";
+        for (String s : noteList) {
+            temp += s + splitter;
+        }
+        editor.putString(myUri, temp);
+        editor.apply();
+        nla = new NoteListAdapter(noteList);
+        note.setAdapter(nla);
+    }
+
+    private void hideFragment() {
+        if(fragmentVisible)
+        {
+            fragmentManager.beginTransaction()
+                    .remove(noteFragment)
+                    .commit();
+            fragmentVisible = false;
+            add.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void showFragment() {
+        if(!fragmentVisible)
+        {
+            fragmentManager = getFragmentManager();
+            noteFragment = new NoteFragment();
+            fragmentManager.beginTransaction().
+                    add(R.id.raLayout, noteFragment).
+                    commit();
+            fragmentVisible = true;
+            add.setVisibility(View.INVISIBLE);
+        }
+    }
 
     /**
      * Private Class for listView

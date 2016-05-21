@@ -13,7 +13,7 @@
         android:id="@+id/relativeLayout"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:background="#b3ddd9">
+        android:background="#aafbf2">
 
         <EditText
             android:layout_width="fill_parent"
@@ -35,26 +35,26 @@
 
         <Button
             android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:background="@drawable/abc_btn_check_to_on_mtrl_015"
+            android:layout_height="50dp"
+            android:background="@mipmap/correct"
+            android:id="@+id/ok"
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:id="@+id/ok"
-            android:backgroundTint="#58c547"
-            android:backgroundTintMode="src_atop"
-            android:layout_marginBottom="5dp" />
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="2dp"
+            android:layout_above="@+id/close" />
 
         <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:id="@+id/close"
-            android:layout_below="@+id/ok"
-            android:layout_toRightOf="@+id/input"
-            android:layout_toEndOf="@+id/input"
-            android:background="@android:drawable/btn_dialog"
+            android:background="@android:drawable/ic_delete"
             android:backgroundTint="#f90404"
-            android:backgroundTintMode="multiply" />
+            android:backgroundTintMode="multiply"
+            android:layout_alignParentBottom="true"
+            android:layout_alignRight="@+id/ok"
+            android:layout_alignEnd="@+id/ok" />
 
         <CheckBox
             android:layout_width="wrap_content"

@@ -67,11 +67,6 @@ public class YoutubeActivity extends YouTubeBaseActivity implements NoteFragment
             public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer yPlayer, boolean b) {
                 youTubePlayer = yPlayer;
                 youTubePlayer.loadVideo(videoId);
-                /*youTubePlayer.setFullscreenControlFlags(YouTubePlayer.FULLSCREEN_FLAG_CUSTOM_LAYOUT);
-                youTubePlayer.setOnFullscreenListener(new YouTubePlayer.OnFullscreenListener(){
-                    @Override
-                    public void onFullscreen(boolean arg0) {
-                    }});*/
                 youTubePlayer.setShowFullscreenButton(false);
                 youTubePlayer.setManageAudioFocus(false);
             }
