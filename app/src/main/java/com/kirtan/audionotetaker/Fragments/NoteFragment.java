@@ -12,7 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.kirtan.audionotetaker.Activities.YoutubeActivity;
+import com.kirtan.audionotetaker.Activities.RecordAudio;
 import com.kirtan.audionotetaker.R;
 
 public class NoteFragment extends Fragment {
@@ -57,7 +57,7 @@ public class NoteFragment extends Fragment {
         ok = (Button) v.findViewById(R.id.ok);
         close = (Button) v.findViewById(R.id.close);
 
-        String nt = YoutubeActivity.nt;
+        String nt = RecordAudio.nt;
         input.setText(nt);
 
         ok.setOnClickListener(new View.OnClickListener() {

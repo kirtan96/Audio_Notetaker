@@ -50,6 +50,7 @@ public class RecordAudio extends AppCompatActivity implements NoteFragment.OnCli
     NoteFragment noteFragment;
     boolean fragmentVisible;
     FragmentManager fragmentManager;
+    public static String nt = "";
 
 
     @Override
@@ -138,7 +139,7 @@ public class RecordAudio extends AppCompatActivity implements NoteFragment.OnCli
             public void onClick(View arg0) {
                 if(!fragmentVisible)
                 {
-                    YoutubeActivity.nt = "";
+                    nt = "";
                     cTime = timer.getText().toString()+": ";
                     showFragment();
                 }
@@ -177,7 +178,7 @@ public class RecordAudio extends AppCompatActivity implements NoteFragment.OnCli
 
     private void edit(String s)
     {
-        YoutubeActivity.nt = s.substring(s.indexOf(" ") + 1);
+        nt = s.substring(s.indexOf(" ") + 1);
         cTime = s.substring(0, s.indexOf(" ")+1);
         showFragment();
     }
@@ -262,7 +263,7 @@ public class RecordAudio extends AppCompatActivity implements NoteFragment.OnCli
     }
 
     private void saveNote(String n) {
-        if(YoutubeActivity.nt.equals("")) {
+        if(nt.equals("")) {
             noteList.add(n);
         }
         else

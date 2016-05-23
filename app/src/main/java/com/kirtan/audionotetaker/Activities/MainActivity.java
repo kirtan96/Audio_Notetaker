@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 builder.setTitle("Choose an option:");
                 if (title.getVisibility() == View.INVISIBLE) {
-                    builder.setItems(new String[]{"Open Audio File", "Start New Recording", "Create New Folder"/*, "Open a YouTube Video"*/},
+                    builder.setItems(new String[]{"Open Audio File", "Start New Recording", "Create New Folder"},
                             new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -212,94 +212,6 @@ public class MainActivity extends AppCompatActivity {
 
                                 alertDialog.show();
                             }
-                            /*else if(which == 3)
-                            {
-                                final AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
-                                alertDialog.setTitle("Add a YouTube Video");
-
-                                final EditText input = new EditText(MainActivity.this);
-                                final EditText input2 = new EditText(MainActivity.this);
-                                input.setSingleLine();
-                                input.setHint("Name of the file");
-                                input2.setHint("YouTube URL");
-                                input2.setSingleLine();
-                                final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-                                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                                        LinearLayout.LayoutParams.MATCH_PARENT,
-                                        LinearLayout.LayoutParams.MATCH_PARENT);
-                                input.setLayoutParams(lp);
-                                input2.setLayoutParams(lp);
-                                LinearLayout ll = new LinearLayout(MainActivity.this);
-                                ll.setOrientation(LinearLayout.VERTICAL);
-                                ll.addView(input);
-                                ll.addView(input2);
-                                alertDialog.setView(ll);
-
-                                alertDialog.setPositiveButton("Add",
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                String name = input.getText().toString().trim();
-                                                String url = input2.getText().toString().trim();
-                                                String videoId = "";
-                                                if(url.contains("youtube.com/watch?v=")){
-                                                    videoId = url.substring(url.indexOf("=")+1);
-                                                }
-                                                else if(url.contains("youtu.be/")){
-                                                    videoId = url.substring(url.indexOf("be/") + 3);
-                                                }
-                                                if (name.length() >= 1)
-                                                {
-                                                    name = name.substring(0,1).toUpperCase()+name.substring(1);
-                                                    if (!myPrefs.getString(MY_YOUTUBE_FILES, "").contains(name) &&
-                                                            !name.trim().equals("")) {
-                                                        if (url.contains("youtube.com/watch?v=") ||
-                                                                url.contains("youtu.be/")){
-                                                            editor.putString(MY_YOUTUBE_FILES,
-                                                                    myPrefs.getString(MY_YOUTUBE_FILES, "")+
-                                                                    name + MY_YOUTUBE_FILES);
-                                                            Intent intent = new Intent(MainActivity.this,
-                                                                    YoutubeActivity.class);
-                                                            intent.putExtra("VideoID", videoId);
-                                                            editor.putString(MY_YOUTUBE_URLS,
-                                                                    myPrefs.getString(MY_YOUTUBE_URLS, "")+ videoId +
-                                                                            MY_YOUTUBE_URLS);
-                                                            editor.putString(name+MY_YOUTUBE_FILES, videoId);
-                                                            editor.apply();
-                                                            startActivity(intent);
-                                                        }
-                                                        else
-                                                        {
-                                                            Toast.makeText(MainActivity.this,
-                                                                    "Invalid URL!",
-                                                                    Toast.LENGTH_LONG).show();
-                                                        }
-                                                    }
-                                                    else{
-                                                        Toast.makeText(MainActivity.this,
-                                                                "File with this name already exists!",
-                                                                Toast.LENGTH_LONG).show();
-                                                    }
-                                                } else {
-                                                    Toast.makeText(MainActivity.this,
-                                                            "Invalid File Name!",
-                                                            Toast.LENGTH_LONG).show();
-                                                }
-                                                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-                                                update();
-                                            }
-                                        });
-
-                                alertDialog.setNegativeButton("Cancel",
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-                                                dialog.cancel();
-                                            }
-                                        });
-
-                                alertDialog.show();
-                            }*/
                         }
                     });
                 } else {
@@ -368,10 +280,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 file = noteList.get(position);
-                if (position >= folderLists.size()+fileLists.size()+recordLists.size()) {
-                    navigateToYoutube(file);
-                }
-                else if(position >= folderLists.size())
+                if(position >= folderLists.size())
                 {
                     navigateTo(file.trim());
                 }
@@ -469,12 +378,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         update();
-    }
-
-    private void navigateToYoutube(String file) {
-        Intent intent = new Intent(MainActivity.this, YoutubeActivity.class);
-        intent.putExtra("VideoID", myPrefs.getString(file+MY_YOUTUBE_FILES,""));
-        startActivity(intent);
     }
 
     /**
