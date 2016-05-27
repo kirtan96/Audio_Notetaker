@@ -1,7 +1,6 @@
 package com.kirtan.audionotetaker.Activities;
 
 import android.app.FragmentManager;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
@@ -11,7 +10,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -19,7 +17,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -53,7 +50,11 @@ public class Player extends AppCompatActivity implements AudioNoteFragment.OnCli
     ArrayList<String> noteList;
     SharedPreferences myPrefs;
     SharedPreferences.Editor editor;
-    private String cTime, n = "", uri = "", real = "", nts = "";
+    private static String cTime;
+    private String n = "";
+    private String uri = "";
+    private String real = "";
+    private String nts = "";
     final String splitter = "/////";
     public static String nt = "", random="";
     int currentNotePos;
@@ -283,47 +284,9 @@ public class Player extends AppCompatActivity implements AudioNoteFragment.OnCli
 
             }
         });
-
-        note.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String time = note.getItemAtPosition(position).toString();
-                time = time.substring(0, time.indexOf(": "));
-                int min = Integer.parseInt(time.substring(0, time.indexOf(":")));
-                int sec = Integer.parseInt(time.substring(time.indexOf(":")+1));
-                int t = (int) (TimeUnit.MINUTES.toMillis(min) + TimeUnit.SECONDS.toMillis(sec));
-                mediaPlayer.pause();
-                mediaPlayer.seekTo(t);
-                mediaPlayer.start();
-                myHandler.postDelayed(UpdateSongTime, 100);
-            }
-        });
-
-        note.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(Player.this);
-                builder.setTitle("Choose an option:");
-                builder.setItems(new String[]{"Edit", "Delete"}, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String s = noteList.get(position);
-                        if (which == 0) {
-                            nts = s;
-                            edit(s);
-                        } else {
-                            delete(s);
-                        }
-                    }
-                });
-
-                builder.show();
-                return true;
-            }
-        });
     }
 
-    private void edit(String s) {
+    public void edit(String s) {
         nt = s.substring(s.indexOf(" ")+1);
         cTime = s.substring(0, s.indexOf(" ")+1);
         showFragment();
@@ -575,7 +538,48 @@ public class Player extends AppCompatActivity implements AudioNoteFragment.OnCli
 
             TextView lbl = (TextView) v.findViewById(R.id.note);
             TextView ts = (TextView) v.findViewById(R.id.timeStamp);
-            String temp = s.get(pos);
+            Button edit = (Button) v.findViewById(R.id.edit);
+            Button delete = (Button) v.findViewById(R.id.delete);
+            final String temp = s.get(pos);
+            edit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    nts = temp;
+                    edit(temp);
+                }
+            });
+            delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    delete(temp);
+                }
+            });
+            lbl.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String time = temp.substring(0, temp.indexOf(": "));
+                    int min = Integer.parseInt(time.substring(0, time.indexOf(":")));
+                    int sec = Integer.parseInt(time.substring(time.indexOf(":")+1));
+                    int t = (int) (TimeUnit.MINUTES.toMillis(min) + TimeUnit.SECONDS.toMillis(sec));
+                    mediaPlayer.pause();
+                    mediaPlayer.seekTo(t);
+                    mediaPlayer.start();
+                    myHandler.postDelayed(UpdateSongTime, 100);
+                }
+            });
+            ts.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String time = temp.substring(0, temp.indexOf(": "));
+                    int min = Integer.parseInt(time.substring(0, time.indexOf(":")));
+                    int sec = Integer.parseInt(time.substring(time.indexOf(":")+1));
+                    int t = (int) (TimeUnit.MINUTES.toMillis(min) + TimeUnit.SECONDS.toMillis(sec));
+                    mediaPlayer.pause();
+                    mediaPlayer.seekTo(t);
+                    mediaPlayer.start();
+                    myHandler.postDelayed(UpdateSongTime, 100);
+                }
+            });
             String t = temp.substring(0, temp.indexOf(": ")+1);
             String n = temp.substring(temp.indexOf(": ") + 2);
             ts.setText(t);
@@ -610,7 +614,6 @@ public class Player extends AppCompatActivity implements AudioNoteFragment.OnCli
         {
             Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
             intent.setType("text/plain");
-            //intent.setAction(Intent.ACTION_GET_CONTENT);
             startActivityForResult(Intent.createChooser(intent, "Select a file"), PICK_FILE );
 
         }

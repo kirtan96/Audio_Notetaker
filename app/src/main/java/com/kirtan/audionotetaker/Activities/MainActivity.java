@@ -77,6 +77,12 @@ public class MainActivity extends AppCompatActivity {
                         new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                         1);
         }
+        if (recordCheck != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.RECORD_AUDIO},
+                    1);
+        }
 
 
 
@@ -742,7 +748,7 @@ public class MainActivity extends AppCompatActivity {
             update();
         }
         update();
-        Toast.makeText(MainActivity.this, "Deleted...", Toast.LENGTH_LONG).show();
+        Toast.makeText(MainActivity.this, "Deleted", Toast.LENGTH_LONG).show();
     }
 
 
@@ -864,10 +870,15 @@ public class MainActivity extends AppCompatActivity {
                             new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                             1);
                 }
-                else if (readCheck != PackageManager.PERMISSION_GRANTED) {
+                /*else if (readCheck != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(this,
                             new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                             2);
+                }*/
+                else if (recordCheck != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.RECORD_AUDIO},
+                            3);
                 }
             }
             case 2: {

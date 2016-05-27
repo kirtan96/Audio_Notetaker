@@ -16,7 +16,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -149,31 +148,6 @@ public class RecordAudio extends AppCompatActivity implements NoteFragment.OnCli
                 }
             }
         });
-
-        note.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(RecordAudio.this);
-                builder.setItems(new String[]{"Edit", "Delete"}, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String s = noteList.get(position);
-                        if(which == 0)
-                        {
-                            nts = s;
-                            edit(s);
-                        }
-                        else{
-
-                            delete(s);
-                        }
-                    }
-                });
-                builder.show();
-                return true;
-            }
-        });
-
     }
 
     private void edit(String s)
@@ -367,7 +341,22 @@ public class RecordAudio extends AppCompatActivity implements NoteFragment.OnCli
 
             TextView lbl = (TextView) v.findViewById(R.id.note);
             TextView ts = (TextView) v.findViewById(R.id.timeStamp);
-            String temp = s.get(pos);
+            Button edit = (Button) v.findViewById(R.id.edit);
+            Button delete = (Button) v.findViewById(R.id.delete);
+            final String temp = s.get(pos);
+            edit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    nts = temp;
+                    edit(temp);
+                }
+            });
+            delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    delete(temp);
+                }
+            });
             String n = temp.substring(temp.indexOf(" ") + 1);
             String t = temp.substring(0, temp.indexOf(" "));
             ts.setText(t);

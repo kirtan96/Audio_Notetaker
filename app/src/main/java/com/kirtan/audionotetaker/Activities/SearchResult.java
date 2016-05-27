@@ -547,7 +547,48 @@ public class SearchResult extends AppCompatActivity implements AudioNoteFragment
 
             TextView lbl = (TextView) v.findViewById(R.id.note);
             TextView ts = (TextView) v.findViewById(R.id.timeStamp);
-            String temp = s.get(pos);
+            Button edit = (Button) v.findViewById(R.id.edit);
+            Button delete = (Button) v.findViewById(R.id.delete);
+            final String temp = s.get(pos);
+            edit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    nts = temp;
+                    edit(temp);
+                }
+            });
+            delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    delete(temp);
+                }
+            });
+            lbl.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String time = temp.substring(0, temp.indexOf(": "));
+                    int min = Integer.parseInt(time.substring(0, time.indexOf(":")));
+                    int sec = Integer.parseInt(time.substring(time.indexOf(":")+1));
+                    int t = (int) (TimeUnit.MINUTES.toMillis(min) + TimeUnit.SECONDS.toMillis(sec));
+                    mediaPlayer.pause();
+                    mediaPlayer.seekTo(t);
+                    mediaPlayer.start();
+                    myHandler.postDelayed(UpdateSongTime, 100);
+                }
+            });
+            ts.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String time = temp.substring(0, temp.indexOf(": "));
+                    int min = Integer.parseInt(time.substring(0, time.indexOf(":")));
+                    int sec = Integer.parseInt(time.substring(time.indexOf(":")+1));
+                    int t = (int) (TimeUnit.MINUTES.toMillis(min) + TimeUnit.SECONDS.toMillis(sec));
+                    mediaPlayer.pause();
+                    mediaPlayer.seekTo(t);
+                    mediaPlayer.start();
+                    myHandler.postDelayed(UpdateSongTime, 100);
+                }
+            });
             String n = temp.substring(temp.indexOf(" ") + 1);
             String t = temp.substring(0, temp.indexOf(" "));
             ts.setText(t);
