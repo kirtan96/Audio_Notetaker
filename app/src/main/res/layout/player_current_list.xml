@@ -23,7 +23,8 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:layout_alignBottom="@+id/note" />
+            android:layout_alignBottom="@+id/note"
+            android:textStyle="bold|italic" />
 
         <TextView
             android:layout_width="wrap_content"
