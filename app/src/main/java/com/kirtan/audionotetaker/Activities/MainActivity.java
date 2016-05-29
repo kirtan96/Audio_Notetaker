@@ -193,14 +193,14 @@ public class MainActivity extends AppCompatActivity {
                                                 }
                                                 if (!myPrefs.getString(MY_FILES, "").contains(name) &&
                                                         !name.trim().equals("") &&
-                                                        checkEveryFolder(name)) {
+                                                        checkEveryFolder(name+"\n")) {
                                                     Intent intent = new Intent(MainActivity.this, RecordAudio.class);
                                                     intent.putExtra("fileName", name);
                                                     intent.putExtra("folderName", "All Notes");
                                                     startActivity(intent);
                                                 } else {
                                                     Toast.makeText(MainActivity.this,
-                                                            "Invalid File Name!",
+                                                            "A file/folder with this name already exists!",
                                                             Toast.LENGTH_LONG).show();
                                                 }
                                                 imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
@@ -250,14 +250,14 @@ public class MainActivity extends AppCompatActivity {
                                                 }
                                                 if (!myPrefs.getString(MY_FILES, "").contains(name) &&
                                                         !name.trim().equals("") &&
-                                                        checkEveryFolder(name)) {
+                                                        checkEveryFolder(name+"\n")) {
                                                     Intent intent = new Intent(MainActivity.this, RecordAudio.class);
                                                     intent.putExtra("fileName", name);
                                                     intent.putExtra("folderName", title.getText().toString().trim());
                                                     startActivity(intent);
                                                 } else {
                                                     Toast.makeText(MainActivity.this,
-                                                            "Invalid File Name!",
+                                                            "A file/folder with this name already exists!",
                                                             Toast.LENGTH_LONG).show();
                                                 }
                                                 imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
@@ -447,21 +447,21 @@ public class MainActivity extends AppCompatActivity {
         {
             String temp = in.nextLine();
             temp = temp.replace(" (FOLDER)", "");
-            if(!myPrefs.getString(temp.trim() + " (FOLDER)", "").contains(currentName))
+            if(!myPrefs.getString(temp.trim() + " (FOLDER)", "").contains(currentName+"\n"))
             {
                 list.add(temp.trim());
             }
         }
         if(title.getVisibility() == View.VISIBLE)
         {
-            if(!myPrefs.getString(MY_FILES, "").contains(currentName)) {
+            if(!myPrefs.getString(MY_FILES, "").contains(currentName+"\n")) {
                 list.add("All Notes");
             }
             list.remove(title.getText().toString().trim());
         }
         list.remove("");
         Collections.sort((List) list);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, list);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
         listView.setAdapter(adapter);
         final String[] temp = {""};
         final String[] t = {""};
@@ -561,7 +561,8 @@ public class MainActivity extends AppCompatActivity {
                         if (position >= folderLists.size() && position < folderLists.size()+
                                 fileLists.size()+
                                 recordLists.size() &&
-                                title.getVisibility() == View.INVISIBLE) {
+                                title.getVisibility() == View.INVISIBLE &&
+                                checkEveryFolder(changedName+"\n")) {
                             String temp = myPrefs.getString(MY_FILES, "");
                             String t = "\n" + currentName + "\n";
                             if (!temp.contains(t)) {
@@ -577,7 +578,8 @@ public class MainActivity extends AppCompatActivity {
                             editor.apply();
                             update();
                         } else if (position < folderLists.size() &&
-                                title.getVisibility() == View.INVISIBLE) {
+                                title.getVisibility() == View.INVISIBLE &&
+                                !myPrefs.getString(MY_FOLDERS,"").contains(changedName+" (FOLDER)")) {
                             String temp = myPrefs.getString(MY_FOLDERS, "");
                             String t = "\n" + currentName + " (FOLDER)" + "\n";
                             if (!temp.contains(t)) {
@@ -594,7 +596,8 @@ public class MainActivity extends AppCompatActivity {
                             update();
                         } else if (!myPrefs.getString(title.getText().toString().trim() + " (FOLDER)", "").contains(
                                 changedName.trim() + "\n") &&
-                                title.getVisibility() == View.VISIBLE) {
+                                title.getVisibility() == View.VISIBLE &&
+                                checkEveryFolder(changedName+"\n")) {
                             String temp = myPrefs.getString(title.getText().toString() + " (FOLDER)",
                                     "");
                             String t = "\n" + currentName + "\n";
@@ -733,7 +736,7 @@ public class MainActivity extends AppCompatActivity {
                                 }
                                 if (title.getVisibility() == View.INVISIBLE &&
                                         !name.trim().equals("")
-                                        && checkEveryFolder(name)) {
+                                        && checkEveryFolder(name+"\n")) {
                                     imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
                                     if (!myFiles.contains(name)) {
                                         file = input.getText().toString();
@@ -747,7 +750,7 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                 } else if (title.getVisibility() == View.VISIBLE &&
                                         !name.trim().equals("") &&
-                                        checkEveryFolder(name)) {
+                                        checkEveryFolder(name+"\n")) {
                                     imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
                                     String f = myPrefs.getString(title.getText().toString().trim() + " (FOLDER)", "");
                                     if (!f.contains(name)) {
@@ -782,7 +785,6 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean checkEveryFolder(String name) {
         boolean b = true;
-        ArrayList<String> flist = new ArrayList<>();
         for(String x: myPrefs.getString(MY_FOLDERS,"").split("\n"))
         {
             if(!x.trim().equals("")){
