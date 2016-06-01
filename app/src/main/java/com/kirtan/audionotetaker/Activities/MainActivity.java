@@ -34,6 +34,7 @@ import com.kirtan.audionotetaker.R;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class MainActivity extends AppCompatActivity {
@@ -709,78 +710,96 @@ public class MainActivity extends AppCompatActivity {
 
                 Uri myUri = data.getData();
                 uri = myUri.toString();
-                AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
-                alertDialog.setTitle("Create");
-                alertDialog.setMessage("Name the file:");
+                if (isUniqueAudio(uri)) {
+                    AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+                    alertDialog.setTitle("Create");
+                    alertDialog.setMessage("Name the file:");
 
-                final EditText input = new EditText(MainActivity.this);
-                input.setSingleLine();
-                input.setHint("Name of the file");
-                final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.MATCH_PARENT);
-                input.setLayoutParams(lp);
-                alertDialog.setView(input);
+                    final EditText input = new EditText(MainActivity.this);
+                    input.setSingleLine();
+                    input.setHint("Name of the file");
+                    final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.MATCH_PARENT);
+                    input.setLayoutParams(lp);
+                    alertDialog.setView(input);
 
-                final String myFiles = myPrefs.getString(MY_FILES, "");
+                    final String myFiles = myPrefs.getString(MY_FILES, "");
 
-                alertDialog.setPositiveButton("Create",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
+                    alertDialog.setPositiveButton("Create",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
 
-                                String name = input.getText().toString();
-                                if (name.length() >= 1) {
-                                    name = name.substring(0, 1).toUpperCase() + name.substring(1);
-                                }
-                                if (title.getVisibility() == View.INVISIBLE &&
-                                        !name.trim().equals("")
-                                        && checkEveryFolder(name+"\n")) {
-                                    imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-                                    if (!myFiles.contains(name)) {
-                                        file = input.getText().toString();
-                                        editor.putString(MY_FILES, myFiles + name + "\n");
-                                        editor.putString(name, uri);
-                                        editor.apply();
-                                        update();
-                                        navigateTo(name);
-                                    } else {
-                                        Toast.makeText(MainActivity.this, "This file already exists. Name it differently!", Toast.LENGTH_LONG).show();
+                                    String name = input.getText().toString();
+                                    if (name.length() >= 1) {
+                                        name = name.substring(0, 1).toUpperCase() + name.substring(1);
                                     }
-                                } else if (title.getVisibility() == View.VISIBLE &&
-                                        !name.trim().equals("") &&
-                                        checkEveryFolder(name+"\n")) {
-                                    imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-                                    String f = myPrefs.getString(title.getText().toString().trim() + " (FOLDER)", "");
-                                    if (!f.contains(name)) {
-                                        file = input.getText().toString();
-                                        editor.putString(title.getText().toString().trim() + " (FOLDER)",
-                                                f + name + "\n");
-                                        editor.putString(name, uri);
-                                        editor.apply();
-                                        update();
-                                        navigateTo(name);
+                                    if (title.getVisibility() == View.INVISIBLE &&
+                                            !name.trim().equals("")
+                                            && checkEveryFolder(name + "\n")) {
+                                        imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                                        if (!myFiles.contains(name)) {
+                                            file = input.getText().toString();
+                                            editor.putString(MY_FILES, myFiles + name + "\n");
+                                            editor.putString(name, uri);
+                                            editor.apply();
+                                            update();
+                                            navigateTo(name);
+                                        } else {
+                                            Toast.makeText(MainActivity.this, "This file already exists. Name it differently!", Toast.LENGTH_LONG).show();
+                                        }
+                                    } else if (title.getVisibility() == View.VISIBLE &&
+                                            !name.trim().equals("") &&
+                                            checkEveryFolder(name + "\n")) {
+                                        imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                                        String f = myPrefs.getString(title.getText().toString().trim() + " (FOLDER)", "");
+                                        if (!f.contains(name)) {
+                                            file = input.getText().toString();
+                                            editor.putString(title.getText().toString().trim() + " (FOLDER)",
+                                                    f + name + "\n");
+                                            editor.putString(name, uri);
+                                            editor.apply();
+                                            update();
+                                            navigateTo(name);
+                                        } else {
+                                            Toast.makeText(MainActivity.this, "This file already exists. Name it differently!", Toast.LENGTH_LONG).show();
+                                        }
                                     } else {
-                                        Toast.makeText(MainActivity.this, "This file already exists. Name it differently!", Toast.LENGTH_LONG).show();
+                                        Toast.makeText(MainActivity.this, "Sorry. Cannot create a file with this name!", Toast.LENGTH_LONG).show();
                                     }
-                                } else {
-                                    Toast.makeText(MainActivity.this, "Sorry. Cannot create a file with this name!", Toast.LENGTH_LONG).show();
                                 }
-                            }
-                        });
+                            });
 
-                alertDialog.setNegativeButton("Cancel",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-                            }
-                        });
-                alertDialog.show();
+                    alertDialog.setNegativeButton("Cancel",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                                }
+                            });
+                    alertDialog.show();
 
+                }
+                else
+                {
+                    Toast.makeText(this, "This Audio File Already Exists!", Toast.LENGTH_LONG).show();
+                }
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private boolean isUniqueAudio(String u) {
+        boolean b = true;
+        Map<String, ?> keys = myPrefs.getAll();
+        for (Map.Entry<String, ?> entryKey : keys.entrySet()) {
+            if (entryKey.getKey().equals(u) || entryKey.getValue().equals(u)){
+                b = false;
+                break;
+            }
+        }
+        return b;
     }
 
     private boolean checkEveryFolder(String name) {
