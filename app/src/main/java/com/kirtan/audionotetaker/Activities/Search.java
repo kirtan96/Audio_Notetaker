@@ -8,10 +8,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -29,6 +30,8 @@ public class Search extends AppCompatActivity {
     String search;
     String file = "";
     TextView nrf;
+    FileAdapter fileAdapter;
+    SharedPreferences myPrefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +61,7 @@ public class Search extends AppCompatActivity {
                     if(!search.isEmpty()) {
                         getSupportActionBar().setTitle(search);
                         key = new ArrayList<>();
-                        SharedPreferences myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
+                        myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
                         Map<String, ?> keys = myPrefs.getAll();
                         for (Map.Entry<String, ?> entryKey : keys.entrySet()) {
                             if ((!entryKey.getKey().contains("checkBox")) &&
@@ -85,9 +88,8 @@ public class Search extends AppCompatActivity {
                             nrf.setVisibility(View.INVISIBLE);
                         }
                         Collections.sort((List)key);
-                        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(Search.this,
-                                android.R.layout.simple_list_item_1, key);
-                        listView.setAdapter(arrayAdapter);
+                        fileAdapter = new FileAdapter(key);
+                        listView.setAdapter(fileAdapter);
                     }
                 }
 
@@ -105,6 +107,73 @@ public class Search extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+    }
+
+    /**
+     * Private Class for listView
+     */
+    private class FileAdapter extends BaseAdapter
+    {
+
+        ArrayList<String> s;
+        protected FileAdapter(ArrayList<String> s1)
+        {
+            s = s1;
+        }
+        /**
+         * gets the size of conversatrion list
+         * @return size of conversation list
+         */
+        @Override
+        public int getCount()
+        {
+            return s.size();
+        }
+
+        /**
+         * gets the selected conversation
+         * @param arg0 the position on the list
+         * @return the conversation at a selected position
+         */
+        @Override
+        public String getItem(int arg0)
+        {
+            return s.get(arg0);
+        }
+
+        /**
+         * gets the id for a selected positon
+         * @param arg0 the position on the list
+         * @return the id for the position
+         */
+        @Override
+        public long getItemId(int arg0)
+        {
+            return arg0;
+        }
+
+        /**
+         * gets the layout for a conversation
+         * @param pos the psoition of the conversation
+         * @param v the view for how the conversation is laid out
+         * @param arg2 the view group
+         * @return the overall layout of a conversation
+         */
+        @Override
+        public View getView(int pos, View v, ViewGroup arg2)
+        {
+            String c = getItem(pos);
+            if (myPrefs.getString(c, "").contains("file:/"))
+                v = getLayoutInflater().inflate(R.layout.recordings_list, null);
+            else
+                v = getLayoutInflater().inflate(R.layout.file_list, null);
+
+            TextView lbl = (TextView) v.findViewById(R.id.note);
+            lbl.setText(s.get(pos));
+
+            return v;
+        }
 
     }
 
