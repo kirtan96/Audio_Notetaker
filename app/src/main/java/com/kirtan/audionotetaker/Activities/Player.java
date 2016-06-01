@@ -1,8 +1,11 @@
 package com.kirtan.audionotetaker.Activities;
 
+import android.app.AlertDialog;
 import android.app.FragmentManager;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -17,8 +20,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SeekBar;
@@ -41,7 +44,6 @@ import java.util.concurrent.TimeUnit;
 public class Player extends AppCompatActivity implements AudioNoteFragment.OnClickedListener {
 
     public static MediaPlayer mediaPlayer;
-    Button pause, skipLeft, skipRight;
     TextView currentTime, finalTime, t;
     SeekBar seekBar;
     ListView note;
@@ -66,7 +68,8 @@ public class Player extends AppCompatActivity implements AudioNoteFragment.OnCli
     File exportedFile = null;
     private FragmentManager fragmentManager;
     private AudioNoteFragment audioNoteFragment;
-    FloatingActionButton add;
+    FloatingActionButton add, pause, skipLeft, skipRight;
+    Drawable pau;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,18 +79,19 @@ public class Player extends AppCompatActivity implements AudioNoteFragment.OnCli
         setSupportActionBar(toolbar);
 
         shareButton = (ImageView) findViewById(R.id.shareButton);
-        pause = (Button) findViewById(R.id.pauseButton);
+        pause = (FloatingActionButton) findViewById(R.id.pauseButton);
         currentTime = (TextView) findViewById(R.id.currentTime);
         finalTime = (TextView) findViewById(R.id.finalTime);
         seekBar = (SeekBar) findViewById(R.id.seekBar);
         note = (ListView) findViewById(R.id.note);
         t = (TextView) findViewById(R.id.noteText);
-        skipLeft = (Button) findViewById(R.id.leftskip);
+        skipLeft = (FloatingActionButton) findViewById(R.id.leftskip);
         skipLeft.setEnabled(false);
-        skipRight = (Button) findViewById(R.id.rightskip);
+        skipRight = (FloatingActionButton) findViewById(R.id.rightskip);
         isAppOpen = true;
         mediaPlayer = new MediaPlayer();
         random = "";
+        pau = getResources().getDrawable(android.R.drawable.ic_media_pause);
 
         myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
         editor = myPrefs.edit();
@@ -164,11 +168,11 @@ public class Player extends AppCompatActivity implements AudioNoteFragment.OnCli
             }
 
             private void toggleText() {
-                if (pause.getText().toString().equals("Pause")) {
-                    pause.setText("Play");
+                if (pause.getDrawable().getConstantState().equals(pau.getConstantState())) {
+                    pause.setImageResource(android.R.drawable.ic_media_play);
                     mediaPlayer.pause();
                 } else {
-                    pause.setText("Pause");
+                    pause.setImageResource(android.R.drawable.ic_media_pause);
                     mediaPlayer.start();
                     myHandler.postDelayed(UpdateSongTime, 100);
                 }
@@ -284,6 +288,45 @@ public class Player extends AppCompatActivity implements AudioNoteFragment.OnCli
 
             }
         });
+
+        note.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String temp = noteList.get(position);
+                String time = temp.substring(0, temp.indexOf(": "));
+                int min = Integer.parseInt(time.substring(0, time.indexOf(":")));
+                int sec = Integer.parseInt(time.substring(time.indexOf(":")+1));
+                int t = (int) (TimeUnit.MINUTES.toMillis(min) + TimeUnit.SECONDS.toMillis(sec));
+                mediaPlayer.pause();
+                mediaPlayer.seekTo(t);
+                mediaPlayer.start();
+                myHandler.postDelayed(UpdateSongTime, 100);
+            }
+        });
+
+        note.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                final String temp = noteList.get(position);
+                AlertDialog.Builder builder = new AlertDialog.Builder(Player.this);
+                builder.setItems(new String[]{"Edit", "Delete"}, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if(which == 0)
+                        {
+                            nts = temp;
+                            edit(nts);
+                        }
+                        else
+                        {
+                            delete(temp);
+                        }
+                    }
+                });
+                builder.show();
+                return true;
+            }
+        });
     }
 
     public void edit(String s) {
@@ -358,10 +401,10 @@ public class Player extends AppCompatActivity implements AudioNoteFragment.OnCli
                 seekBar.setProgress((int) startTime);
                 if(currentTime.getText().toString().equals(finalTime.getText().toString()))
                 {
-                    pause.setText("Play");
+                    pause.setImageResource(android.R.drawable.ic_media_play);
                 }
                 else {
-                    pause.setText("Pause");
+                    pause.setImageResource(android.R.drawable.ic_media_pause);
                 }
                 checkCurrentPos();
                 myHandler.postDelayed(this, 100);
@@ -538,49 +581,8 @@ public class Player extends AppCompatActivity implements AudioNoteFragment.OnCli
 
             TextView lbl = (TextView) v.findViewById(R.id.note);
             TextView ts = (TextView) v.findViewById(R.id.timeStamp);
-            Button edit = (Button) v.findViewById(R.id.edit);
-            Button delete = (Button) v.findViewById(R.id.delete);
-            final String temp = s.get(pos);
-            edit.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    nts = temp;
-                    edit(temp);
-                }
-            });
-            delete.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    delete(temp);
-                }
-            });
-            lbl.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    String time = temp.substring(0, temp.indexOf(": "));
-                    int min = Integer.parseInt(time.substring(0, time.indexOf(":")));
-                    int sec = Integer.parseInt(time.substring(time.indexOf(":")+1));
-                    int t = (int) (TimeUnit.MINUTES.toMillis(min) + TimeUnit.SECONDS.toMillis(sec));
-                    mediaPlayer.pause();
-                    mediaPlayer.seekTo(t);
-                    mediaPlayer.start();
-                    myHandler.postDelayed(UpdateSongTime, 100);
-                }
-            });
-            ts.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    String time = temp.substring(0, temp.indexOf(": "));
-                    int min = Integer.parseInt(time.substring(0, time.indexOf(":")));
-                    int sec = Integer.parseInt(time.substring(time.indexOf(":")+1));
-                    int t = (int) (TimeUnit.MINUTES.toMillis(min) + TimeUnit.SECONDS.toMillis(sec));
-                    mediaPlayer.pause();
-                    mediaPlayer.seekTo(t);
-                    mediaPlayer.start();
-                    myHandler.postDelayed(UpdateSongTime, 100);
-                }
-            });
-            String t = temp.substring(0, temp.indexOf(": ")+1);
+            String temp = s.get(pos);
+            String t = temp.substring(0, temp.indexOf(": "));
             String n = temp.substring(temp.indexOf(": ") + 2);
             ts.setText(t);
             lbl.setText(n);

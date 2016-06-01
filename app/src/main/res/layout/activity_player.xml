@@ -24,8 +24,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/shareButton"
                 android:src="@android:drawable/ic_menu_share"
-                android:layout_gravity="top|end"
-                android:layout_marginRight="20dp"/>
+                android:layout_gravity="top|end"/>
         </android.support.v7.widget.Toolbar>
 
     </android.support.design.widget.AppBarLayout>

@@ -61,8 +61,7 @@ public class Search extends AppCompatActivity {
                         SharedPreferences myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
                         Map<String, ?> keys = myPrefs.getAll();
                         for (Map.Entry<String, ?> entryKey : keys.entrySet()) {
-                            if ((!entryKey.getKey().contains("myYouTubeURLS")) &&
-                                    (!entryKey.getKey().contains("checkBox")) &&
+                            if ((!entryKey.getKey().contains("checkBox")) &&
                                     (!entryKey.getKey().contains("myYouTubeFiles")) &&
                                     (!entryKey.getKey().contains("content://")) &&
                                     (!entryKey.getKey().contains("file://")) &&

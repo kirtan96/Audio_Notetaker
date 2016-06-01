@@ -16,8 +16,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,7 +34,7 @@ import java.util.List;
 public class RecordAudio extends AppCompatActivity implements NoteFragment.OnClickedListener{
 
     private MediaRecorder mediaRecorder;
-    Button start, stop;
+    FloatingActionButton start;
     SharedPreferences myPrefs;
     SharedPreferences.Editor editor;
     String outputFile, fileName, myUri, n, real, folderName, cTime = "", nts = "", splitter = "/////";
@@ -59,13 +59,11 @@ public class RecordAudio extends AppCompatActivity implements NoteFragment.OnCli
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        start = (Button) findViewById(R.id.start);
-        stop = (Button) findViewById(R.id.stop);
+        start = (FloatingActionButton) findViewById(R.id.start);
         timer = (TextView) findViewById(R.id.timer);
         note = (ListView) findViewById(R.id.list);
         add = (FloatingActionButton) findViewById(R.id.fab);
         timer.setText("00:00");
-        stop.setEnabled(false);
         add.setEnabled(false);
         note.setEnabled(false);
 
@@ -100,40 +98,35 @@ public class RecordAudio extends AppCompatActivity implements NoteFragment.OnCli
         start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    mediaRecorder.prepare();
-                    mediaRecorder.start();
-                } catch (IllegalStateException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if (start.getDrawable().getConstantState().equals(
+                        getResources().getDrawable(android.R.drawable.ic_notification_overlay).getConstantState())) {
+                    start.setImageResource(android.R.drawable.progress_horizontal);
+                    try {
+                        mediaRecorder.prepare();
+                        mediaRecorder.start();
+                    } catch (IllegalStateException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    note.setEnabled(true);
+                    add.setEnabled(true);
+                    startTime = SystemClock.uptimeMillis();
+                    myHandler.postDelayed(UpdateRecordingTime, 100);
                 }
-                start.setEnabled(false);
-                stop.setEnabled(true);
-                note.setEnabled(true);
-                add.setEnabled(true);
-                startTime = SystemClock.uptimeMillis();
-                myHandler.postDelayed(UpdateRecordingTime, 100);
-            }
-        });
-
-        stop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mediaRecorder.stop();
-                mediaRecorder.release();
-                mediaRecorder  = null;
-                stop.setEnabled(false);
-                start.setEnabled(true);
-                timeSwapBuff += timeInMilliseconds;
-                myHandler.removeCallbacks(UpdateRecordingTime);
-
-                save();
+                else
+                {
+                    mediaRecorder.stop();
+                    mediaRecorder.release();
+                    mediaRecorder  = null;
+                    timeSwapBuff += timeInMilliseconds;
+                    myHandler.removeCallbacks(UpdateRecordingTime);
+                    save();
+                }
             }
         });
 
         add.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View arg0) {
                 if(!fragmentVisible)
@@ -146,6 +139,30 @@ public class RecordAudio extends AppCompatActivity implements NoteFragment.OnCli
                 {
                     hideFragment();
                 }
+            }
+        });
+
+        note.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                final String temp = noteList.get(position);
+                AlertDialog.Builder builder = new AlertDialog.Builder(RecordAudio.this);
+                builder.setItems(new String[]{"Edit", "Delete"}, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if(which == 0)
+                        {
+                            nts = temp;
+                            edit(nts);
+                        }
+                        else
+                        {
+                            delete(temp);
+                        }
+                    }
+                });
+                builder.show();
+                return true;
             }
         });
     }
@@ -341,24 +358,9 @@ public class RecordAudio extends AppCompatActivity implements NoteFragment.OnCli
 
             TextView lbl = (TextView) v.findViewById(R.id.note);
             TextView ts = (TextView) v.findViewById(R.id.timeStamp);
-            Button edit = (Button) v.findViewById(R.id.edit);
-            Button delete = (Button) v.findViewById(R.id.delete);
-            final String temp = s.get(pos);
-            edit.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    nts = temp;
-                    edit(temp);
-                }
-            });
-            delete.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    delete(temp);
-                }
-            });
+            String temp = s.get(pos);
             String n = temp.substring(temp.indexOf(" ") + 1);
-            String t = temp.substring(0, temp.indexOf(" "));
+            String t = temp.substring(0, temp.indexOf(": "));
             ts.setText(t);
             lbl.setText(n);
 
