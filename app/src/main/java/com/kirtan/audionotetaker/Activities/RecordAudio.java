@@ -47,7 +47,7 @@ public class RecordAudio extends AppCompatActivity implements NoteFragment.OnCli
     ArrayList<String> noteList;
     NoteListAdapter nla;
     NoteFragment noteFragment;
-    boolean fragmentVisible;
+    boolean fragmentVisible, recordingStarted;
     FragmentManager fragmentManager;
     public static String nt = "";
 
@@ -74,6 +74,7 @@ public class RecordAudio extends AppCompatActivity implements NoteFragment.OnCli
         myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
         editor = myPrefs.edit();
         fragmentVisible = false;
+        recordingStarted = false;
         mediaRecorder = new MediaRecorder();
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
@@ -98,9 +99,9 @@ public class RecordAudio extends AppCompatActivity implements NoteFragment.OnCli
         start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (start.getDrawable().getConstantState().equals(
-                        getResources().getDrawable(android.R.drawable.ic_notification_overlay).getConstantState())) {
+                if (!recordingStarted) {
                     start.setImageResource(android.R.drawable.progress_horizontal);
+                    recordingStarted = true;
                     try {
                         mediaRecorder.prepare();
                         mediaRecorder.start();
