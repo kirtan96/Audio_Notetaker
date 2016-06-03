@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     int readCheck, writeCheck, recordCheck, internetCheck;
     public View row;
     ArrayList<String> folderLists, fileLists, recordLists, noteList;
-
+    boolean isFolderOpen;
     final String MY_FILES = "myFiles",
             MY_FOLDERS = "myFolders";
 
@@ -98,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
         editor = myPrefs.edit();
         title = (TextView) findViewById(R.id.title);
         title.setVisibility(View.INVISIBLE);
+        isFolderOpen = false;
 
         assert add != null;
         add.setOnClickListener(new View.OnClickListener() {
@@ -192,8 +193,7 @@ public class MainActivity extends AppCompatActivity {
                                                 if (name.length() >= 1) {
                                                     name = name.substring(0, 1).toUpperCase() + name.substring(1);
                                                 }
-                                                if (!myPrefs.getString(MY_FILES, "").contains(name) &&
-                                                        !name.trim().equals("") &&
+                                                if (!name.trim().equals("") &&
                                                         checkEveryFolder(name+"\n")) {
                                                     Intent intent = new Intent(MainActivity.this, RecordAudio.class);
                                                     intent.putExtra("fileName", name);
@@ -249,8 +249,7 @@ public class MainActivity extends AppCompatActivity {
                                                 if (name.length() >= 1) {
                                                     name = name.substring(0, 1).toUpperCase() + name.substring(1);
                                                 }
-                                                if (!myPrefs.getString(MY_FILES, "").contains(name) &&
-                                                        !name.trim().equals("") &&
+                                                if (!name.trim().equals("") &&
                                                         checkEveryFolder(name+"\n")) {
                                                     Intent intent = new Intent(MainActivity.this, RecordAudio.class);
                                                     intent.putExtra("fileName", name);
@@ -292,32 +291,7 @@ public class MainActivity extends AppCompatActivity {
                     navigateTo(file.trim());
                 }
                 else {
-                    folderLists = new ArrayList<>();
-                    noteList = new ArrayList<>();
-                    Scanner in = new Scanner(myPrefs.getString(file + " (FOLDER)", ""));
-                    fileLists = new ArrayList<>();
-                    recordLists = new ArrayList<>();
-                    while (in.hasNextLine()) {
-                        String temp = in.nextLine().trim();
-                        if (myPrefs.getString(temp, "").contains("file:/")) {
-                            recordLists.add(temp);
-                        } else {
-                            fileLists.add(temp);
-                        }
-                    }
-                    recordLists.remove("");
-                    fileLists.remove("");
-                    Collections.sort((List) recordLists);
-                    Collections.sort((List) fileLists);
-                    noteList.addAll(fileLists);
-                    noteList.addAll(recordLists);
-                    noteList.remove("");
-                    title.setVisibility(View.VISIBLE);
-                    back.setVisibility(View.VISIBLE);
-                    title.setText(file);
-                    setTitle(file);
-                    adp = new FileAdapter(noteList);
-                    note.setAdapter(adp);
+                    updateFolder();
                 }
             }
         });
@@ -374,10 +348,41 @@ public class MainActivity extends AppCompatActivity {
         update();
     }
 
+    private void updateFolder() {
+        isFolderOpen = true;
+        folderLists = new ArrayList<>();
+        noteList = new ArrayList<>();
+        Scanner in = new Scanner(myPrefs.getString(file + " (FOLDER)", ""));
+        fileLists = new ArrayList<>();
+        recordLists = new ArrayList<>();
+        while (in.hasNextLine()) {
+            String temp = in.nextLine().trim();
+            if (myPrefs.getString(temp, "").contains("file:/")) {
+                recordLists.add(temp);
+            } else {
+                fileLists.add(temp);
+            }
+        }
+        recordLists.remove("");
+        fileLists.remove("");
+        Collections.sort((List) recordLists);
+        Collections.sort((List) fileLists);
+        noteList.addAll(fileLists);
+        noteList.addAll(recordLists);
+        noteList.remove("");
+        title.setVisibility(View.VISIBLE);
+        back.setVisibility(View.VISIBLE);
+        title.setText(file);
+        setTitle(file);
+        adp = new FileAdapter(noteList);
+        note.setAdapter(adp);
+    }
+
     /**
      * Updates the listView
      */
     private void update() {
+        isFolderOpen = false;
         back.setVisibility(View.INVISIBLE);
         title.setVisibility(View.INVISIBLE);
         noteList = new ArrayList<>();
@@ -663,7 +668,7 @@ public class MainActivity extends AppCompatActivity {
             editor.putString(title.getText().toString().trim() + " (FOLDER)", temp);
             editor.remove(noteList.get(position));
             editor.apply();
-            update();
+            updateFolder();
         } else if(position < folderLists.size()){
             String t = noteList.get(position) + " (FOLDER)" + "\n";
             Scanner in = new Scanner(myPrefs.getString(
@@ -685,7 +690,6 @@ public class MainActivity extends AppCompatActivity {
             editor.apply();
             update();
         }
-        update();
         Toast.makeText(MainActivity.this, "Deleted", Toast.LENGTH_LONG).show();
     }
 
@@ -707,7 +711,6 @@ public class MainActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
 
                 //the selected audio.
-
                 Uri myUri = data.getData();
                 uri = myUri.toString();
                 if (isUniqueAudio(uri)) {
@@ -807,20 +810,27 @@ public class MainActivity extends AppCompatActivity {
         for(String x: myPrefs.getString(MY_FOLDERS,"").split("\n"))
         {
             if(!x.trim().equals("")){
-                if(myPrefs.getString(x,"").contains(name)){
+                String z = myPrefs.getString(x.trim(),"");
+                if(myPrefs.getString(x.trim(),"").contains(name)){
                     b = false;
                     break;
                 }
             }
         }
-        if(myPrefs.getString(MY_FILES,"").contains(name))
+        for(String x: myPrefs.getString(MY_FILES,"").split("\n"))
         {
-            b = false;
+            if(!x.trim().equals("")) {
+                if (x.trim().equals(name.replace("\n", ""))) {
+                    b = false;
+                    break;
+                }
+            }
         }
         return b;
     }
 
     private void navigateTo(String name) {
+        isFolderOpen = false;
         Intent intent = new Intent(MainActivity.this, Player.class);
         intent.putExtra("file", name);
         startActivity(intent);
@@ -972,5 +982,14 @@ public class MainActivity extends AppCompatActivity {
         {
             startActivity(new Intent(this, MainActivity.class));
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(!isFolderOpen)
+            update();
+        else
+            updateFolder();
     }
 }

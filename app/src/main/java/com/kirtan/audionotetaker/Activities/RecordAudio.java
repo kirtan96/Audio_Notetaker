@@ -197,8 +197,7 @@ public class RecordAudio extends AppCompatActivity implements NoteFragment.OnCli
         editor.putString(fileName, myUri);
         editor.apply();
         Toast.makeText(this, "Recording Saved!", Toast.LENGTH_LONG).show();
-        Intent intent = new Intent(RecordAudio.this, MainActivity.class);
-        startActivity(intent);
+        finish();
     }
 
     @Override
