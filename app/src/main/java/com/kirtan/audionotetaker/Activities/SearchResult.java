@@ -560,4 +560,15 @@ public class SearchResult extends AppCompatActivity implements AudioNoteFragment
         }
 
     }
+
+    @Override
+    public void onBackPressed() {
+        if(fragmentVisible)
+        {
+            hideFragment();
+        }
+        else {
+            finish();
+        }
+    }
 }

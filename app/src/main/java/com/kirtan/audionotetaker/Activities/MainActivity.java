@@ -959,7 +959,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public View getView(int pos, View v, ViewGroup arg2)
         {
-            String c = getItem(pos);
             if (pos < folderLists.size())
                 v = getLayoutInflater().inflate(R.layout.folder_list, null);
             else if(myPrefs.getString(noteList.get(pos), "").contains("file:/"))
@@ -977,10 +976,13 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
         if(title.getVisibility() == View.VISIBLE)
         {
-            startActivity(new Intent(this, MainActivity.class));
+            update();
+        }
+        else
+        {
+            finish();
         }
     }
 

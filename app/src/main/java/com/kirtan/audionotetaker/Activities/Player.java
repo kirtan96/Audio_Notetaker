@@ -55,7 +55,6 @@ public class Player extends AppCompatActivity implements AudioNoteFragment.OnCli
     private static String cTime;
     private String n = "";
     private String uri = "";
-    private String real = "";
     private String nts = "";
     final String splitter = "/////";
     public static String nt = "", random="";
@@ -712,5 +711,17 @@ public class Player extends AppCompatActivity implements AudioNoteFragment.OnCli
             e.printStackTrace();
         }
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(fragmentVisible)
+        {
+            hideFragment();
+        }
+        else
+        {
+            finish();
+        }
     }
 }
