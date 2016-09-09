@@ -33,6 +33,7 @@ import com.kirtan.audionotetaker.R;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -54,6 +55,8 @@ public class MainActivity extends AppCompatActivity {
     boolean isFolderOpen;
     final String MY_FILES = "myFiles",
             MY_FOLDERS = "myFolders";
+    final int PERMISSION_REQ = 0;
+    FloatingActionButton add;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,34 +65,8 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        writeCheck = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        readCheck = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.READ_EXTERNAL_STORAGE);
-        recordCheck = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.RECORD_AUDIO);
-        internetCheck = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.INTERNET);
-
-        if (writeCheck != PackageManager.PERMISSION_GRANTED) {
-
-            ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        1);
-        }
-        if (recordCheck != PackageManager.PERMISSION_GRANTED) {
-
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.RECORD_AUDIO},
-                    1);
-        }
-
-
-
-        FloatingActionButton add = (FloatingActionButton) findViewById(R.id.fab);
+        add = (FloatingActionButton) findViewById(R.id.fab);
         setTitle("All Notes");
-
-
         search = (Button) findViewById(R.id.search_button);
         back = (ImageView) findViewById(R.id.back);
         back.setVisibility(View.INVISIBLE);
@@ -100,6 +77,14 @@ public class MainActivity extends AppCompatActivity {
         title.setVisibility(View.INVISIBLE);
         isFolderOpen = false;
 
+        if(checkAndRequestPermissions()) {
+
+
+            accessComponents();
+        }
+    }
+
+    private void accessComponents() {
         assert add != null;
         add.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,117 +94,117 @@ public class MainActivity extends AppCompatActivity {
                 if (title.getVisibility() == View.INVISIBLE) {
                     builder.setItems(new String[]{"Open Audio File", "Start New Recording", "Create New Folder"},
                             new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            if (which == 2) {
-                                final AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
-                                alertDialog.setTitle("Folder");
-                                alertDialog.setMessage("Add a Folder:");
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    if (which == 2) {
+                                        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+                                        alertDialog.setTitle("Folder");
+                                        alertDialog.setMessage("Add a Folder:");
 
 
-                                final EditText input = new EditText(MainActivity.this);
-                                input.setSingleLine();
-                                input.setHint("Name of the folder");
-                                final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-                                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                                        LinearLayout.LayoutParams.MATCH_PARENT,
-                                        LinearLayout.LayoutParams.MATCH_PARENT);
-                                input.setLayoutParams(lp);
-                                alertDialog.setView(input);
+                                        final EditText input = new EditText(MainActivity.this);
+                                        input.setSingleLine();
+                                        input.setHint("Name of the folder");
+                                        final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                                        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                                LinearLayout.LayoutParams.MATCH_PARENT);
+                                        input.setLayoutParams(lp);
+                                        alertDialog.setView(input);
 
-                                alertDialog.setPositiveButton("Add",
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-                                                String name = input.getText().toString();
-                                                if (name.length() >= 1) {
-                                                    name = name.substring(0, 1).toUpperCase() + name.substring(1);
-                                                }
-                                                if (!myPrefs.getString(MY_FOLDERS, "").contains(name.trim() + " (FOLDER)") &&
-                                                        !name.trim().equals("") &&
-                                                        !name.trim().equals("All Notes")) {
-                                                    String temp = myPrefs.getString(MY_FOLDERS, "");
-                                                    editor.putString(MY_FOLDERS, temp + name.trim()
-                                                            + " (FOLDER)" + "\n");
-                                                    editor.apply();
-                                                    folderLists.add(name.trim());
-                                                    Collections.sort((List) folderLists);
-                                                    noteList = new ArrayList<>();
-                                                    noteList.addAll(folderLists);
-                                                    noteList.addAll(fileLists);
-                                                    noteList.addAll(recordLists);
-                                                    adp = new FileAdapter(noteList);
-                                                    note.setAdapter(adp);
-                                                } else {
-                                                    Toast.makeText(MainActivity.this,
-                                                            "Cannot create a folder with this name!",
-                                                            Toast.LENGTH_LONG).show();
-                                                }
-                                            }
-                                        });
+                                        alertDialog.setPositiveButton("Add",
+                                                new DialogInterface.OnClickListener() {
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                        imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                                                        String name = input.getText().toString();
+                                                        if (name.length() >= 1) {
+                                                            name = name.substring(0, 1).toUpperCase() + name.substring(1);
+                                                        }
+                                                        if (!myPrefs.getString(MY_FOLDERS, "").contains(name.trim() + " (FOLDER)") &&
+                                                                !name.trim().equals("") &&
+                                                                !name.trim().equals("All Notes")) {
+                                                            String temp = myPrefs.getString(MY_FOLDERS, "");
+                                                            editor.putString(MY_FOLDERS, temp + name.trim()
+                                                                    + " (FOLDER)" + "\n");
+                                                            editor.apply();
+                                                            folderLists.add(name.trim());
+                                                            Collections.sort((List) folderLists);
+                                                            noteList = new ArrayList<>();
+                                                            noteList.addAll(folderLists);
+                                                            noteList.addAll(fileLists);
+                                                            noteList.addAll(recordLists);
+                                                            adp = new FileAdapter(noteList);
+                                                            note.setAdapter(adp);
+                                                        } else {
+                                                            Toast.makeText(MainActivity.this,
+                                                                    "Cannot create a folder with this name!",
+                                                                    Toast.LENGTH_LONG).show();
+                                                        }
+                                                    }
+                                                });
 
-                                alertDialog.setNegativeButton("Cancel",
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-                                                dialog.cancel();
-                                            }
-                                        });
+                                        alertDialog.setNegativeButton("Cancel",
+                                                new DialogInterface.OnClickListener() {
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                        imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                                                        dialog.cancel();
+                                                    }
+                                                });
 
-                                alertDialog.show();
-                            } else if (which == 0) {
-                                openAudioFile();
-                            } else if (which == 1) {
-                                final AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
-                                alertDialog.setTitle("Recording File");
-                                alertDialog.setMessage("File Name:");
+                                        alertDialog.show();
+                                    } else if (which == 0) {
+                                        openAudioFile();
+                                    } else if (which == 1) {
+                                        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+                                        alertDialog.setTitle("Recording File");
+                                        alertDialog.setMessage("File Name:");
 
-                                final EditText input = new EditText(MainActivity.this);
-                                input.setSingleLine();
-                                input.setHint("Name of the file");
-                                final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-                                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                                        LinearLayout.LayoutParams.MATCH_PARENT,
-                                        LinearLayout.LayoutParams.MATCH_PARENT);
-                                input.setLayoutParams(lp);
-                                alertDialog.setView(input);
+                                        final EditText input = new EditText(MainActivity.this);
+                                        input.setSingleLine();
+                                        input.setHint("Name of the file");
+                                        final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                                        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                                LinearLayout.LayoutParams.MATCH_PARENT);
+                                        input.setLayoutParams(lp);
+                                        alertDialog.setView(input);
 
-                                alertDialog.setPositiveButton("Add",
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                String name = input.getText().toString().trim();
-                                                if (name.length() >= 1) {
-                                                    name = name.substring(0, 1).toUpperCase() + name.substring(1);
-                                                }
-                                                if (!name.trim().equals("") &&
-                                                        checkEveryFolder(name+"\n")) {
-                                                    Intent intent = new Intent(MainActivity.this, RecordAudio.class);
-                                                    intent.putExtra("fileName", name);
-                                                    intent.putExtra("folderName", "All Notes");
-                                                    startActivity(intent);
-                                                } else {
-                                                    Toast.makeText(MainActivity.this,
-                                                            "A file/folder with this name already exists!",
-                                                            Toast.LENGTH_LONG).show();
-                                                }
-                                                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-                                            }
-                                        });
+                                        alertDialog.setPositiveButton("Add",
+                                                new DialogInterface.OnClickListener() {
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                        String name = input.getText().toString().trim();
+                                                        if (name.length() >= 1) {
+                                                            name = name.substring(0, 1).toUpperCase() + name.substring(1);
+                                                        }
+                                                        if (!name.trim().equals("") &&
+                                                                checkEveryFolder(name+"\n")) {
+                                                            Intent intent = new Intent(MainActivity.this, RecordAudio.class);
+                                                            intent.putExtra("fileName", name);
+                                                            intent.putExtra("folderName", "All Notes");
+                                                            startActivity(intent);
+                                                        } else {
+                                                            Toast.makeText(MainActivity.this,
+                                                                    "A file/folder with this name already exists!",
+                                                                    Toast.LENGTH_LONG).show();
+                                                        }
+                                                        imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                                                    }
+                                                });
 
-                                alertDialog.setNegativeButton("Cancel",
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-                                                dialog.cancel();
-                                            }
-                                        });
+                                        alertDialog.setNegativeButton("Cancel",
+                                                new DialogInterface.OnClickListener() {
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                        imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                                                        dialog.cancel();
+                                                    }
+                                                });
 
-                                alertDialog.show();
-                            }
-                        }
-                    });
+                                        alertDialog.show();
+                                    }
+                                }
+                            });
                 } else {
                     builder.setItems(new String[]{"Open Audio File", "Start New Recording"}, new DialogInterface.OnClickListener() {
                         @Override
@@ -346,6 +331,30 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         update();
+    }
+
+    private  boolean checkAndRequestPermissions() {
+        int permissionRead = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_EXTERNAL_STORAGE);
+        int writePermission = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        int recordPermission = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.RECORD_AUDIO);
+        List<String> listPermissionsNeeded = new ArrayList<>();
+        if (writePermission != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+        if (recordPermission != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.RECORD_AUDIO);
+        }
+        if (permissionRead != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+        }
+        if (!listPermissionsNeeded.isEmpty()) {
+            ActivityCompat.requestPermissions(this, listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), PERMISSION_REQ);
+            return false;
+        }
+        return true;
     }
 
     private void updateFolder() {
@@ -849,61 +858,63 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
         switch (requestCode) {
-            case 1: {
-                if(writeCheck != PackageManager.PERMISSION_GRANTED)
-                {
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                            1);
-                }
-                /*else if (readCheck != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                            2);
-                }*/
-                else if (recordCheck != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.RECORD_AUDIO},
-                            3);
-                }
-            }
-            case 2: {
-                if(readCheck != PackageManager.PERMISSION_GRANTED)
-                {
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                            2);
-                }
-                else if (recordCheck != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.RECORD_AUDIO},
-                            3);
-                }
-            }
-            case 3: {
-                if(recordCheck != PackageManager.PERMISSION_GRANTED)
-                {
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.RECORD_AUDIO},
-                            3);
-                }
-                else if (internetCheck != PackageManager.PERMISSION_GRANTED)
-                {
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.INTERNET},
-                            4);
-                }
-            }
-            case 4: {
-                if (internetCheck != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.INTERNET},
-                            4);
+            case PERMISSION_REQ: {
+
+                Map<String, Integer> perms = new HashMap<>();
+                // Initialize the map with both permissions
+                perms.put(Manifest.permission.READ_EXTERNAL_STORAGE, PackageManager.PERMISSION_GRANTED);
+                perms.put(Manifest.permission.WRITE_EXTERNAL_STORAGE, PackageManager.PERMISSION_GRANTED);
+                perms.put(Manifest.permission.RECORD_AUDIO, PackageManager.PERMISSION_GRANTED);
+                // Fill with actual results from user
+                if (grantResults.length > 0) {
+                    for (int i = 0; i < permissions.length; i++)
+                        perms.put(permissions[i], grantResults[i]);
+                    // Check for both permissions
+                    if (perms.get(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                            && perms.get(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                            && perms.get(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+                        accessComponents();
+                    } else {
+                        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                                || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                                || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.RECORD_AUDIO)) {
+                            showDialogOK("Record Audio & Read and Write External Storage Permission required for this app",
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            switch (which) {
+                                                case DialogInterface.BUTTON_POSITIVE:
+                                                    checkAndRequestPermissions();
+                                                    break;
+                                                case DialogInterface.BUTTON_NEGATIVE:
+                                                    finish();
+                                                    System.exit(0);
+                                                    break;
+                                            }
+                                        }
+                                    });
+                        }
+                        //permission is denied (and never ask again is  checked)
+                        //shouldShowRequestPermissionRationale will return false
+                        else {
+                            Toast.makeText(this, "Go to settings and enable permissions", Toast.LENGTH_LONG)
+                                    .show();
+                            //                            //proceed with logic by disabling the related features or quit the app.
+                        }
+                    }
                 }
             }
-            // other 'case' lines to check for other
-            // permissions this app might request
         }
+
+    }
+
+    private void showDialogOK(String message, DialogInterface.OnClickListener okListener) {
+        new AlertDialog.Builder(this)
+                .setMessage(message)
+                .setPositiveButton("OK", okListener)
+                .setNegativeButton("Cancel", okListener)
+                .create()
+                .show();
     }
 
     /**
