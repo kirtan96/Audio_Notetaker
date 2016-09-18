@@ -286,7 +286,8 @@ public class RecordAudio extends AppCompatActivity implements NoteFragment.OnCli
     private void hideFragment() {
         if(fragmentVisible)
         {
-            fragmentManager.beginTransaction()
+            fragmentManager.beginTransaction().
+                    setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
                     .remove(noteFragment)
                     .commit();
             fragmentVisible = false;
@@ -300,6 +301,7 @@ public class RecordAudio extends AppCompatActivity implements NoteFragment.OnCli
             fragmentManager = getFragmentManager();
             noteFragment = new NoteFragment();
             fragmentManager.beginTransaction().
+                    setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out).
                     add(R.id.raLayout, noteFragment).
                     commit();
             fragmentVisible = true;
@@ -360,7 +362,7 @@ public class RecordAudio extends AppCompatActivity implements NoteFragment.OnCli
         @Override
         public View getView(int pos, View v, ViewGroup arg2)
         {
-            v = getLayoutInflater().inflate(R.layout.player_current_list, null);
+            v = getLayoutInflater().inflate(R.layout.list_player_current, null);
 
             TextView lbl = (TextView) v.findViewById(R.id.note);
             TextView ts = (TextView) v.findViewById(R.id.timeStamp);

@@ -2,6 +2,7 @@ package com.kirtan.audionotetaker.Activities;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -13,8 +14,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -26,9 +27,11 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.kirtan.audionotetaker.Fragments.MenuFragment;
 import com.kirtan.audionotetaker.R;
 
 import java.util.ArrayList;
@@ -38,7 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MenuFragment.OnClickedListener{
 
 
     ListView note;
@@ -47,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
     SharedPreferences.Editor editor;
     ImageView back;
     TextView title;
-    Button search;
+    Button search, menu;
     FileAdapter adp;
     int readCheck, writeCheck, recordCheck, internetCheck;
     public View row;
@@ -57,13 +60,15 @@ public class MainActivity extends AppCompatActivity {
             MY_FOLDERS = "myFolders";
     final int PERMISSION_REQ = 0;
     FloatingActionButton add;
+    RelativeLayout relativeLayout;
+    float x1,y1,x2,y2;
+    private MenuFragment menuFragment;
+    private FragmentManager fragmentManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         add = (FloatingActionButton) findViewById(R.id.fab);
         setTitle("All Notes");
@@ -75,6 +80,8 @@ public class MainActivity extends AppCompatActivity {
         editor = myPrefs.edit();
         title = (TextView) findViewById(R.id.title);
         title.setVisibility(View.INVISIBLE);
+        relativeLayout = (RelativeLayout) findViewById(R.id.mainLayout);
+        menu = (Button) findViewById(R.id.menu_button);
         isFolderOpen = false;
 
         if(checkAndRequestPermissions()) {
@@ -331,6 +338,72 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         update();
+
+        relativeLayout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent touchevent) {
+                switch (touchevent.getAction())
+                {
+                    // when user first touches the screen we get x and y coordinate
+                    case MotionEvent.ACTION_DOWN:
+                    {
+                        x1 = touchevent.getX();
+                        y1 = touchevent.getY();
+                    }
+                    case MotionEvent.ACTION_UP:
+                    {
+                        x2 = touchevent.getX();
+                        y2 = touchevent.getY();
+
+                        if (x1 < x2)
+                        {
+                            showFragment();
+                        }
+                        break;
+                    }
+                }
+                return true;
+            }
+        });
+
+        menu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showFragment();
+            }
+        });
+    }
+
+    @Override
+    public void onCloseClicked() {
+        hideFragment();
+    }
+
+    @Override
+    public void onMenuOptionClicked(String s) {
+
+    }
+
+    private void hideFragment() {
+        menu.setVisibility(View.VISIBLE);
+        add.show();
+        search.setVisibility(View.VISIBLE);
+        fragmentManager.beginTransaction().
+                setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out).
+                remove(menuFragment)
+                .commit();
+    }
+
+    private void showFragment() {
+        menu.setVisibility(View.INVISIBLE);
+        search.setVisibility(View.INVISIBLE);
+        add.hide();
+        fragmentManager = getFragmentManager();
+        menuFragment = new MenuFragment();
+        fragmentManager.beginTransaction().
+                setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out).
+                add(R.id.mainLayout, menuFragment).
+                commit();
     }
 
     private  boolean checkAndRequestPermissions() {
@@ -971,11 +1044,11 @@ public class MainActivity extends AppCompatActivity {
         public View getView(int pos, View v, ViewGroup arg2)
         {
             if (pos < folderLists.size())
-                v = getLayoutInflater().inflate(R.layout.folder_list, null);
+                v = getLayoutInflater().inflate(R.layout.list_folder, null);
             else if(myPrefs.getString(noteList.get(pos), "").contains("file:/"))
-                v = getLayoutInflater().inflate(R.layout.recordings_list, null);
+                v = getLayoutInflater().inflate(R.layout.list_recordings, null);
             else if(pos < folderLists.size() + fileLists.size())
-            v = getLayoutInflater().inflate(R.layout.file_list, null);
+            v = getLayoutInflater().inflate(R.layout.list_file, null);
 
             TextView lbl = (TextView) v.findViewById(R.id.note);
             lbl.setText(s.get(pos));
@@ -987,13 +1060,23 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if(title.getVisibility() == View.VISIBLE)
+        if(menu.getVisibility() == View.INVISIBLE)
         {
-            update();
+            hideFragment();
+            menu.setVisibility(View.VISIBLE);
+            add.show();
+            search.setVisibility(View.VISIBLE);
+            fragmentManager.beginTransaction().
+                    setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out).
+                    remove(menuFragment)
+                    .commit();
         }
-        else
-        {
-            finish();
+        else {
+            if (title.getVisibility() == View.VISIBLE) {
+                update();
+            } else {
+                finish();
+            }
         }
     }
 

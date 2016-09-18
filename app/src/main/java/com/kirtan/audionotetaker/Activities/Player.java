@@ -473,7 +473,8 @@ public class Player extends AppCompatActivity implements AudioNoteFragment.OnCli
     private void hideFragment() {
         if(fragmentVisible)
         {
-            fragmentManager.beginTransaction()
+            fragmentManager.beginTransaction().
+                    setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
                     .remove(audioNoteFragment)
                     .commit();
             fragmentVisible = false;
@@ -489,6 +490,7 @@ public class Player extends AppCompatActivity implements AudioNoteFragment.OnCli
             fragmentManager = getFragmentManager();
             audioNoteFragment = new AudioNoteFragment();
             fragmentManager.beginTransaction().
+                    setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out).
                     add(R.id.playerLayout, audioNoteFragment).
                     commit();
             fragmentVisible = true;
@@ -576,9 +578,9 @@ public class Player extends AppCompatActivity implements AudioNoteFragment.OnCli
         public View getView(int pos, View v, ViewGroup arg2)
         {
             if (pos != currentNotePos)
-                v = getLayoutInflater().inflate(R.layout.player_list, null);
+                v = getLayoutInflater().inflate(R.layout.list_player, null);
             else
-                v = getLayoutInflater().inflate(R.layout.player_current_list, null);
+                v = getLayoutInflater().inflate(R.layout.list_player_current, null);
 
             TextView lbl = (TextView) v.findViewById(R.id.note);
             TextView ts = (TextView) v.findViewById(R.id.timeStamp);

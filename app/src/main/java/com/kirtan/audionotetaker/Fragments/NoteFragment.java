@@ -52,7 +52,7 @@ public class NoteFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        v = inflater.inflate(R.layout.activity_notetaker, container, false);
+        v = inflater.inflate(R.layout.fragment_notetaker, container, false);
         input = (EditText) v.findViewById(R.id.input);
         ok = (Button) v.findViewById(R.id.ok);
         close = (Button) v.findViewById(R.id.close);

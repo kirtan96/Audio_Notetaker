@@ -165,9 +165,9 @@ public class Search extends AppCompatActivity {
         {
             String c = getItem(pos);
             if (myPrefs.getString(c, "").contains("file:/"))
-                v = getLayoutInflater().inflate(R.layout.recordings_list, null);
+                v = getLayoutInflater().inflate(R.layout.list_recordings, null);
             else
-                v = getLayoutInflater().inflate(R.layout.file_list, null);
+                v = getLayoutInflater().inflate(R.layout.list_file, null);
 
             TextView lbl = (TextView) v.findViewById(R.id.note);
             lbl.setText(s.get(pos));

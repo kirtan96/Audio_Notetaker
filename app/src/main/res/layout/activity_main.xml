@@ -20,6 +20,14 @@
             app:popupTheme="@style/AppTheme.PopupOverlay"
             >
             <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/menu_button"
+                android:layout_gravity="top|start"
+                android:layout_marginRight="30dp"
+                android:text="Menu"
+                android:background="#00ffffff" />
+            <Button
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:id="@+id/search_button"
