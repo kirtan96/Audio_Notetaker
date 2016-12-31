@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,7 +44,7 @@ public class RecordAudio extends AppCompatActivity implements NoteFragment.OnCli
     private long startTime = 0L, timeInMilliseconds = 0L, timeSwapBuff = 0L, updatedTime = 0L;
     int mins, secs;
     ListView note;
-    FloatingActionButton add;
+    Button add;
     ArrayList<String> noteList;
     NoteListAdapter nla;
     NoteFragment noteFragment;
@@ -62,7 +63,7 @@ public class RecordAudio extends AppCompatActivity implements NoteFragment.OnCli
         start = (FloatingActionButton) findViewById(R.id.start);
         timer = (TextView) findViewById(R.id.timer);
         note = (ListView) findViewById(R.id.list);
-        add = (FloatingActionButton) findViewById(R.id.fab);
+        add = (Button) findViewById(R.id.fab);
         timer.setText("00:00");
         add.setEnabled(false);
         note.setEnabled(false);

@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:weightSum="1">
+    android:layout_height="match_parent">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="0.03">
+        android:background="@android:drawable/editbox_background_normal"
+        android:layout_margin="0dp">
         <ImageView
             android:layout_width="50dp"
             android:layout_height="50dp"
@@ -15,16 +17,28 @@
             android:src="@mipmap/mp3"
             android:layout_marginRight="10dp" />
 
+        <ImageView
+            app:srcCompat="@mipmap/emptystar"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="10dp"
+            android:id="@+id/favorite"
+            android:clickable="true"
+            android:layout_width="30dp"
+            android:layout_height="25dp" />
+
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/note"
             android:textSize="20dp"
-            android:layout_alignTop="@+id/imageView"
+            android:layout_toLeftOf="@+id/favorite"
             android:layout_toRightOf="@+id/imageView"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="15dp" />
+            android:layout_marginTop="12dp" />
+
+
     </RelativeLayout>
 
 </LinearLayout>

@@ -14,6 +14,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -27,11 +28,15 @@ import java.util.Map;
 public class Search extends AppCompatActivity {
     ListView listView;
     ArrayList<String> key;
-    String search;
-    String file = "";
+    String search, file = "";
     TextView nrf;
+    ImageView back, clear;
     FileAdapter fileAdapter;
-    SharedPreferences myPrefs;
+    SharedPreferences myPrefs, favs;
+    final String MY_FILES = "myFiles",
+            MY_FOLDERS = "myFolders",
+            FAVS = "favorites",
+            SETTINGS = "settings";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,14 +44,34 @@ public class Search extends AppCompatActivity {
         setContentView(R.layout.activity_search);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
         listView = (ListView) findViewById(R.id.listView);
         nrf = (TextView) findViewById(R.id.no_result);
+        back = (ImageView) findViewById(R.id.back);
+        clear = (ImageView) findViewById(R.id.clear);
         nrf.setVisibility(View.INVISIBLE);
+        favs = getSharedPreferences(FAVS, MODE_PRIVATE);
 
         final EditText editText = (EditText) findViewById(R.id.searchText);
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
+        clear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                editText.setText("");
+                key = new ArrayList<>();
+                fileAdapter = new FileAdapter(key);
+                listView.setAdapter(fileAdapter);
+            }
+        });
+
+
         assert editText != null;
         editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -59,7 +84,6 @@ public class Search extends AppCompatActivity {
 
                     search = editText.getText().toString().trim();
                     if(!search.isEmpty()) {
-                        getSupportActionBar().setTitle(search);
                         key = new ArrayList<>();
                         myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
                         Map<String, ?> keys = myPrefs.getAll();
@@ -161,18 +185,60 @@ public class Search extends AppCompatActivity {
          * @return the overall layout of a conversation
          */
         @Override
-        public View getView(int pos, View v, ViewGroup arg2)
+        public View getView(final int pos, View v, ViewGroup arg2)
         {
             String c = getItem(pos);
-            if (myPrefs.getString(c, "").contains("file:/"))
+            if (myPrefs.getString(c, "").contains("file:/")){
                 v = getLayoutInflater().inflate(R.layout.list_recordings, null);
-            else
+                final ImageView fav = (ImageView) v.findViewById(R.id.favorite);
+                String list = favs.getString("favs", "");
+                if (list.contains(s.get(pos) + "||")) {
+                    fav.setImageResource(R.mipmap.fullstar);
+                } else {
+                    fav.setImageResource(R.mipmap.emptystar);
+                }
+                fav.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        toggleFav(fav, s.get(pos));
+                    }
+                });
+            }
+            else{
                 v = getLayoutInflater().inflate(R.layout.list_file, null);
+                final ImageView fav = (ImageView) v.findViewById(R.id.favorite);
+                String list = favs.getString("favs", "");
+                if (list.contains(s.get(pos) + "||")) {
+                    fav.setImageResource(R.mipmap.fullstar);
+                } else {
+                    fav.setImageResource(R.mipmap.emptystar);
+                }
+                fav.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        toggleFav(fav, s.get(pos));
+                    }
+                });
+            }
 
             TextView lbl = (TextView) v.findViewById(R.id.note);
             lbl.setText(s.get(pos));
 
             return v;
+        }
+
+        public void toggleFav(ImageView fav, String s){
+            String list = favs.getString("favs", "");
+            SharedPreferences.Editor edit = favs.edit();
+            if (fav.getDrawable().getConstantState().equals(getResources().getDrawable(R.mipmap.fullstar).getConstantState())) {
+                fav.setImageResource(R.mipmap.emptystar);
+                list = list.replace(s + "||", "");
+            } else {
+                fav.setImageResource(R.mipmap.fullstar);
+                list += s + "||";
+            }
+            edit.putString("favs", list);
+            edit.commit();
         }
 
     }

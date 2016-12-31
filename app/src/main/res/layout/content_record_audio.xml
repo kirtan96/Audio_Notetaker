@@ -7,14 +7,14 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".Activities.RecordAudio"
     tools:showIn="@layout/activity_record_audio"
-    android:background="#F9F9E2"
+    android:background="#F2F2F2"
     android:id="@+id/raLayout">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/relativeLayout2"
-        android:background="@color/accent_material_dark"
+        android:background="@drawable/border"
         android:paddingBottom="10dp">
 
         <TextView
@@ -27,7 +27,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="20dp"
             android:textStyle="bold"
-            android:textColor="#fff"
+            android:textColor="#FF9191"
             android:layout_marginTop="10dp" />
 
         <android.support.design.widget.FloatingActionButton
@@ -47,29 +47,32 @@
         android:layout_below="@+id/relativeLayout2">
 
         <ListView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/list"
-            android:background="#F9F9E2"
-            android:longClickable="true"
-            android:layout_below="@+id/n"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginBottom="10dp" />
-
-        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Notes:"
-            android:id="@+id/n"
-            android:layout_alignParentTop="true"
+            android:id="@+id/list"
+            android:textColor="@android:color/black"
+            android:textSize="16dp"
+            android:background="#F2F2F2"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:longClickable="true"
+            android:layout_marginTop="5dp"
+            android:divider="#00000000" />
+
+        <Button
+            android:text="+"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/fab"
+            android:textAllCaps="false"
+            android:textSize="40sp"
+            android:textColor="#fff"
+            android:background="@color/colorPrimary"
+            android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:textSize="20dp"
-            android:textColor="#000"
-            android:layout_margin="10dp" />
+            android:layout_marginBottom="16dp" />
+
     </RelativeLayout>
 
 </RelativeLayout>

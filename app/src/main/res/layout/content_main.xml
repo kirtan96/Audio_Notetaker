@@ -7,43 +7,33 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".Activities.MainActivity"
     tools:showIn="@layout/activity_main"
-    android:background="#F9F9E2"
+    android:background="#F2F2F2"
     android:id="@+id/mainLayout">
 
-    <ImageView
-        android:layout_width="wrap_content"
+
+    <Button
+        android:text="+"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:id="@+id/back"
-        android:layout_marginBottom="10dp"
-        android:src="@drawable/abc_ic_ab_back_mtrl_am_alpha"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="5dp"
-        android:backgroundTint="@color/abc_background_cache_hint_selector_material_dark" />
+        android:id="@+id/fab"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:background="@color/colorPrimary"
+        android:textColor="#fff"
+        android:textAlignment="center"
+        android:textSize="40sp"
+        android:textAllCaps="false"
+        android:layout_marginTop="5dp" />
 
     <ListView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/listView2"
         android:longClickable="true"
-        android:layout_below="@+id/back"
-        android:layout_marginTop="15dp"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginBottom="5dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/title"
-        android:textColor="#000"
-        android:textSize="19dp"
-        android:layout_alignBottom="@+id/back"
-        android:layout_toRightOf="@+id/back"
-        android:layout_toEndOf="@+id/back"
-        android:layout_marginTop="5dp" />
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@+id/fab"
+        android:divider="#00000000" />
 
 
 </RelativeLayout>

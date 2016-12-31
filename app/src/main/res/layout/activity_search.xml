@@ -12,12 +12,16 @@
         android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/back"
+            android:layout_gravity="top|start"
+            android:src="@drawable/abc_ic_ab_back_mtrl_am_alpha"
+            android:background="#00ffffff"
+            android:layout_weight="0.34"
+            android:layout_marginRight="10dp"
+            android:layout_margin="10dp" />
 
     </android.support.design.widget.AppBarLayout>
 

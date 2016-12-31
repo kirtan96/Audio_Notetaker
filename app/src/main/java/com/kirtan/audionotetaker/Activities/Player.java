@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SeekBar;
@@ -44,7 +45,7 @@ import java.util.concurrent.TimeUnit;
 public class Player extends AppCompatActivity implements AudioNoteFragment.OnClickedListener {
 
     public static MediaPlayer mediaPlayer;
-    TextView currentTime, finalTime, t;
+    TextView currentTime, finalTime, title;
     SeekBar seekBar;
     ListView note;
     double startTime;
@@ -61,13 +62,14 @@ public class Player extends AppCompatActivity implements AudioNoteFragment.OnCli
     int currentNotePos;
     NoteListAdapter nla;
     private boolean isAppOpen, fragmentVisible;
-    ImageView shareButton;
+    ImageView shareButton, back;
     final int PICK_FILE = 0;
     Uri myUri;
     File exportedFile = null;
     private FragmentManager fragmentManager;
     private AudioNoteFragment audioNoteFragment;
-    FloatingActionButton add, pause, skipLeft, skipRight;
+    FloatingActionButton pause, skipLeft, skipRight;
+    Button add;
     Drawable pau;
 
     @Override
@@ -75,7 +77,8 @@ public class Player extends AppCompatActivity implements AudioNoteFragment.OnCli
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+
+        //TODO: Figure out why the menu option does not show up
 
         shareButton = (ImageView) findViewById(R.id.shareButton);
         pause = (FloatingActionButton) findViewById(R.id.pauseButton);
@@ -83,8 +86,9 @@ public class Player extends AppCompatActivity implements AudioNoteFragment.OnCli
         finalTime = (TextView) findViewById(R.id.finalTime);
         seekBar = (SeekBar) findViewById(R.id.seekBar);
         note = (ListView) findViewById(R.id.note);
-        t = (TextView) findViewById(R.id.noteText);
+        title = (TextView) findViewById(R.id.title);
         skipLeft = (FloatingActionButton) findViewById(R.id.leftskip);
+        back = (ImageView) findViewById(R.id.back);
         skipLeft.setEnabled(false);
         skipRight = (FloatingActionButton) findViewById(R.id.rightskip);
         isAppOpen = true;
@@ -95,14 +99,21 @@ public class Player extends AppCompatActivity implements AudioNoteFragment.OnCli
         myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
         editor = myPrefs.edit();
 
-        add = (FloatingActionButton) findViewById(R.id.fab);
+        add = (Button) findViewById(R.id.fab);
+
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         currentNotePos = -1;
         fragmentVisible = false;
         noteList = new ArrayList<>();
         Intent intent = getIntent();
         String file = intent.getStringExtra("file");
-        getSupportActionBar().setTitle(file);
+        title.setText(file);
         myUri = Uri.parse(myPrefs.getString(file, ""));
         uri = myUri.toString();
         Log.d("URI", uri);
@@ -346,7 +357,7 @@ public class Player extends AppCompatActivity implements AudioNoteFragment.OnCli
         export();
         Intent sharingIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
         sharingIntent.setType("text/plain");
-        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Audio and Notes for " + getSupportActionBar().getTitle().toString());
+        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Audio and Notes for " + title.getText().toString());
         ArrayList<Uri> uris = new ArrayList<>();
         uris.add(myUri);
         uris.add(Uri.fromFile(exportedFile));
@@ -632,7 +643,7 @@ public class Player extends AppCompatActivity implements AudioNoteFragment.OnCli
         if (!folder.exists()) {
             folder.mkdirs();
         }
-        String outputFile = folder + File.separator + getSupportActionBar().getTitle().toString() + ".txt";
+        String outputFile = folder + File.separator + title.getText().toString() + ".txt";
         File n = new File(outputFile);
         exportedFile = n;
         try {

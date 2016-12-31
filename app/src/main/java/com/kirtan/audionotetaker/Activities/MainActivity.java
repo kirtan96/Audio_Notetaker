@@ -10,7 +10,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -46,20 +45,20 @@ public class MainActivity extends AppCompatActivity implements MenuFragment.OnCl
 
     ListView note;
     String uri = "", file = "";
-    SharedPreferences myPrefs;
-    SharedPreferences.Editor editor;
-    ImageView back;
+    SharedPreferences myPrefs, favs, settings;
+    SharedPreferences.Editor editor,favEditior, setEditor;
+    ImageView back, favorite, menu;
     TextView title;
-    Button search, menu;
+    Button search, add;
     FileAdapter adp;
-    int readCheck, writeCheck, recordCheck, internetCheck;
     public View row;
     ArrayList<String> folderLists, fileLists, recordLists, noteList;
     boolean isFolderOpen;
     final String MY_FILES = "myFiles",
-            MY_FOLDERS = "myFolders";
+            MY_FOLDERS = "myFolders",
+            FAVS = "favorites",
+            SETTINGS = "settings";
     final int PERMISSION_REQ = 0;
-    FloatingActionButton add;
     RelativeLayout relativeLayout;
     float x1,y1,x2,y2;
     private MenuFragment menuFragment;
@@ -70,18 +69,23 @@ public class MainActivity extends AppCompatActivity implements MenuFragment.OnCl
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        add = (FloatingActionButton) findViewById(R.id.fab);
-        setTitle("All Notes");
+        add = (Button) findViewById(R.id.fab);
         search = (Button) findViewById(R.id.search_button);
         back = (ImageView) findViewById(R.id.back);
         back.setVisibility(View.INVISIBLE);
         note = (ListView) findViewById(R.id.listView2);
         myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
         editor = myPrefs.edit();
+        favs = getSharedPreferences(FAVS, MODE_PRIVATE);
+        favEditior = favs.edit();
+        settings = getSharedPreferences(SETTINGS, MODE_PRIVATE);
+        setEditor = settings.edit();
         title = (TextView) findViewById(R.id.title);
+        title.setText("All Notes");
         title.setVisibility(View.INVISIBLE);
         relativeLayout = (RelativeLayout) findViewById(R.id.mainLayout);
-        menu = (Button) findViewById(R.id.menu_button);
+        menu = (ImageView) findViewById(R.id.menu_button);
+        favorite = (ImageView) findViewById(R.id.favorite);
         isFolderOpen = false;
 
         if(checkAndRequestPermissions()) {
@@ -90,6 +94,9 @@ public class MainActivity extends AppCompatActivity implements MenuFragment.OnCl
             accessComponents();
         }
     }
+
+    //TODO: Check if deleting or renaming the file name affects the favs or not
+    //TODO: Also make a diagram of the sharedPreference DB to understand the treemap
 
     private void accessComponents() {
         assert add != null;
@@ -327,7 +334,8 @@ public class MainActivity extends AppCompatActivity implements MenuFragment.OnCl
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setTitle("All Notes");
+                title.setText("All Notes");
+                menu.setVisibility(View.VISIBLE);
                 update();
             }
         });
@@ -372,6 +380,7 @@ public class MainActivity extends AppCompatActivity implements MenuFragment.OnCl
                 showFragment();
             }
         });
+
     }
 
     @Override
@@ -386,7 +395,7 @@ public class MainActivity extends AppCompatActivity implements MenuFragment.OnCl
 
     private void hideFragment() {
         menu.setVisibility(View.VISIBLE);
-        add.show();
+        add.setVisibility(View.VISIBLE);
         search.setVisibility(View.VISIBLE);
         fragmentManager.beginTransaction().
                 setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out).
@@ -397,7 +406,7 @@ public class MainActivity extends AppCompatActivity implements MenuFragment.OnCl
     private void showFragment() {
         menu.setVisibility(View.INVISIBLE);
         search.setVisibility(View.INVISIBLE);
-        add.hide();
+        add.setVisibility(View.INVISIBLE);
         fragmentManager = getFragmentManager();
         menuFragment = new MenuFragment();
         fragmentManager.beginTransaction().
@@ -454,8 +463,8 @@ public class MainActivity extends AppCompatActivity implements MenuFragment.OnCl
         noteList.remove("");
         title.setVisibility(View.VISIBLE);
         back.setVisibility(View.VISIBLE);
+        menu.setVisibility(View.INVISIBLE);
         title.setText(file);
-        setTitle(file);
         adp = new FileAdapter(noteList);
         note.setAdapter(adp);
     }
@@ -1041,19 +1050,59 @@ public class MainActivity extends AppCompatActivity implements MenuFragment.OnCl
          * @return the overall layout of a conversation
          */
         @Override
-        public View getView(int pos, View v, ViewGroup arg2)
+        public View getView(final int pos, View v, ViewGroup arg2)
         {
             if (pos < folderLists.size())
-                v = getLayoutInflater().inflate(R.layout.list_folder, null);
-            else if(myPrefs.getString(noteList.get(pos), "").contains("file:/"))
+                    v = getLayoutInflater().inflate(R.layout.list_folder, null);
+            else if (myPrefs.getString(noteList.get(pos), "").contains("file:/")) {
                 v = getLayoutInflater().inflate(R.layout.list_recordings, null);
-            else if(pos < folderLists.size() + fileLists.size())
-            v = getLayoutInflater().inflate(R.layout.list_file, null);
-
+                final ImageView fav = (ImageView) v.findViewById(R.id.favorite);
+                String list = favs.getString("favs", "");
+                if (list.contains(s.get(pos) + "||")) {
+                    fav.setImageResource(R.mipmap.fullstar);
+                } else {
+                    fav.setImageResource(R.mipmap.emptystar);
+                }
+                fav.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        toggleFav(fav, s.get(pos));
+                    }
+                });
+            }
+            else if (pos < folderLists.size() + fileLists.size()) {
+                v = getLayoutInflater().inflate(R.layout.list_file, null);
+                final ImageView fav = (ImageView) v.findViewById(R.id.favorite);
+                String list = favs.getString("favs", "");
+                if (list.contains(s.get(pos) + "||")) {
+                    fav.setImageResource(R.mipmap.fullstar);
+                } else {
+                    fav.setImageResource(R.mipmap.emptystar);
+                }
+                fav.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        toggleFav(fav, s.get(pos));
+                    }
+                });
+            }
             TextView lbl = (TextView) v.findViewById(R.id.note);
             lbl.setText(s.get(pos));
-
             return v;
+        }
+
+        public void toggleFav(ImageView fav, String s){
+            String list = favs.getString("favs", "");
+            SharedPreferences.Editor edit = favs.edit();
+            if (fav.getDrawable().getConstantState().equals(getResources().getDrawable(R.mipmap.fullstar).getConstantState())) {
+                fav.setImageResource(R.mipmap.emptystar);
+                list = list.replace(s + "||", "");
+            } else {
+                fav.setImageResource(R.mipmap.fullstar);
+                list += s + "||";
+            }
+            edit.putString("favs", list);
+            edit.commit();
         }
 
     }
@@ -1064,7 +1113,7 @@ public class MainActivity extends AppCompatActivity implements MenuFragment.OnCl
         {
             hideFragment();
             menu.setVisibility(View.VISIBLE);
-            add.show();
+            add.setVisibility(View.VISIBLE);
             search.setVisibility(View.VISIBLE);
             fragmentManager.beginTransaction().
                     setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out).

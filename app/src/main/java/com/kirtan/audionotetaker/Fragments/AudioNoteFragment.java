@@ -65,7 +65,7 @@ public class AudioNoteFragment extends Fragment {
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         v = inflater.inflate(R.layout.fragment_audionote, container, false);
-        myPrefs = v.getContext().getSharedPreferences("myPrefs", Context.MODE_PRIVATE);
+        myPrefs = v.getContext().getSharedPreferences("settings", Context.MODE_PRIVATE);
         editor = myPrefs.edit();
         checkBox = (CheckBox) v.findViewById(R.id.audio);
         input = (EditText) v.findViewById(R.id.input);

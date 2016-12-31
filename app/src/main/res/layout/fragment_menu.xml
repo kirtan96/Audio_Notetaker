@@ -1,87 +1,130 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent" android:layout_height="match_parent"
     android:focusable="false"
-    android:background="#b1000000"
+    android:background="#F2F2F2"
     android:id="@+id/menuLayout">
+
     <RelativeLayout
-        android:layout_width="220dp"
         android:layout_height="match_parent"
+        android:background="@color/colorPrimaryDark"
+        android:layout_width="250dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentBottom="true"
-        android:background="#c080cbc4">
+        android:layout_alignParentStart="true">
+
+        <RelativeLayout
+            android:layout_width="250dp"
+            android:background="@color/colorPrimary"
+            android:id="@+id/frameLayout2"
+            android:layout_height="150dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true">
+
+            <TextView
+                android:text="Audio Note"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView3"
+                android:textAlignment="center"
+                android:textSize="40sp"
+                android:textColor="#fff"
+                android:fontFamily="sans-serif" />
+
+            <ImageView
+                app:srcCompat="@mipmap/mp3"
+                android:id="@+id/imageView2"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_below="@+id/textView3"
+                android:layout_toLeftOf="@+id/imageView3"
+                android:layout_toStartOf="@+id/imageView3"
+                android:layout_marginRight="33dp"
+                android:layout_marginEnd="33dp" />
+
+            <ImageView
+                android:layout_height="80dp"
+                app:srcCompat="@mipmap/mic"
+                android:id="@+id/imageView3"
+                android:layout_width="50dp"
+                android:layout_marginRight="56dp"
+                android:layout_marginEnd="56dp"
+                android:layout_below="@+id/textView3"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true" />
+        </RelativeLayout>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Audio Files"
             android:id="@+id/odaudioFiles"
-            android:textStyle="bold"
-            android:textColor="#fff"
-            android:textSize="18dp"
-            android:background="@color/accent_material_dark"
+            android:textColor="#000"
+            android:background="#fff"
             android:paddingRight="11dp"
             android:paddingLeft="11dp"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
             android:layout_below="@+id/odallfiles"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
+            android:layout_alignParentStart="true"
+            android:textAllCaps="false"
+            android:padding="10dp"
+            android:layout_marginBottom="1dp"
+            android:elevation="22dp"
+            android:textSize="22sp" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/odrecordings"
             android:text="Recordings"
-            android:textStyle="bold"
-            android:textColor="#fff"
-            android:textSize="18dp"
+            android:textColor="#000"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:paddingBottom="10dp"
-            android:background="@android:color/holo_red_light"
+            android:background="#fff"
             android:paddingTop="10dp"
             android:layout_below="@+id/odaudioFiles"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
+            android:layout_alignParentStart="true"
+            android:padding="10dp"
+            android:elevation="22dp"
+            android:textSize="22sp"
+            android:layout_marginBottom="1dp" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="All Files"
             android:id="@+id/odallfiles"
-            android:background="@android:color/holo_orange_light"
-            android:textStyle="bold"
-            android:textSize="18dp"
-            android:textColor="#fff"
+            android:background="#fff"
+            android:textColor="#000"
             android:padding="10dp"
+            android:textAllCaps="false"
+            android:elevation="22dp"
+            android:layout_below="@+id/frameLayout2"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
+            android:layout_alignParentStart="true"
+            android:textSize="22sp"
+            android:layout_marginBottom="1dp" />
 
-        <Button
+        <TextView
+            android:text="Favorites"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Rate Audio Note"
-            android:id="@+id/rateButton"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="48dp"
-            android:background="@android:color/holo_green_light"
-            android:textColor="#fff"
-            android:textSize="18dp" />
-
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Get Audio Note Pro!"
-            android:id="@+id/anpButton"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:background="@android:color/holo_blue_light"
-            android:textColor="#fff"
-            android:textSize="16dp" />
+            android:id="@+id/favs"
+            android:layout_below="@+id/odrecordings"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:textSize="22sp"
+            android:fontFamily="sans-serif"
+            android:textColor="#000"
+            android:background="#fff"
+            android:padding="10dp" />
 
     </RelativeLayout>
 </RelativeLayout>

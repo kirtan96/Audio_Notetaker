@@ -19,6 +19,8 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -37,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 public class SearchResult extends AppCompatActivity implements AudioNoteFragment.OnClickedListener{
 
     public static MediaPlayer mediaPlayer;
-    TextView currentTime,finalTime;
+    TextView currentTime,finalTime, title;
     SeekBar seekBar;
     ListView note;
     double startTime;
@@ -52,15 +54,17 @@ public class SearchResult extends AppCompatActivity implements AudioNoteFragment
     boolean fragmentVisible;
     AudioNoteFragment audioNoteFragment;
     FragmentManager fragmentManager;
-    FloatingActionButton add, pause, skipLeft, skipRight;
+    FloatingActionButton pause, skipLeft, skipRight;
+    Button add;
     Drawable pau;
+    ImageView back;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_result);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+
         pause = (FloatingActionButton) findViewById(R.id.pauseButton);
         currentTime = (TextView) findViewById(R.id.currentTime);
         finalTime = (TextView) findViewById(R.id.finalTime);
@@ -76,7 +80,16 @@ public class SearchResult extends AppCompatActivity implements AudioNoteFragment
         Player.random = "sr";
         pau = getResources().getDrawable(android.R.drawable.ic_media_pause);
 
-        add = (FloatingActionButton) findViewById(R.id.fab);
+        add = (Button) findViewById(R.id.fab);
+        back = (ImageView) findViewById(R.id.back);
+        title = (TextView) findViewById(R.id.title);
+
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         pause.setOnClickListener(new View.OnClickListener() {
@@ -205,7 +218,7 @@ public class SearchResult extends AppCompatActivity implements AudioNoteFragment
         currentNotePos = -1;
         Intent intent = getIntent();
         String file = intent.getStringExtra("file");
-        setTitle(file);
+        title.setText(file);
         Uri myUri = Uri.parse(myPrefs.getString(file, ""));
         search = intent.getStringExtra("search");
         uri = myUri.toString();

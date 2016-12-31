@@ -8,7 +8,7 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:context=".Activities.Player"
         tools:showIn="@layout/activity_player"
-        android:background="#F9F9E2">
+        android:background="#F2F2F2">
 
 
     <RelativeLayout
@@ -17,7 +17,7 @@
         android:id="@+id/pLayout"
         android:layout_alignParentTop="true"
         android:paddingBottom="10dp"
-        android:background="@color/accent_material_dark">
+        android:background="@drawable/border">
 
         <TextView
             android:layout_width="wrap_content"
@@ -26,8 +26,8 @@
             android:layout_alignLeft="@+id/seekBar"
             android:id="@+id/currentTime"
             android:layout_marginBottom="10dp"
-            android:textColor="#fff"
-            android:textStyle="bold|italic" />
+            android:textColor="@android:color/holo_blue_dark"
+            android:textStyle="bold" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -36,8 +36,8 @@
             android:layout_below="@id/seekBar"
             android:layout_alignRight="@id/seekBar"
             android:layout_marginBottom="10dp"
-            android:textColor="#fff"
-            android:textStyle="bold|italic" />
+            android:textColor="@android:color/holo_blue_dark"
+            android:textStyle="bold" />
 
         <SeekBar
             android:layout_width="match_parent"
@@ -87,36 +87,39 @@
         android:layout_height="wrap_content"
         android:id="@+id/nLayout"
         android:layout_below="@+id/pLayout"
-        android:layout_marginBottom="10dp">
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
 
         <ListView
-            android:layout_width="match_parent"
-            android:layout_height="fill_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:id="@+id/note"
             android:textColor="@android:color/black"
             android:textSize="16dp"
-            android:background="#F9F9E2"
-            android:layout_below="@+id/noteText"
+            android:background="#F2F2F2"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
             android:longClickable="true"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_alignParentBottom="true" />
+            android:layout_marginTop="5dp"
+            android:divider="#00000000" />
 
-        <TextView
+        <Button
+            android:text="+"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Notes:"
-            android:textColor="@android:color/black"
-            android:textSize="20dp"
-            android:id="@+id/noteText"
-            android:layout_alignParentTop="true"
+            android:id="@+id/fab"
+            android:textAllCaps="false"
+            android:textSize="40sp"
+            android:textColor="#fff"
+            android:background="@color/colorPrimary"
+            android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:layout_marginLeft="10dp" />
+            android:layout_marginBottom="16dp" />
+
     </RelativeLayout>
+
+
 
 
 </RelativeLayout>

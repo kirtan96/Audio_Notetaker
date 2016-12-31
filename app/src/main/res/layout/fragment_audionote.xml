@@ -13,7 +13,7 @@
         android:id="@+id/relativeLayout"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:background="#aafbf2">
+        android:background="#C2EDD1">
 
         <EditText
             android:layout_width="fill_parent"
@@ -24,7 +24,7 @@
             android:layout_toStartOf="@+id/ok"
             android:layout_alignParentTop="true"
             android:id="@+id/input"
-            android:background="#fff"
+            android:background="@android:drawable/editbox_background_normal"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginTop="10dp"

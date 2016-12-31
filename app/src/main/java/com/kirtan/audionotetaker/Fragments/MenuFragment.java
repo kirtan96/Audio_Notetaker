@@ -3,15 +3,13 @@ package com.kirtan.audionotetaker.Fragments;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -23,8 +21,7 @@ import com.kirtan.audionotetaker.R;
 public class MenuFragment extends Fragment {
     private OnClickedListener mCallback;
     private View v;
-    private Button rate, getanp;
-    private TextView odallfiles, odaudiofiles, odrec, odyt, callfiles, caudiofiles, crec, cyt, onCloud;
+    private TextView odallfiles, odaudiofiles, odrec, odfavs;
     float x1,x2;
     float y1, y2;
 
@@ -63,12 +60,16 @@ public class MenuFragment extends Fragment {
         odallfiles = (TextView) v.findViewById(R.id.odallfiles);
         odaudiofiles = (TextView) v.findViewById(R.id.odaudioFiles);
         odrec = (TextView) v.findViewById(R.id.odrecordings);
-        rate = (Button) v.findViewById(R.id.rateButton);
-        getanp = (Button) v.findViewById(R.id.anpButton);
+        odfavs = (TextView) v.findViewById(R.id.favs);
+
+        switchBack(odallfiles);
+
+        //TODO: Finish the handling case of different options below (onMenuOptionClicked)
 
         odallfiles.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                switchBack(odallfiles);
                 mCallback.onMenuOptionClicked("All Files");
             }
         });
@@ -76,6 +77,7 @@ public class MenuFragment extends Fragment {
         odaudiofiles.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                switchBack(odaudiofiles);
                 mCallback.onMenuOptionClicked("Audio Files");
             }
         });
@@ -83,25 +85,16 @@ public class MenuFragment extends Fragment {
         odrec.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                switchBack(odrec);
                 mCallback.onMenuOptionClicked("Recorded Files");
             }
         });
 
-        rate.setOnClickListener(new View.OnClickListener() {
+        odfavs.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse("market://details?id=com.kirtan.audionotetaker"));
-                startActivity(intent);
-            }
-        });
-
-        getanp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse("market://details?id=com.kirtan.audionotepro"));
-                startActivity(intent);
+                switchBack(odfavs);
+                mCallback.onMenuOptionClicked("Favorites");
             }
         });
 
@@ -136,5 +129,13 @@ public class MenuFragment extends Fragment {
         });
 
         return v;
+    }
+
+    private void switchBack(TextView tv){
+        odallfiles.setBackgroundColor(Color.WHITE);
+        odaudiofiles.setBackgroundColor(Color.WHITE);
+        odrec.setBackgroundColor(Color.WHITE);
+        odfavs.setBackgroundColor(Color.WHITE);
+        tv.setBackgroundResource(R.drawable.border);
     }
 }
