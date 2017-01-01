@@ -96,7 +96,6 @@ public class MainActivity extends AppCompatActivity implements MenuFragment.OnCl
     }
 
     //TODO: Check if deleting or renaming the file name affects the favs or not
-    //TODO: Also make a diagram of the sharedPreference DB to understand the treemap
 
     private void accessComponents() {
         assert add != null;

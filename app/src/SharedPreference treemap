@@ -1,0 +1,23 @@
+myPrefs
+    myFolders
+        folderName (FOLDER)\nfolderName (FOLDER)\n...
+            fileName\nfileName\n...
+                uri
+                    note/////note/////...
+    myFiles
+        fileName\nfileName\n...
+            uri
+                note/////note/////...
+    recordingsInt
+        0|1|2|3|...(int)
+
+settings
+    checkBox
+        true|false
+    TODO: Add menu in the settings like below
+    menu
+        All Files|Audio Files|Recordings|Favorites
+
+favorites
+    favs
+        fileName||fileName||...
