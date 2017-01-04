@@ -15,7 +15,7 @@
         android:layout_height="match_parent"
         android:id="@+id/rv2"
         android:layout_below="@+id/rv"
-        android:padding="10dp">
+        >
 
         <TextView
             android:layout_width="match_parent"
@@ -34,7 +34,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/listView"
-            android:layout_below="@+id/rv"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:divider="#00000000" />
@@ -74,8 +73,7 @@
             android:layout_height="wrap_content"
             android:background="@android:drawable/ic_notification_clear_all"
             android:layout_marginTop="10dp"
-            android:backgroundTint="@color/colorAccent"
-            android:backgroundTintMode="src_over" />
+            android:backgroundTint="@color/colorAccent" />
 
     </RelativeLayout>
 

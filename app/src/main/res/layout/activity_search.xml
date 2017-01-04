@@ -13,8 +13,8 @@
         android:theme="@style/AppTheme.AppBarOverlay">
 
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:id="@+id/back"
             android:layout_gravity="top|start"
             android:src="@drawable/abc_ic_ab_back_mtrl_am_alpha"

@@ -3,14 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:weightSum="1">
+    android:layout_height="match_parent">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:drawable/editbox_background_normal"
-        android:paddingBottom="5dp">
+        android:paddingBottom="10dp"
+        android:paddingTop="10dp">
         <ImageView
             android:layout_width="30dp"
             android:layout_height="30dp"
@@ -42,7 +42,8 @@
             android:textSize="20dp"
             android:layout_toLeftOf="@+id/favorite"
             android:layout_toRightOf="@+id/imageView"
-            android:layout_marginTop="10dp"/>
+            android:layout_marginTop="8dp"
+            android:layout_marginRight="5dp"/>
     </RelativeLayout>
 
 </LinearLayout>

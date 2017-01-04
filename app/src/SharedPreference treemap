@@ -14,7 +14,6 @@ myPrefs
 settings
     checkBox
         true|false
-    TODO: Add menu in the settings like below
     menu
         All Files|Audio Files|Recordings|Favorites
 

@@ -3,7 +3,7 @@ package com.kirtan.audionotetaker.Fragments;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
-import android.graphics.Color;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -24,6 +24,8 @@ public class MenuFragment extends Fragment {
     private TextView odallfiles, odaudiofiles, odrec, odfavs;
     float x1,x2;
     float y1, y2;
+    private SharedPreferences settings;
+    private SharedPreferences.Editor editor;
 
     public interface OnClickedListener {
         void onCloseClicked();
@@ -61,10 +63,10 @@ public class MenuFragment extends Fragment {
         odaudiofiles = (TextView) v.findViewById(R.id.odaudioFiles);
         odrec = (TextView) v.findViewById(R.id.odrecordings);
         odfavs = (TextView) v.findViewById(R.id.favs);
+        settings = v.getContext().getSharedPreferences("settings", Context.MODE_PRIVATE);
+        editor = settings.edit();
 
-        switchBack(odallfiles);
-
-        //TODO: Finish the handling case of different options below (onMenuOptionClicked)
+        switchBack(getMenuSelected());
 
         odallfiles.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,7 +88,7 @@ public class MenuFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 switchBack(odrec);
-                mCallback.onMenuOptionClicked("Recorded Files");
+                mCallback.onMenuOptionClicked("Recordings");
             }
         });
 
@@ -131,11 +133,29 @@ public class MenuFragment extends Fragment {
         return v;
     }
 
+    private TextView getMenuSelected() {
+        String s = settings.getString("menu", "All Files");
+        if(s.equals("All Files")){
+            return odallfiles;
+        }
+        else if(s.equals("Audio Files")){
+            return odaudiofiles;
+        }
+        else if(s.equals("Recordings")){
+            return odrec;
+        }
+        else{
+            return odfavs;
+        }
+    }
+
     private void switchBack(TextView tv){
-        odallfiles.setBackgroundColor(Color.WHITE);
-        odaudiofiles.setBackgroundColor(Color.WHITE);
-        odrec.setBackgroundColor(Color.WHITE);
-        odfavs.setBackgroundColor(Color.WHITE);
+        odallfiles.setBackgroundResource(R.drawable.border_3);
+        odaudiofiles.setBackgroundResource(R.drawable.border_3);
+        odrec.setBackgroundResource(R.drawable.border_3);
+        odfavs.setBackgroundResource(R.drawable.border_3);
         tv.setBackgroundResource(R.drawable.border);
+        editor.putString("menu", tv.getText().toString());
+        editor.apply();
     }
 }

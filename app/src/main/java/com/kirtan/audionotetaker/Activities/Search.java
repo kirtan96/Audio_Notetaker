@@ -68,6 +68,7 @@ public class Search extends AppCompatActivity {
                 key = new ArrayList<>();
                 fileAdapter = new FileAdapter(key);
                 listView.setAdapter(fileAdapter);
+                nrf.setVisibility(View.INVISIBLE);
             }
         });
 
