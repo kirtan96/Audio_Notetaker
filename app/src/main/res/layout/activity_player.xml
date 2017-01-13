@@ -44,7 +44,9 @@
                 android:layout_gravity="top|end"
                 android:background="@android:drawable/ic_menu_share"
                 android:backgroundTint="#fff"
+                android:layout_marginRight="5dp"
                 android:src="@android:drawable/ic_menu_share" />
+
         </android.support.v7.widget.Toolbar>
 
     </android.support.design.widget.AppBarLayout>

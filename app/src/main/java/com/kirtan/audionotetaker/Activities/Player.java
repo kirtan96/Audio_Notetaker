@@ -77,8 +77,8 @@ public class Player extends AppCompatActivity implements AudioNoteFragment.OnCli
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-
-        //TODO: Figure out why the menu option does not show up
+        setSupportActionBar(toolbar);
+        setTitle("");
 
         shareButton = (ImageView) findViewById(R.id.shareButton);
         pause = (FloatingActionButton) findViewById(R.id.pauseButton);

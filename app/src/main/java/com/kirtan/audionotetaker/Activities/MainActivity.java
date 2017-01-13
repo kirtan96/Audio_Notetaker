@@ -1,6 +1,7 @@
 package com.kirtan.audionotetaker.Activities;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.content.Context;
@@ -9,6 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -49,9 +51,9 @@ public class MainActivity extends AppCompatActivity implements MenuFragment.OnCl
     String uri = "", file = "";
     SharedPreferences myPrefs, favs, settings;
     SharedPreferences.Editor editor,favEditior, setEditor;
-    ImageView back, favorite, menu;
+    ImageView back, favorite, menu, search;
     TextView title;
-    Button search, add;
+    Button add;
     FileAdapter adp;
     public View row;
     ArrayList<String> folderLists, fileLists, recordLists, noteList;
@@ -65,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements MenuFragment.OnCl
     float x1,y1,x2,y2;
     private MenuFragment menuFragment;
     private FragmentManager fragmentManager;
+    private boolean isMenuOpen;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +75,8 @@ public class MainActivity extends AppCompatActivity implements MenuFragment.OnCl
         setContentView(R.layout.activity_main);
 
         add = (Button) findViewById(R.id.fab);
-        search = (Button) findViewById(R.id.search_button);
+        add.setVisibility(View.VISIBLE);
+        search = (ImageView) findViewById(R.id.search_button);
         back = (ImageView) findViewById(R.id.back);
         back.setVisibility(View.INVISIBLE);
         note = (ListView) findViewById(R.id.listView2);
@@ -91,6 +95,7 @@ public class MainActivity extends AppCompatActivity implements MenuFragment.OnCl
         menu = (ImageView) findViewById(R.id.menu_button);
         favorite = (ImageView) findViewById(R.id.favorite);
         isFolderOpen = false;
+        isMenuOpen = false;
 
         if(checkAndRequestPermissions()) {
             accessComponents();
@@ -100,6 +105,7 @@ public class MainActivity extends AppCompatActivity implements MenuFragment.OnCl
     private void accessComponents() {
         assert add != null;
         add.setOnClickListener(new View.OnClickListener() {
+            @TargetApi(Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void onClick(final View v) {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -111,12 +117,10 @@ public class MainActivity extends AppCompatActivity implements MenuFragment.OnCl
                                 public void onClick(DialogInterface dialog, int which) {
                                     if (which == 2) {
                                         final AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
-                                        alertDialog.setTitle("Folder");
-                                        alertDialog.setMessage("Add a Folder:");
-
-
+                                        alertDialog.setTitle("Add a Folder:");
                                         final EditText input = new EditText(MainActivity.this);
                                         input.setSingleLine();
+                                        input.setBackgroundResource(android.R.drawable.editbox_background_normal);
                                         input.setHint("Name of the folder");
                                         final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                                         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
@@ -125,7 +129,6 @@ public class MainActivity extends AppCompatActivity implements MenuFragment.OnCl
                                                 LinearLayout.LayoutParams.MATCH_PARENT);
                                         input.setLayoutParams(lp);
                                         alertDialog.setView(input);
-
                                         alertDialog.setPositiveButton("Add",
                                                 new DialogInterface.OnClickListener() {
                                                     public void onClick(DialogInterface dialog, int which) {
@@ -153,6 +156,7 @@ public class MainActivity extends AppCompatActivity implements MenuFragment.OnCl
                                                             Snackbar snackbar = Snackbar.make(v ,
                                                                     "Cannot create a folder with this name!",
                                                                     Snackbar.LENGTH_LONG);
+                                                            snackbar.show();
                                                             /*Toast.makeText(MainActivity.this,
                                                                     "Cannot create a folder with this name!",
                                                                     Toast.LENGTH_LONG).show();*/
@@ -174,10 +178,10 @@ public class MainActivity extends AppCompatActivity implements MenuFragment.OnCl
                                     } else if (which == 1) {
                                         final AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
                                         alertDialog.setTitle("Recording File");
-                                        alertDialog.setMessage("File Name:");
 
                                         final EditText input = new EditText(MainActivity.this);
                                         input.setSingleLine();
+                                        input.setBackgroundResource(android.R.drawable.editbox_background_normal);
                                         input.setHint("Name of the file");
                                         final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                                         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
@@ -230,10 +234,10 @@ public class MainActivity extends AppCompatActivity implements MenuFragment.OnCl
                             } else if (which == 1) {
                                 final AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
                                 alertDialog.setTitle("Recording File");
-                                alertDialog.setMessage("File Name:");
 
                                 final EditText input = new EditText(MainActivity.this);
                                 input.setSingleLine();
+                                input.setBackgroundResource(android.R.drawable.editbox_background_normal);
                                 input.setHint("Name of the file");
                                 final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
@@ -350,9 +354,14 @@ public class MainActivity extends AppCompatActivity implements MenuFragment.OnCl
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                title.setText("All Notes");
-                menu.setVisibility(View.VISIBLE);
-                update();
+                if(!isMenuOpen) {
+                    title.setText("All Notes");
+                    menu.setVisibility(View.VISIBLE);
+                    update();
+                }
+                else{
+                    hideFragment();
+                }
             }
         });
         search.setOnClickListener(new View.OnClickListener() {
@@ -413,9 +422,9 @@ public class MainActivity extends AppCompatActivity implements MenuFragment.OnCl
                 if (isUniqueAudio(uri)) {
                     AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
                     alertDialog.setTitle("Create");
-                    alertDialog.setMessage("Name the file:");
                     final EditText input = new EditText(MainActivity.this);
                     input.setSingleLine();
+                    input.setBackgroundResource(android.R.drawable.editbox_background_normal);
                     input.setHint("Name of the file");
                     final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
@@ -491,6 +500,8 @@ public class MainActivity extends AppCompatActivity implements MenuFragment.OnCl
     }
 
     private void showFragment() {
+        isMenuOpen = true;
+        back.setVisibility(View.VISIBLE);
         menu.setVisibility(View.INVISIBLE);
         search.setVisibility(View.INVISIBLE);
         add.setVisibility(View.INVISIBLE);
@@ -503,6 +514,8 @@ public class MainActivity extends AppCompatActivity implements MenuFragment.OnCl
     }
 
     private void hideFragment() {
+        isMenuOpen = false;
+        back.setVisibility(View.INVISIBLE);
         menu.setVisibility(View.VISIBLE);
         add.setVisibility(View.VISIBLE);
         search.setVisibility(View.VISIBLE);
@@ -526,15 +539,16 @@ public class MainActivity extends AppCompatActivity implements MenuFragment.OnCl
         }
         else if(s.equals("Audio Files")){
             getAudioFiles();
-
+            updateListView();
         }
         else if(s.equals("Recordings")){
             getRecordedFiles();
+            updateListView();
         }
         else{
             getFavoriteFiles();
+            updateListView();
         }
-        updateListView();
     }
 
     private void getAudioFiles() {
@@ -818,6 +832,7 @@ public class MainActivity extends AppCompatActivity implements MenuFragment.OnCl
         builder.setCancelable(false);
         final EditText input = new EditText(MainActivity.this);
         input.setSingleLine();
+        input.setBackgroundResource(android.R.drawable.editbox_background_normal);
         input.setHint("Name of the file");
         final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);

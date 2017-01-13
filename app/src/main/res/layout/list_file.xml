@@ -9,24 +9,25 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:drawable/editbox_background_normal"
-        android:layout_margin="0dp">
+        android:paddingTop="10dp">
+
         <ImageView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="45dp"
             android:id="@+id/imageView"
             android:src="@mipmap/mp3"
-            android:layout_marginRight="10dp" />
+            android:layout_marginRight="10dp"
+            android:layout_height="45dp" />
 
         <ImageView
             app:srcCompat="@mipmap/emptystar"
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="8dp"
             android:layout_marginRight="10dp"
             android:id="@+id/favorite"
             android:clickable="true"
-            android:layout_width="30dp"
+            android:layout_width="25dp"
             android:layout_height="25dp" />
 
         <TextView
@@ -36,7 +37,7 @@
             android:textSize="20dp"
             android:layout_toLeftOf="@+id/favorite"
             android:layout_toRightOf="@+id/imageView"
-            android:layout_marginTop="12dp" />
+            android:layout_marginTop="10dp" />
 
 
     </RelativeLayout>
