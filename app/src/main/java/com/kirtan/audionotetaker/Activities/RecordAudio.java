@@ -363,7 +363,7 @@ public class RecordAudio extends AppCompatActivity implements NoteFragment.OnCli
         @Override
         public View getView(int pos, View v, ViewGroup arg2)
         {
-            v = getLayoutInflater().inflate(R.layout.list_player_current, null);
+            v = getLayoutInflater().inflate(R.layout.list_player, null);
 
             TextView lbl = (TextView) v.findViewById(R.id.note);
             TextView ts = (TextView) v.findViewById(R.id.timeStamp);
