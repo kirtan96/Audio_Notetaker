@@ -99,7 +99,8 @@ public class SearchResult extends AppCompatActivity implements AudioNoteFragment
             }
 
             private void toggleText() {
-                if (pause.getDrawable().getConstantState().equals(pau.getConstantState())) {
+                if (pause.getDrawable().getConstantState().equals(pau.getConstantState()) ||
+                        mediaPlayer.isPlaying()) {
                     pause.setImageResource(android.R.drawable.ic_media_play);
                     mediaPlayer.pause();
                 } else {
